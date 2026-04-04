@@ -3,6 +3,14 @@ const supabaseUrl = 'https://rrbbbhvethxtbvupolqo.supabase.co';
 const supabaseKey = 'sb_publishable_5zK8zx6xnGkD_-QIoOGZAg_5uBOEVv2';
 const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
+// Helper for XSS Prevention
+function escapeHTML(str) {
+    if (typeof str !== 'string') return str;
+    return str.replace(/[&<>"']/g, m => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    })[m]);
+}
+
 // Data store
 let dashboardData = {
     employees: [],
@@ -179,16 +187,16 @@ function renderEmployeeTable() {
             <tr>
                 <td>
                     <div class="employee-col">
-                        <img src="${photo}" alt="${emp.first_name}">
+                        <img src="${photo}" alt="${escapeHTML(emp.first_name)}">
                         <div>
-                            <span class="name">${emp.first_name} ${emp.last_name || ''}</span>
-                            <span class="email">${email}</span>
+                            <span class="name">${escapeHTML(emp.first_name)} ${escapeHTML(emp.last_name || '')}</span>
+                            <span class="email">${escapeHTML(email)}</span>
                         </div>
                     </div>
                 </td>
-                <td>${emp.emp_id || '-'}</td>
-                <td>${emp.department || 'Unassigned'}</td>
-                <td>${emp.designation || 'Employee'}</td>
+                <td>${escapeHTML(emp.emp_id || '-')}</td>
+                <td>${escapeHTML(emp.department || 'Unassigned')}</td>
+                <td>${escapeHTML(emp.designation || 'Employee')}</td>
                 <td><span class="status-badge status-active">Active</span></td>
                 <td>
                     <div class="action-btns">
@@ -236,8 +244,8 @@ function renderPendingLeaves() {
                     <div class="list-info">
                         <img src="${photo}" alt="user">
                         <div class="list-text">
-                            <h5>${emp?.first_name || 'Unknown'} ${emp?.last_name || ''}</h5>
-                            <p>${leaveName} (${duration} Day${duration > 1 ? 's' : ''})</p>
+                            <h5>${escapeHTML(emp?.first_name || 'Unknown')} ${escapeHTML(emp?.last_name || '')}</h5>
+                            <p>${escapeHTML(leaveName)} (${duration} Day${duration > 1 ? 's' : ''})</p>
                         </div>
                     </div>
                     <div class="action-btns">
@@ -560,8 +568,8 @@ function renderVerificationTable() {
                     <div class="employee-col">
                         <img src="${emp.profile_photo_url || 'https://i.pravatar.cc/150?u=' + emp.id}" alt="User">
                         <div>
-                            <span class="name">${emp.first_name} ${emp.last_name || ''}</span>
-                            <span class="email">${emp.emp_id || 'ID Pending'}</span>
+                            <span class="name">${escapeHTML(emp.first_name)} ${escapeHTML(emp.last_name || '')}</span>
+                            <span class="email">${escapeHTML(emp.emp_id || 'ID Pending')}</span>
                         </div>
                     </div>
                 </td>

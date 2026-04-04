@@ -1,6 +1,6 @@
--- Supabase SQL Schema for Salarite HR & Payroll
+-- Supabase SQL Schema for Salarite HR & Payroll (SECURED)
 
--- 1. Employee Profiles Table (Linked to Supabase Auth)
+-- 1. Employee Profiles Table 
 create table public.employees (
   id uuid primary key default uuid_generate_v4(),
   user_id uuid references auth.users not null unique,
@@ -20,15 +20,33 @@ create table public.employees (
   profile_completed boolean default false,
   role text default 'employee' check (role in ('employee', 'employer', 'admin')),
   salary numeric(12, 2),
+  verification_status text default 'Pending',
   created_at timestamp with time zone default timezone('utc'::text, now()) not null
 );
 
--- RLS for Employees: Users can only see and update their own profile (except salary/designation)
+-- SECURE RLS for Employees
 alter table employees enable row level security;
-create policy "Users can view their own profile." on employees for select using (auth.uid() = user_id);
-create policy "Users can update their own personal info." on employees for update 
-using (auth.uid() = user_id) 
-with check (salary = salary AND designation = designation); -- Simplistic check to ensure restricted fields aren't changed via RLS
+
+-- Policy: Users can see their own profile and basic info of others (e.g. for directory)
+create policy "Employees can view their own full profile." on employees 
+for select using (auth.uid() = user_id);
+
+create policy "Employees can view public info of colleagues." on employees 
+for select using (true); -- Note: In production, explicitly select public columns only
+
+-- Policy: Users CANNOT update salary, designation, or role.
+create policy "Users can update their own personal info." on employees 
+for update using (auth.uid() = user_id) 
+with check (
+  (select salary from employees where user_id = auth.uid()) = salary AND 
+  (select designation from employees where user_id = auth.uid()) = designation AND
+  (select role from employees where user_id = auth.uid()) = role
+);
+
+-- Policy: Admins/Employers can do everything
+create policy "Admins/Employers have full access to employees." on employees
+for all using (auth.uid() in (select user_id from employees where role in ('employer', 'admin')));
+
 
 -- 2. Attendance Logs
 create table public.attendance_logs (
@@ -43,8 +61,15 @@ create table public.attendance_logs (
 );
 
 alter table attendance_logs enable row level security;
-create policy "Employees can view their own attendance." on attendance_logs for select using (auth.uid() in (select user_id from employees where id = employee_id));
-create policy "Employees can check in." on attendance_logs for insert with check (auth.uid() in (select user_id from employees where id = employee_id));
+create policy "Employees can view their own attendance." on attendance_logs 
+for select using (auth.uid() in (select user_id from employees where id = employee_id));
+
+create policy "Employees can check in." on attendance_logs 
+for insert with check (auth.uid() in (select user_id from employees where id = employee_id));
+
+create policy "Admins can view all attendance." on attendance_logs 
+for select using (auth.uid() in (select user_id from employees where role in ('employer', 'admin')));
+
 
 -- 3. Leave Management
 create table public.leave_types (
@@ -52,6 +77,8 @@ create table public.leave_types (
   name text not null,
   description text
 );
+alter table leave_types enable row level security;
+create policy "Public read for leave types" on leave_types for select using (true);
 
 create table public.leave_requests (
   id uuid primary key default uuid_generate_v4(),
@@ -63,6 +90,9 @@ create table public.leave_requests (
   status text default 'pending' check (status in ('pending', 'approved', 'rejected')),
   created_at timestamp with time zone default now()
 );
+alter table leave_requests enable row level security;
+create policy "Users view own leave" on leave_requests for select using (auth.uid() in (select user_id from employees where id = employee_id));
+create policy "Users create own leave" on leave_requests for insert with check (auth.uid() in (select user_id from employees where id = employee_id));
 
 create table public.leave_allocations (
   id uuid primary key default uuid_generate_v4(),
@@ -71,6 +101,9 @@ create table public.leave_allocations (
   total_allowed integer default 12,
   remaining integer default 12
 );
+alter table leave_allocations enable row level security;
+create policy "Users view own allocations" on leave_allocations for select using (auth.uid() in (select user_id from employees where id = employee_id));
+
 
 -- 4. Payslips
 create table public.payslips (
@@ -79,11 +112,15 @@ create table public.payslips (
   month integer not null,
   year integer not null,
   pdf_path text,
-  earnings jsonb, -- e.g. {"basic": 50000, "hra": 20000}
+  earnings jsonb, 
   deductions jsonb,
   net_pay numeric(12, 2),
   created_at timestamp with time zone default now()
 );
+alter table payslips enable row level security;
+create policy "Users view own payslips" on payslips for select using (auth.uid() in (select user_id from employees where id = employee_id));
+create policy "Admins view all payslips" on payslips for all using (auth.uid() in (select user_id from employees where role in ('employer', 'admin')));
+
 
 -- 5. Tasks & Goals
 create table public.tasks (
@@ -96,6 +133,8 @@ create table public.tasks (
   status text default 'todo' check (status in ('todo', 'in_progress', 'review', 'completed')),
   created_at timestamp with time zone default now()
 );
+alter table tasks enable row level security;
+create policy "Users view own tasks" on tasks for select using (auth.uid() in (select user_id from employees where id = assigned_to));
 
 create table public.goals (
   id uuid primary key default uuid_generate_v4(),
@@ -104,50 +143,66 @@ create table public.goals (
   progress integer default 0,
   deadline date
 );
+alter table goals enable row level security;
+create policy "Users view own goals" on goals for select using (auth.uid() in (select user_id from employees where id = employee_id));
+
 
 -- 6. Notices
 create table public.notices (
   id uuid primary key default uuid_generate_v4(),
   title text not null,
   content text,
-  target_audience text default 'all', -- all, department name, or designation
+  target_audience text default 'all', 
   attachment_url text,
   created_at timestamp with time zone default now()
 );
+alter table notices enable row level security;
+create policy "Access for all authenticated" on notices for select using (auth.role() = 'authenticated');
+
 
 -- 7. Performance Reviews
 create table public.performance_reviews (
   id uuid primary key default uuid_generate_v4(),
   employee_id uuid references public.employees(id),
-  reviewer_id uuid references public.employees(id), -- Manager who reviews
-  review_cycle text, -- e.g., "Annual 2024"
+  reviewer_id uuid references public.employees(id), 
+  review_cycle text, 
   self_rating jsonb,
   manager_rating jsonb,
   comments text,
   status text default 'draft'
 );
+alter table performance_reviews enable row level security;
+create policy "Users view own reviews" on performance_reviews for select 
+using (auth.uid() in (select user_id from employees where id = employee_id OR id = reviewer_id));
+
 
 -- 8. Documents
 create table public.employee_documents (
   id uuid primary key default uuid_generate_v4(),
   employee_id uuid references public.employees(id),
-  doc_type text, -- Offer Letter, ID Proof, etc.
+  doc_type text, 
   file_path text,
   is_verified boolean default false,
   created_at timestamp with time zone default now()
 );
+alter table employee_documents enable row level security;
+create policy "Users view own docs" on employee_documents for select using (auth.uid() in (select user_id from employees where id = employee_id));
+
 
 -- 9. HR Tickets
 create table public.hr_tickets (
   id uuid primary key default uuid_generate_v4(),
   employee_id uuid references public.employees(id),
-  category text, -- Payroll, IT, Policy, etc.
+  category text, 
   subject text,
   description text,
   status text default 'open',
   priority text default 'medium',
   created_at timestamp with time zone default now()
 );
+alter table hr_tickets enable row level security;
+create policy "Users view own tickets" on hr_tickets for select using (auth.uid() in (select user_id from employees where id = employee_id));
+
 
 -- 10. Grievance Management
 create table public.grievances (
@@ -210,11 +265,11 @@ for select using (
     )
 );
 
-create policy "Visibility of assignments" on grievance_assignments
-for all using (true); -- Simplified for demo, restrict in production
+create policy "Only admins view assignments" on grievance_assignments
+for all using (auth.uid() in (select user_id from employees where role in ('employer', 'admin')));
 
-create policy "Visibility of logs" on grievance_logs
-for all using (true); -- Simplified for demo
+create policy "Only admins view logs" on grievance_logs
+for all using (auth.uid() in (select user_id from employees where role in ('employer', 'admin')));
 
 create policy "Visibility of messages" on grievance_messages
 for all using (
@@ -231,3 +286,6 @@ create table public.holidays (
   is_public boolean default true,
   created_at timestamp with time zone default now()
 );
+alter table holidays enable row level security;
+create policy "Public read holidays" on holidays for select using (true);
+

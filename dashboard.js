@@ -6,6 +6,14 @@ const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 // Initialize Lucide icons
 lucide.createIcons();
 
+// Helper for XSS Prevention
+function escapeHTML(str) {
+    if (typeof str !== 'string') return str;
+    return str.replace(/[&<>"']/g, m => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    })[m]);
+}
+
 // Global Dashboard Data
 let dashboardData = {
     employee: null,
@@ -95,8 +103,8 @@ async function initDashboard() {
 
 
         // Update sidebar and identity card basics
-        $('.user-peek .name').text(`${userData.first_name} ${userData.last_name ? userData.last_name.substring(0, 1) + '.' : ''}`);
-        $('.user-peek .role').text(userData.designation || 'Employee');
+        $('.user-peek .name').text(escapeHTML(`${userData.first_name} ${userData.last_name ? userData.last_name.substring(0, 1) + '.' : ''}`));
+        $('.user-peek .role').text(escapeHTML(userData.designation || 'Employee'));
 
         const [attRes, leaveRes, tasksRes, payRes, holRes, noticeRes, leaveReqRes, leaveTypeRes, grievanceRes, empRes] = await Promise.all([
             supabaseClient.from('attendance_logs')
@@ -133,6 +141,20 @@ async function initDashboard() {
                  if (u.id) dashboardData.userLookupMap[u.id] = name;
              });
         }
+
+        // --- NEW: Generate Signed URLs for sensitive documents ---
+        dashboardData.employeeSignedUrls = {};
+        const docFields = ['doc_aadhaar_url', 'doc_pan_url', 'doc_resume_url', 'doc_photo_url', 'doc_offer_url'];
+        await Promise.all(docFields.map(field => {
+            const path = userData[field];
+            if (path && !path.startsWith('http')) { // Only if it's a path
+                return supabaseClient.storage.from('employee-documents').createSignedUrl(path, 3600)
+                    .then(({ data }) => { if (data) dashboardData.employeeSignedUrls[field] = data.signedUrl; });
+            } else if (path) {
+                dashboardData.employeeSignedUrls[field] = path; // Legacy
+            }
+            return Promise.resolve();
+        }));
 
         // =========================================
         // INJECT DEMO DATA (If arrays are empty)
@@ -305,10 +327,10 @@ const sections = {
                         </div>
                         <div class="premium-info-main">
                             <div class="premium-name-row">
-                                <h2 style="margin:0; font-family:'Plus Jakarta Sans', sans-serif; font-weight:900; letter-spacing:-1px;">${emp.first_name} ${emp.last_name || ''}</h2>
+                                <h2 style="margin:0; font-family:'Plus Jakarta Sans', sans-serif; font-weight:900; letter-spacing:-1px;">${escapeHTML(emp.first_name)} ${escapeHTML(emp.last_name || '')}</h2>
                                 <span class="badge-verified" style="font-size:0.65rem; background:#f0fdf4; color:#10b981; padding:2px 10px; border-radius:15px; font-weight:800; border:1px solid #dcfce7; font-family:'Inter', sans-serif;">Verified</span>
                             </div>
-                            <p class="premium-role-text" style="margin:4px 0 12px; font-weight:600; color:var(--text-muted);">${emp.designation || 'Web Design Specialist'} &bull; ${emp.department || 'Jaipur (Remote)'}</p>
+                            <p class="premium-role-text" style="margin:4px 0 12px; font-weight:600; color:var(--text-muted);">${escapeHTML(emp.designation || 'Web Design Specialist')} &bull; ${escapeHTML(emp.department || 'Jaipur (Remote)')}</p>
                             <div class="premium-pill-row">
                                 <div class="premium-pill" style="font-weight:700;"><i data-lucide="square-plus" style="width:12px;"></i> EMP10245</div>
                                 <div class="premium-pill" style="font-weight:700;"><i data-lucide="home" style="width:12px;"></i> Jaipur Remote</div>
@@ -380,8 +402,8 @@ const sections = {
                                             <i data-lucide="${task.status === 'completed' ? 'check-circle' : 'circle'}" style="width:18px;"></i>
                                         </div>
                                         <div style="flex-grow:1;">
-                                            <div style="font-weight:700; color:var(--text-dark); font-size:0.9rem;">${task.title}</div>
-                                            <div style="font-size:0.75rem; color:var(--text-muted);">Due: ${task.due_date} &bull; ${task.project}</div>
+                                            <div style="font-weight:700; color:var(--text-dark); font-size:0.9rem;">${escapeHTML(task.title)}</div>
+                                            <div style="font-size:0.75rem; color:var(--text-muted);">Due: ${escapeHTML(task.due_date)} &bull; ${escapeHTML(task.project)}</div>
                                         </div>
                                         <div style="text-align:right;">
                                             <div class="status-text" style="font-size:0.7rem; font-weight:700; color:${task.status === 'completed' ? 'var(--success)' : (task.status === 'in_progress' ? 'var(--brand-blue)' : 'var(--text-muted)')}; text-transform:capitalize;">${task.status.replace('_', ' ')}</div>
@@ -566,11 +588,12 @@ const sections = {
         title: "My Profile",
         render: () => {
             const emp = dashboardData.employee;
-            const safeVal = (v) => v || '<span style="color:var(--text-muted); font-style:italic; font-weight:400;">Not provided</span>';
+            const signed = dashboardData.employeeSignedUrls || {};
+            const safeVal = (v) => v ? escapeHTML(v) : '<span style="color:var(--text-muted); font-style:italic; font-weight:400;">Not provided</span>';
 
             // Helper to create an editable field
             const field = (label, key, value, type = 'text') => {
-                const displayVal = value || '';
+                const displayVal = value ? escapeHTML(value) : '';
                 return `<div class="info-item">
                     <label>${label}</label>
                     <span class="profile-display-val" data-key="${key}" style="font-weight:700;">${safeVal(value)}</span>
@@ -584,19 +607,19 @@ const sections = {
             // Document link
             const docLink = (label, url, icon = 'file-text') => {
                 const status = url ? 'View Document' : 'Not uploaded';
-                const linkAttr = url ? `href="${url}" target="_blank" rel="noopener"` : 'style="opacity:0.5; cursor:not-allowed;"';
+                const linkAttr = url ? `href="${url}" target="_blank" rel="noopener noreferrer" mode="secure"` : 'style="opacity:0.5; cursor:not-allowed;"';
                 return `
                     <a ${linkAttr} class="doc-card-modern">
                         <div class="doc-icon-box"><i data-lucide="${icon}"></i></div>
                         <div class="doc-info-box">
-                            <label>${label}</label>
+                            <label>${escapeHTML(label)}</label>
                             <span>${status}</span>
                         </div>
                     </a>
                 `;
             };
 
-            const photoUrl = emp.doc_photo_url || emp.profile_photo_url || 'https://i.pravatar.cc/150';
+            const photoUrl = signed.doc_photo_url || emp.profile_photo_url || 'https://i.pravatar.cc/150';
 
             return `
                 <div class="profile-container">
@@ -760,10 +783,10 @@ const sections = {
                                     <h3><i data-lucide="fingerprint"></i> KYC & Personal Documents</h3>
                                 </div>
                                 <div class="doc-grid-modern">
-                                    ${docLink('Aadhaar Card', emp.doc_aadhaar_url, 'file-text')}
-                                    ${docLink('PAN Card', emp.doc_pan_url, 'shield-check')}
-                                    ${docLink('Academic Records', emp.doc_resume_url, 'graduation-cap')}
-                                    ${docLink('Official Offer', emp.doc_offer_url, 'award')}
+                                    ${docLink('Aadhaar Card', signed.doc_aadhaar_url, 'file-text')}
+                                    ${docLink('PAN Card', signed.doc_pan_url, 'shield-check')}
+                                    ${docLink('Academic Records', signed.doc_resume_url, 'graduation-cap')}
+                                    ${docLink('Official Offer', signed.doc_offer_url, 'award')}
                                 </div>
                             </div>
 

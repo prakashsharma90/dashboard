@@ -171,10 +171,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                 .from('employee-documents')
                 .upload(filePath, file, { upsert: true });
             if (error) { console.error('Upload error:', error); return null; }
-            const { data: urlData } = supabaseClient.storage
-                .from('employee-documents')
-                .getPublicUrl(filePath);
-            return urlData?.publicUrl || null;
+            
+            // Returns the path so we can save it in the DB (more secure than public URLs)
+            return data.path;
         }
 
         profileForm.addEventListener('submit', async (e) => {

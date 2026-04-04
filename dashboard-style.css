@@ -144,35 +144,47 @@ h1, h2, h3, h4, .card-title, .value, .val, .section-title, .brand {
 }
 
 .employer-sidebar .nav-item {
-  color: #64748b;
-  font-weight: 500;
-  font-size: 0.9rem;
-  padding: 12px 14px;
-  border-radius: 10px;
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
+  padding: 6px 12px;
+  border-radius: 8px;
+  color: #64748b;
   text-decoration: none;
-  transition: 0.2s;
-  margin-bottom: 4px;
+  font-size: 0.8rem;
+  font-weight: 850;
+  transition: all 0.2s ease;
+  border: none;
+  background: transparent;
+  letter-spacing: -0.1px;
+  margin-bottom: 2px;
 }
 
 .employer-sidebar .nav-item:hover {
-  background: #f1f5f9;
+  background: #f8fafc;
   color: var(--brand-green);
 }
 
 .employer-sidebar .nav-item.active {
   background: var(--brand-green) !important;
   color: white !important;
-  font-weight: 800;
-  box-shadow: 0 10px 25px rgba(77, 66, 134, 0.3) !important;
-  transform: translateY(-1px);
+  font-weight: 850;
+  box-shadow: 0 4px 12px rgba(77, 66, 134, 0.12);
 }
 
-.employer-sidebar .nav-item.active i {
-  color: white !important;
-  opacity: 1 !important;
+.employer-sidebar .nav-item i {
+  width: 16px;
+  height: 16px;
+  stroke-width: 2.5px;
+}
+
+.employer-sidebar .sidebar-category {
+    font-size: 0.6rem;
+    font-weight: 900;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    margin: 12px 0 4px 12px;
 }
 
 

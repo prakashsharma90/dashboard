@@ -7,6 +7,14 @@ const supabaseUrl = 'https://rrbbbhvethxtbvupolqo.supabase.co';
 const supabaseKey = 'sb_publishable_5zK8zx6xnGkD_-QIoOGZAg_5uBOEVv2';
 const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
+// Helper for XSS Prevention
+function escapeHTML(str) {
+    if (typeof str !== 'string') return str;
+    return str.replace(/[&<>"']/g, m => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    })[m]);
+}
+
 // Data store
 let payrollData = {
     employees: [],
@@ -84,10 +92,10 @@ function renderPayoutRegister() {
                 <td>
                     <div style="display:flex; align-items:center; gap:10px;">
                         <div style="width:24px; height:24px; border-radius:50%; background:#f1f5f9; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:0.6rem; color:#4D4286;">${initials}</div>
-                        <b>${p.name}</b>
+                        <b>${escapeHTML(p.name)}</b>
                     </div>
                 </td>
-                <td>${p.dept}</td>
+                <td>${escapeHTML(p.dept)}</td>
                 <td>₹${p.gross.toLocaleString()}</td>
                 <td style="color:#ef4444;">- ₹${p.deductions.toLocaleString()}</td>
                 <td><b>₹${p.net.toLocaleString()}</b></td>
@@ -128,7 +136,7 @@ function renderSalaryStructures() {
     payrollData.structures.forEach(s => {
         tbody.append(`
             <tr>
-                <td><b>${s.name}</b><br><span style="font-size:0.6rem; color:#94a3b8;">${s.id}</span></td>
+                <td><b>${escapeHTML(s.name)}</b><br><span style="font-size:0.6rem; color:#94a3b8;">${escapeHTML(s.id)}</span></td>
                 <td>₹${s.basic.toLocaleString()}</td>
                 <td>₹${s.hra.toLocaleString()}</td>
                 <td>₹${s.allow.toLocaleString()}</td>
@@ -161,7 +169,7 @@ function renderLoansOnly() {
     payrollData.loans.forEach(l => {
         tbody.append(`
             <tr>
-                <td><b>${l.name}</b></td>
+                <td><b>${escapeHTML(l.name)}</b></td>
                 <td>₹${l.amount.toLocaleString()}</td>
                 <td>₹${l.emi.toLocaleString()}</td>
                 <td>₹${l.remain.toLocaleString()}</td>
@@ -192,7 +200,7 @@ function renderRunReviewTable() {
     samples.forEach(p => {
         tbody.append(`
             <tr>
-                <td><b>${p.name}</b></td>
+                <td><b>${escapeHTML(p.name)}</b></td>
                 <td><b>26 / 26</b></td>
                 <td>₹${p.gross.toLocaleString()}</td>
                 <td>₹${(p.gross * 0.05).toLocaleString()}</td>

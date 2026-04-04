@@ -30,7 +30,11 @@
             --font-heading: 'Plus Jakarta Sans', sans-serif;
         }
 
-        body { background: var(--pr-bg); font-family: var(--font-main); margin: 0; display: flex; color: var(--pr-text); height: 100vh; overflow: hidden; }
+        body { background: var(--pr-bg); font-family: var(--font-main); margin: 0; color: var(--pr-text); }
+        .dashboard { display: grid; grid-template-columns: 250px 1fr; height: 100vh; max-width: 100vw; }
+        @media (max-width: 1024px) {
+            .dashboard { grid-template-columns: 80px 1fr; }
+        }
         
         .main-content { padding: 1rem 1.75rem; max-width: 1600px; margin: 0 auto; width: 100%; height: 100vh; overflow-y: auto; scroll-behavior: smooth; }
         
@@ -134,9 +138,11 @@
     </style>
 </head>
 <body>
-    <div id="sidebar-container"></div>
+    <div class="dashboard">
+        <div id="sidebar-placeholder"></div>
+        <script src="employer-sidebar.js"></script>
 
-    <main class="main-content">
+        <main class="main-content">
         <div class="breadcrumb">
             <span>Employer Dashboard</span>
             <i data-lucide="chevron-right" style="width:10px;"></i>
@@ -568,10 +574,6 @@
     <script src="payroll.js"></script>
     <script>
         $(document).ready(function() {
-            $('#sidebar-container').load('employer-sidebar.html', function() {
-                $('.nav-item[data-page="payroll.html"]').addClass('active');
-                lucide.createIcons();
-            });
 
             $('.payroll-tab').click(function() {
                 $('.payroll-tab').removeClass('active');
@@ -622,5 +624,6 @@
             closeModal();
         }
     </script>
+    </div>
 </body>
 </html>

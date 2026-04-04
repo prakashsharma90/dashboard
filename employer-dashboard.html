@@ -53,6 +53,7 @@
             animation-timing-function: cubic-bezier(0.19, 1, 0.22, 1);
         }
 
+        /* Dashboard Grid Layout - Integrated from dashboard-style.css */
         .dashboard {
             display: grid;
             grid-template-columns: 250px 1fr;
@@ -64,116 +65,6 @@
             .dashboard {
                 grid-template-columns: 80px 1fr;
             }
-
-            .sidebar-header .brand,
-            .sidebar-header .badge,
-            .nav-item span {
-                display: none;
-            }
-
-            .sidebar-header {
-                justify-content: center;
-                padding: 1rem 0;
-            }
-
-            .nav-item {
-                justify-content: center;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .dashboard {
-                display: block;
-                /* Stack on mobile */
-                height: auto;
-            }
-
-            .employer-sidebar {
-                display: none;
-                /* Hide sidebar on mobile to prevent overflow, can add a burger menu later */
-            }
-        }
-
-        /* 2. Left Sidebar (Global Styles Moved to dashboard-style.css) */
-        .employer-sidebar {
-            background: var(--card-white);
-            border-right: 1px solid var(--border-color);
-            padding: 1.5rem;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .sidebar-header {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 2rem;
-            padding-bottom: 1rem;
-            border-bottom: 1px solid var(--border-color);
-
-        }
-
-        .sidebar-header .logo {
-            width: 36px;
-            height: 36px;
-            background: linear-gradient(135deg, var(--brand-green), var(--brand-green-dark));
-            border-radius: 10px;
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 800;
-            font-size: 1rem;
-        }
-
-        .sidebar-header .brand {
-            font-weight: 700;
-            font-size: 1.25rem;
-
-        }
-
-        .sidebar-header .badge {
-            background: rgba(77, 66, 134, 0.1);
-            color: var(--brand-green-dark);
-            font-size: 0.65rem;
-            padding: 0.2rem 0.5rem;
-            border-radius: 4px;
-            font-weight: 700;
-
-        }
-
-        .nav-menu {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-
-
-        }
-
-        .nav-item {
-            margin-top: 10px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 10px 14px;
-            border-radius: 10px;
-            color: var(--text-body);
-            text-decoration: none;
-            font-size: 0.9rem;
-            font-weight: 500;
-            transition: all 0.2s;
-        }
-
-        .nav-item:hover {
-            background: var(--bg-light-grey);
-            color: var(--text-dark);
-        }
-
-        .nav-item.active {
-            background: linear-gradient(135deg, var(--brand-green), var(--brand-green-dark));
-            color: white;
-            font-weight: 600;
-            box-shadow: 0 4px 10px rgba(77, 66, 134, 0.2);
         }
 
         /* 15. Main Content */
