@@ -1,0 +1,10 @@
+{
+  "cleanUrls": true,
+  "rewrites": [
+    { "source": "/employee-dashboard", "destination": "/employee-dashboard.html" },
+    { "source": "/employer-dashboard", "destination": "/employer-dashboard.html" },
+    { "source": "/login", "destination": "/login.html" },
+    { "source": "/complete-profile", "destination": "/complete-profile.html" }
+  ],
+  "trailingSlash": false
+}
