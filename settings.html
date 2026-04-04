@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Settings | Salarite Employer</title>
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@700;800&display=swap" rel="stylesheet">
+    
+    <!-- Icons & Stylings -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="dashboard-style.css">
+    
+    <style>
+        .employer-sidebar { width: 250px; background: white; border-right: 1px solid #e2e8f0; }
+        /* Dashboard layout handled by dashboard-style.css */
+
+        .main-content {
+            flex: 1;
+            width: 100%;
+            height: 100vh;
+            overflow-y: hidden;
+            background: #f8fafc;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .settings-header-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 2rem;
+            background: white;
+            border-bottom: 1px solid var(--border-color);
+            z-index: 100;
+        }
+
+        .settings-header-bar h2 {
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: var(--text-dark);
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .settings-container {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        /* Side Navigation */
+        .settings-nav {
+            width: 280px;
+            background: white;
+            border-right: 1px solid var(--border-color);
+            overflow-y: auto;
+            padding: 1rem 0;
+        }
+
+        .settings-nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 24px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.2s;
+            border-left: 3px solid transparent;
+        }
+
+        .settings-nav-item i {
+            width: 18px;
+            height: 18px;
+        }
+
+        .settings-nav-item:hover {
+            background: #f8fafc;
+            color: var(--text-dark);
+        }
+
+        .settings-nav-item.active {
+            color: var(--accent);
+            background: rgba(77, 66, 134, 0.05);
+            border-left-color: var(--accent);
+        }
+
+        /* Content Area */
+        .settings-content-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 2rem;
+        }
+
+        .settings-section {
+            display: none;
+            max-width: 900px;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .settings-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--text-dark);
+            margin-bottom: 5px;
+        }
+
+        .section-desc {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        /* Setting Cards */
+        .setting-card {
+            background: white;
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .setting-card-title {
+            font-size: 1.1rem;
+            font-weight: 800;
+            color: var(--text-dark);
+            margin-bottom: 1.25rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .setting-group {
+            margin-bottom: 1rem;
+        }
+
+        .setting-group:last-child {
+            margin-bottom: 0;
+        }
+
+        .setting-group label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 6px;
+        }
+
+        .setting-control {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            font-family: 'Inter', sans-serif;
+            color: var(--text-dark);
+            outline: none;
+            transition: all 0.2s;
+        }
+
+        .setting-control:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(77, 66, 134, 0.1);
+        }
+
+        .setting-control[type="checkbox"] {
+            width: auto;
+            margin-right: 10px;
+            transform: scale(1.2);
+            cursor: pointer;
+        }
+
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--text-dark);
+            cursor: pointer;
+        }
+
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 44px;
+            height: 24px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #cbd5e1;
+            transition: .3s;
+            border-radius: 34px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .3s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: var(--accent);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(20px);
+        }
+
+        .toggle-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .toggle-row:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        .toggle-info strong {
+            display: block;
+            font-size: 0.95rem;
+            color: var(--text-dark);
+        }
+
+        .toggle-info p {
+            margin: 4px 0 0;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+        
+        .save-bar {
+            display: flex;
+            justify-content: flex-end;
+            padding: 1.5rem 0;
+            border-top: 1px solid var(--border-color);
+            margin-top: 1.5rem;
+            gap: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-layout">
+        <!-- Sidebar placeholder -->
+        <div id="sidebar-placeholder"></div>
+        <script src="employer-sidebar.js"></script>
+
+        <main class="main-content">
+            <header class="settings-header-bar">
+                <h2><i data-lucide="settings"></i> System Settings</h2>
+                <div style="display: flex; gap: 10px;">
+                    <button class="btn-outline btn-sm" style="padding: 8px 16px;"><i data-lucide="refresh-cw"></i> Sync</button>
+                    <button class="btn-primary btn-sm" style="padding: 8px 16px;"><i data-lucide="save"></i> Save All Changes</button>
+                </div>
+            </header>
+
+            <div class="settings-container">
+                <!-- Navigation -->
+                <nav class="settings-nav">
+                    <div class="settings-nav-item active" data-target="sec-security"><i data-lucide="shield"></i> Security Settings</div>
+                    <div class="settings-nav-item" data-target="sec-regional"><i data-lucide="globe"></i> Localization & Regional</div>
+                    <div class="settings-nav-item" data-target="sec-payroll"><i data-lucide="banknote"></i> Payroll Configuration</div>
+                    <div class="settings-nav-item" data-target="sec-attendance"><i data-lucide="clock"></i> Attendance & Shifts</div>
+                    <div class="settings-nav-item" data-target="sec-leave"><i data-lucide="calendar"></i> Leave Policy</div>
+                    <div class="settings-nav-item" data-target="sec-workflow"><i data-lucide="git-merge"></i> Workflow & Approvals</div>
+                    <div class="settings-nav-item" data-target="sec-notifications"><i data-lucide="bell"></i> Notifications & Alerts</div>
+                    <div class="settings-nav-item" data-target="sec-integrations"><i data-lucide="plug"></i> Integrations</div>
+                    <div class="settings-nav-item" data-target="sec-backup"><i data-lucide="database"></i> Backup & Data</div>
+                    <div class="settings-nav-item" data-target="sec-audit"><i data-lucide="file-text"></i> Audit Logs & Activity</div>
+                    <div class="settings-nav-item" data-target="sec-branding"><i data-lucide="paint-bucket"></i> Branding & Theme</div>
+                    <div class="settings-nav-item" data-target="sec-ai"><i data-lucide="bot"></i> AI & Smart Insights</div>
+                </nav>
+
+                <!-- Content Area -->
+                <div class="settings-content-area">
+
+                    <!-- 1. Security Settings -->
+                    <section class="settings-section active" id="sec-security">
+                        <h3 class="section-title">Security & Authentication</h3>
+                        <p class="section-desc">Controls authentication, authorization security, and system protection against unauthorized access.</p>
+
+                        <div class="setting-card">
+                            <div class="setting-card-title">Password Policy Engine</div>
+                            <div class="setting-group">
+                                <label>Minimum Password Length</label>
+                                <select class="setting-control">
+                                    <option>8 Characters</option>
+                                    <option selected>12 Characters</option>
+                                    <option>16 Characters</option>
+                                </select>
+                            </div>
+                            <div class="toggle-row">
+                                <div class="toggle-info">
+                                    <strong>Complexity Rules</strong>
+                                    <p>Require uppercase, number, and special character</p>
+                                </div>
+                                <label class="toggle-switch"><input type="checkbox" checked><span class="slider"></span></label>
+                            </div>
+                            <div class="toggle-row">
+                                <div class="toggle-info">
+                                    <strong>Password Expiry</strong>
+                                    <p>Force users to reset password every 90 days</p>
+                                </div>
+                                <label class="toggle-switch"><input type="checkbox"><span class="slider"></span></label>
+                            </div>
+                            <div class="toggle-row">
+                                <div class="toggle-info">
+                                    <strong>Prevent Reuse</strong>
+                                    <p>Prevent reuse of the last 5 passwords</p>
+                                </div>
+                                <label class="toggle-switch"><input type="checkbox" checked><span class="slider"></span></label>
+                            </div>
+                        </div>
+
+                        <div class="setting-card">
+                            <div class="setting-card-title">Authentication Controls</div>
+                            <div class="toggle-row">
+                                <div class="toggle-info">
+                                    <strong>Two-Factor Authentication (2FA)</strong>
+                                    <p>Mandatory for all admin and HR accounts</p>
+                                </div>
+                                <label class="toggle-switch"><input type="checkbox" checked><span class="slider"></span></label>
+                            </div>
+                            <div class="toggle-row">
+                                <div class="toggle-info">
+                                    <strong>Single Sign-On (SSO)</strong>
+                                    <p>Allow Google Workspace / Outlook logins</p>
+                                </div>
+                                <label class="toggle-switch"><input type="checkbox"><span class="slider"></span></label>
+                            </div>
+                        </div>
+
+                        <div class="setting-card">
+                            <div class="setting-card-title">Session Management & Protection</div>
+                            <div class="setting-group">
+                                <label>Failed Login Lockout</label>
+                                <select class="setting-control">
+                                    <option>Lock after 3 attempts</option>
+                                    <option selected>Lock after 5 attempts</option>
+                                    <option>Lock after 10 attempts</option>
+                                </select>
+                            </div>
+                            <div class="setting-group">
+                                <label>Session Timeout (Inactivity)</label>
+                                <select class="setting-control">
+                                    <option>30 Minutes</option>
+                                    <option>1 Hour</option>
+                                    <option selected>4 Hours</option>
+                                </select>
+                            </div>
+                            <div class="toggle-row" style="margin-top:15px; padding-bottom:0; border:none;">
+                                <div class="toggle-info">
+                                    <strong>IP Whitelisting</strong>
+                                    <p>Restrict employer access to office networks only</p>
+                                </div>
+                                <label class="toggle-switch"><input type="checkbox"><span class="slider"></span></label>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- 2. Localization & Regional Settings -->
+                    <section class="settings-section" id="sec-regional">
+                        <h3 class="section-title">Localization & Regional</h3>
+                        <p class="section-desc">Ensures system works globally with correct formats and compliance.</p>
+
+                        <div class="setting-card">
+                            <div class="setting-group">
+                                <label>System Timezone</label>
+                                <select class="setting-control">
+                                    <option selected>(UTC+05:30) Indian Standard Time (IST)</option>
+                                    <option>(UTC+00:00) Coordinated Universal Time</option>
+                                    <option>(UTC-05:00) Eastern Time (US & Canada)</option>
+                                </select>
+                            </div>
+                            <div class="setting-group" style="margin-top: 20px;">
+                                <label>Default Currency</label>
+                                <select class="setting-control">
+                                    <option selected>₹ INR - Indian Rupee</option>
+                                    <option>$ USD - US Dollar</option>
+                                    <option>€ EUR - Euro</option>
+                                </select>
+                            </div>
+                            <div class="setting-group" style="margin-top: 20px;">
+                                <label>Date Format</label>
+                                <select class="setting-control">
+                                    <option selected>DD/MM/YYYY</option>
+                                    <option>MM/DD/YYYY</option>
+                                    <option>YYYY-MM-DD</option>
+                                </select>
+                            </div>
+                            <div class="setting-group" style="margin-top: 20px;">
+                                <label>Language Preference</label>
+                                <select class="setting-control">
+                                    <option selected>English (UK)</option>
+                                    <option>English (US)</option>
+                                    <option>Hindi</option>
+                                </select>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- 3. Payroll Configuration -->
+                    <section class="settings-section" id="sec-payroll">
+                        <h3 class="section-title">Payroll Configuration</h3>
+                        <p class="section-desc">Defines salary rules, templates, taxes, and overtime calculation logic.</p>
+
+                        <div class="setting-card">
+                            <div class="setting-card-title">Salary Templates & Earnings</div>
+                            <div class="toggle-row">
+                                <div class="toggle-info">
+                                    <strong>CTC-Based Generation</strong>
+                                    <p>Automatically distribute base pay, HRA, and allowances from CTC</p>
+                                </div>
+                                <label class="toggle-switch"><input type="checkbox" checked><span class="slider"></span></label>
+                            </div>
+                            <div class="setting-group" style="margin-top: 15px;">
+                                <label>Basic Pay Percentage (of CTC)</label>
+                                <input type="number" class="setting-control" value="50">
+                            </div>
+                        </div>
+
+                        <div class="setting-card">
+                            <div class="setting-card-title">Deductions & Taxes</div>
+                            <div class="toggle-row">
+                                <div class="toggle-info">
+                                    <strong>Provident Fund (PF) Compliance</strong>
+                                    <p>Enable statutory PF deductions per region rules</p>
+                                </div>
+                                <label class="toggle-switch"><input type="checkbox" checked><span class="slider"></span></label>
+                            </div>
+                            <div class="toggle-row">
+                                <div class="toggle-info">
+                                    <strong>ESI Deduction</strong>
+                                    <p>Applicable for eligible salary brackets</p>
+                                </div>
+                                <label class="toggle-switch"><input type="checkbox" checked><span class="slider"></span></label>
+                            </div>
+                            <div class="toggle-row">
+                                <div class="toggle-info">
+                                    <strong>Automated TDS Calculation</strong>
+                                    <p>Calculate progressive slab-based income tax</p>
+                                </div>
+                                <label class="toggle-switch"><input type="checkbox" checked><span class="slider"></span></label>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- 4. Attendance Rules -->
+                    <section class="settings-section" id="sec-attendance">
+                        <h3 class="section-title">Attendance & Shifts</h3>
+                        <p class="section-desc">Controls how employee time is tracked, evaluated, and managed.</p>
+
+                        <div class="setting-card">
+                            <div class="setting-card-title">Shift Management</div>
+                            <div class="setting-group">
+                                <label>Default Shift Hours</label>
+                                <input type="text" class="setting-control" value="09:00 AM - 06:00 PM">
+                            </div>
+                            <div class="setting-group" style="margin-top: 15px;">
+                                <label>Minimum Working Hours (for Full Day)</label>
+                                <input type="number" class="setting-control" value="8">
+                            </div>
+                            <div class="setting-group" style="margin-top: 15px;">
+                                <label>Half-Day Threshold (Hours)</label>
+                                <input type="number" class="setting-control" value="4">
+                            </div>
+                        </div>
+
+                        <div class="setting-card">
+                            <div class="setting-card-title">Grace Period & OT</div>
+                            <div class="setting-group">
+                                <label>Grace Period for Check-in (Minutes)</label>
+                                <input type="number" class="setting-control" value="15">
+                            </div>
+                            <div class="toggle-row" style="margin-top: 15px;">
+                                <div class="toggle-info">
+                                    <strong>Enable Overtime Tracking</strong>
+                                    <p>Track hours logged beyond the standard shift automatically</p>
+                                </div>
+                                <label class="toggle-switch"><input type="checkbox" checked><span class="slider"></span></label>
+                            </div>
+                            <div class="toggle-row">
+                                <div class="toggle-info">
+                                    <strong>Weekend Double Pay (OT)</strong>
+                                    <p>Count weekend worked hours as 2x</p>
+                                </div>
+                                <label class="toggle-switch"><input type="checkbox"><span class="slider"></span></label>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- 5. Leave Policy -->
+                    <section class="settings-section" id="sec-leave">
+                        <h3 class="section-title">Leave Policy Configuration</h3>
+                        <p class="section-desc">Defines leave structure, accrual, and approval rules.</p>
+                        <div class="setting-card">
+                            <p style="color:var(--text-muted); font-size:0.9rem;">(Visual builder for leave allowances, limits, carry forward, and auto-approvals goes here.)</p>
+                            <div class="toggle-row">
+                                <div class="toggle-info">
+                                    <strong>Leave Encashment</strong>
+                                    <p>Allow converting unused Earned Leave (EL) into salary at year-end</p>
+                                </div>
+                                <label class="toggle-switch"><input type="checkbox" checked><span class="slider"></span></label>
+                            </div>
+                            <div class="toggle-row">
+                                <div class="toggle-info">
+                                    <strong>Prorated Accrual</strong>
+                                    <p>Accrue leaves monthly (e.g. 1.25 days per month) instead of annual lump sum</p>
+                                </div>
+                                <label class="toggle-switch"><input type="checkbox" checked><span class="slider"></span></label>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- 6. Workflow & Approval -->
+                    <section class="settings-section" id="sec-workflow">
+                        <h3 class="section-title">Workflow & Approval Engine</h3>
+                        <p class="section-desc">Handles multi-level approvals across system modules.</p>
+                        <div class="setting-card">
+                            <div class="setting-card-title">Approval Hierarchy</div>
+                            <div class="setting-group">
+                                <label>Leave Request Approvals</label>
+                                <select class="setting-control">
+                                    <option>Line Manager Only</option>
+                                    <option selected>Line Manager → HR</option>
+                                    <option>Auto-Approve</option>
+                                </select>
+                            </div>
+                            <div class="setting-group" style="margin-top: 20px;">
+                                <label>Payroll Processing Approval</label>
+                                <select class="setting-control">
+                                    <option>HR Only</option>
+                                    <option selected>HR → Finance → Director</option>
+                                </select>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- 7. Notifications -->
+                    <section class="settings-section" id="sec-notifications">
+                        <h3 class="section-title">Notification & Alerts</h3>
+                        <p class="section-desc">Ensures real-time communication and updates.</p>
+                        <div class="setting-card">
+                            <div class="toggle-row">
+                                <div class="toggle-info"><strong>Email Notifications</strong><p>Send daily digests and approval alerts to email</p></div>
+                                <label class="toggle-switch"><input type="checkbox" checked><span class="slider"></span></label>
+                            </div>
+                            <div class="toggle-row">
+                                <div class="toggle-info"><strong>In-App Push Alerts</strong><p>Browser notifications for urgent events</p></div>
+                                <label class="toggle-switch"><input type="checkbox" checked><span class="slider"></span></label>
+                            </div>
+                            <div class="toggle-row">
+                                <div class="toggle-info"><strong>SMS Notifications</strong><p>Send texts for payroll drops & critical alerts</p></div>
+                                <label class="toggle-switch"><input type="checkbox"><span class="slider"></span></label>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- 8. Integrations -->
+                    <section class="settings-section" id="sec-integrations">
+                        <h3 class="section-title">Integrations & APIs</h3>
+                        <p class="section-desc">Connect system with external tools and services.</p>
+                        <div class="setting-card">
+                            <button class="btn-outline" style="width: 100%; justify-content: center; margin-bottom: 15px;"><i data-lucide="fingerprint"></i> Biometric Device Sync Setup</button>
+                            <button class="btn-outline" style="width: 100%; justify-content: center; margin-bottom: 15px;"><i data-lucide="slack"></i> Connect Slack Workspace</button>
+                            <button class="btn-outline" style="width: 100%; justify-content: center; margin-bottom: 15px;"><i data-lucide="calendar"></i> Sync Google Calendar</button>
+                            <button class="btn-outline" style="width: 100%; justify-content: center;"><i data-lucide="code"></i> Generate REST API Keys</button>
+                        </div>
+                    </section>
+
+                    <!-- 9. Backup -->
+                    <section class="settings-section" id="sec-backup">
+                        <h3 class="section-title">Backup & Data Management</h3>
+                        <p class="section-desc">Ensures data safety, export handling, and disaster recovery.</p>
+                        <div class="setting-card">
+                            <div class="setting-group">
+                                <label>Automated Backup Frequency</label>
+                                <select class="setting-control"><option>Daily</option><option selected>Weekly</option><option>Monthly</option></select>
+                            </div>
+                            <div style="display:flex; gap:10px; margin-top:20px;">
+                                <button class="btn-primary" style="flex:1; justify-content:center;">Trigger Manual Backup</button>
+                                <button class="btn-outline" style="flex:1; justify-content:center;">Download Full Archive</button>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- 10. Audit Logs -->
+                    <section class="settings-section" id="sec-audit">
+                        <h3 class="section-title">Audit Logs & Tracking</h3>
+                        <p class="section-desc">Tracks every action in the system for compliance and security.</p>
+                        <div class="setting-card">
+                            <p style="color:var(--text-muted); font-size:0.9rem;">Audit logs track IP, Device, Role changes, Document access, and Login history.</p>
+                            <div class="setting-group" style="margin-top: 15px;">
+                                <label>Log Retention Period</label>
+                                <select class="setting-control"><option>90 Days</option><option selected>1 Year</option><option>Forever</option></select>
+                            </div>
+                            <button class="btn-outline" style="width: 100%; justify-content: center; margin-top: 20px;"><i data-lucide="eye"></i> View Live Access Logs</button>
+                        </div>
+                    </section>
+
+                    <!-- 11. Branding -->
+                    <section class="settings-section" id="sec-branding">
+                        <h3 class="section-title">Branding & Customization</h3>
+                        <p class="section-desc">Allows white-labeling and company identity styling.</p>
+                        <div class="setting-card">
+                            <div class="setting-group">
+                                <label>Company Brand Color (Hex)</label>
+                                <div style="display: flex; gap:10px;">
+                                    <input type="color" value="#4D4286" style="height: 38px; width: 45px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                                    <input type="text" class="setting-control" value="#4D4286">
+                                </div>
+                            </div>
+                            <div class="setting-group" style="margin-top: 20px;">
+                                <label>Dashboard Logo</label>
+                                <div style="padding: 20px; border: 2px dashed #cbd5e1; border-radius: 12px; text-align: center; cursor: pointer;">
+                                    <i data-lucide="upload" style="margin-bottom:10px; color:var(--text-muted);"></i>
+                                    <p style="margin:0; font-size:0.85rem; color:var(--text-muted);">Click to upload transparent PNG (max 2MB)</p>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- 12. AI Insights -->
+                    <section class="settings-section" id="sec-ai">
+                        <h3 class="section-title">AI & Smart Insights</h3>
+                        <p class="section-desc">Adds intelligence layer to HR system for recommendations and risk detection.</p>
+                        <div class="setting-card" style="background: linear-gradient(135deg, rgba(77,66,134,0.05), rgba(99,102,241,0.05)); border-color: rgba(77,66,134,0.1);">
+                            <div class="toggle-row">
+                                <div class="toggle-info"><strong>Burnout & Attrition Detection</strong><p>AI scans leave patterns and hours to flag at-risk employees</p></div>
+                                <label class="toggle-switch"><input type="checkbox" checked><span class="slider"></span></label>
+                            </div>
+                            <div class="toggle-row">
+                                <div class="toggle-info"><strong>Productivity Pattern Analysis</strong><p>Suggests optimal meeting times and flags low performance anomalies</p></div>
+                                <label class="toggle-switch"><input type="checkbox" checked><span class="slider"></span></label>
+                            </div>
+                            <div class="toggle-row">
+                                <div class="toggle-info"><strong>AI Auto-Alerts</strong><p>Send direct alerts to HR for high absenteeism</p></div>
+                                <label class="toggle-switch"><input type="checkbox" checked><span class="slider"></span></label>
+                            </div>
+                        </div>
+                    </section>
+
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Init Icons
+            if (window.lucide) {
+                window.lucide.createIcons();
+            }
+
+            // Tab Switching Logic
+            const navItems = document.querySelectorAll('.settings-nav-item');
+            const sections = document.querySelectorAll('.settings-section');
+
+            navItems.forEach(item => {
+                item.addEventListener('click', () => {
+                    // Remove active from all nav items
+                    navItems.forEach(nav => nav.classList.remove('active'));
+                    // Add active to clicked nav item
+                    item.classList.add('active');
+
+                    // Hide all sections
+                    sections.forEach(sec => sec.classList.remove('active'));
+                    
+                    // Show target section
+                    const targetId = item.getAttribute('data-target');
+                    document.getElementById(targetId).classList.add('active');
+                });
+            });
+        });
+    </script>
+</body>
+</html>

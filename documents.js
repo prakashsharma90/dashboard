@@ -109,7 +109,7 @@ function renderRecentDocs() {
         paging: false,
         info: false,
         searching: true,
-        dom: 'rti',
+        dom: 'frti',
         language: { searchPlaceholder: "Discovery Search..." }
     });
     relocateControls('#recent-docs-table', '#overview-search');
@@ -155,7 +155,7 @@ function renderMasterDirectory() {
         info: true,
         lengthMenu: [10, 25, 50, 100],
         searching: true,
-        dom: 'rti p'
+        dom: 'lfrtip'
     });
 
     relocateControls('#master-docs-table', '#master-search');
@@ -191,7 +191,7 @@ function renderEmployeeRecords() {
         info: true,
         lengthMenu: [10, 25, 50, 100],
         searching: true,
-        dom: 'rti p'
+        dom: 'lfrtip'
     });
 
     relocateControls('#records-table', '#records-search');

@@ -6,6 +6,11 @@ const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 // Initialize Lucide icons
 lucide.createIcons();
 
+// Ensure dashboard content has full height for layout
+$(document).ready(() => {
+    $('#dashboard-content').css('min-height', '100%');
+});
+
 // Helper for XSS Prevention
 function escapeHTML(str) {
     if (typeof str !== 'string') return str;
@@ -1257,135 +1262,263 @@ const sections = {
     },
 
     announcements: {
-        title: "Priority Communication Hub",
+        title: "Announcements",
         render: () => {
             const list = dashboardData.announcements.sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
             const unreadCount = list.filter(a => !a.is_read).length;
             const urgentCount = list.filter(a => a.priority === 'high').length;
+            const totalCount = list.length;
 
             return `
-                <div class="priority-feed-wrapper fade-in-up" style="max-width: 1440px; margin: 0 auto;">
-                    <!-- 1. Integrated Header Section -->
-                    <div class="hub-header" style="background: linear-gradient(135deg, #1e1b4b, #312e81); border-radius: 32px; padding: 35px; color: white; margin-bottom: 30px; position: relative; overflow: hidden; box-shadow: 0 20px 50px rgba(30, 27, 75, 0.15);">
-                        <div style="position: absolute; top: -50px; right: -50px; width: 250px; height: 250px; background: rgba(255,255,255,0.03); border-radius: 50%;"></div>
-                        <div style="position: absolute; bottom: -20px; left: 10%; width: 100px; height: 100px; background: rgba(255,255,255,0.02); border-radius: 50%;"></div>
+                <div class="fade-in-up" style="width: 100%; margin: 0 auto; padding-bottom: 50px;">
+                    
+                    <!-- Premium Header Section -->
+                    <div style="background: linear-gradient(135deg, #1e1b4b 0%, #4338ca 100%); border-radius: 24px; padding: 40px; margin-bottom: 30px; position: relative; overflow: hidden; color: white; box-shadow: 0 20px 40px rgba(67, 56, 202, 0.15);">
+                        <!-- Decorative shapes -->
+                        <div style="position: absolute; top: -50px; right: -20px; width: 200px; height: 200px; background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 70%); border-radius: 50%;"></div>
+                        <div style="position: absolute; bottom: -30px; left: 10%; width: 150px; height: 150px; background: radial-gradient(circle, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0) 70%); border-radius: 50%;"></div>
                         
-                        <div style="display: flex; justify-content: space-between; align-items: center; position: relative; z-index: 2;">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-end; position: relative; z-index: 2;">
                             <div>
-                                <h2 style="font-size: 2rem; font-weight: 950; margin: 0; letter-spacing: -0.5px;">Corporate Feed</h2>
-                                <p style="font-size: 0.9rem; opacity: 0.7; margin-top: 8px; font-weight: 500;">Stay synchronized with organization-wide broadcasts & alerts.</p>
+                                <h2 style="font-size: 2.2rem; font-weight: 800; margin: 0 0 8px 0; letter-spacing: -0.5px;">Company Broadcasts</h2>
+                                <p style="font-size: 1rem; color: rgba(255,255,255,0.8); margin: 0; font-weight: 400;">Stay aligned with critical updates and news.</p>
                             </div>
-                            <div style="display: flex; gap: 30px; background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); padding: 15px 30px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1);">
-                                <div style="text-align: center;">
-                                    <div style="font-size: 0.7rem; font-weight: 900; opacity: 0.6; text-transform: uppercase; letter-spacing: 1px;">Unread</div>
-                                    <div style="font-size: 1.5rem; font-weight: 950; color: #fbbf24;">${unreadCount}</div>
+                            
+                            <div style="display: flex; gap: 16px;">
+                                <div style="background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.2); border-radius: 16px; padding: 16px 24px; text-align: center; min-width: 100px;">
+                                    <div style="font-size: 0.75rem; font-weight: 700; color: rgba(255,255,255,0.7); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px;">Unread</div>
+                                    <div style="font-size: 1.8rem; font-weight: 800; color: #fbbf24; line-height: 1;">${unreadCount}</div>
                                 </div>
-                                <div style="width: 1px; background: rgba(255,255,255,0.1);"></div>
-                                <div style="text-align: center;">
-                                    <div style="font-size: 0.7rem; font-weight: 900; opacity: 0.6; text-transform: uppercase; letter-spacing: 1px;">Urgent</div>
-                                    <div style="font-size: 1.5rem; font-weight: 950; color: #f87171;">${urgentCount}</div>
+                                <div style="background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.2); border-radius: 16px; padding: 16px 24px; text-align: center; min-width: 100px;">
+                                    <div style="font-size: 0.75rem; font-weight: 700; color: rgba(255,255,255,0.7); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px;">Urgent</div>
+                                    <div style="font-size: 1.8rem; font-weight: 800; color: #f87171; line-height: 1;">${urgentCount}</div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- 2. Main Content Grid -->
-                    <div style="display: grid; grid-template-columns: 1fr 340px; gap: 30px;">
-                        
-                        <!-- Left Feed Pane -->
-                        <div class="feed-main">
-                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; padding: 0 10px;">
-                                <div style="display: flex; gap: 12px;">
-                                    <button class="nav-pill active" style="padding: 10px 20px; background: #1e1b4b; color: white; border: none; border-radius: 50px; font-weight: 800; font-size: 0.75rem; cursor: pointer;">All History</button>
-                                    <button class="nav-pill" style="padding: 10px 20px; background: white; color: #64748b; border: 1px solid var(--border-color); border-radius: 50px; font-weight: 700; font-size: 0.75rem; cursor: pointer;">Unread only</button>
-                                    <button class="nav-pill" style="padding: 10px 20px; background: white; color: #64748b; border: 1px solid var(--border-color); border-radius: 50px; font-weight: 700; font-size: 0.75rem; cursor: pointer;">Action Items</button>
-                                </div>
-                                <div style="display: flex; align-items: center; gap: 8px; font-size: 0.75rem; font-weight: 800; color: var(--text-muted);">
-                                    <i data-lucide="filter" style="width: 14px;"></i> Latest First
-                                </div>
-                            </div>
+                    <!-- Filter Bar -->
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; padding: 0 8px;">
+                        <div style="display: flex; gap: 10px; background: var(--card-bg); padding: 6px; border-radius: 12px; border: 1px solid var(--border-color); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02);">
+                            <button class="nav-pill active" style="padding: 8px 20px; background: var(--accent); color: white; border: none; border-radius: 8px; font-weight: 600; font-size: 0.8rem; cursor: pointer; transition: all 0.2s;">All Updates</button>
+                            <button class="nav-pill" style="padding: 8px 20px; background: transparent; color: var(--text-muted); border: none; border-radius: 8px; font-weight: 600; font-size: 0.8rem; cursor: pointer; transition: all 0.2s;">Unread Only</button>
+                        </div>
+                        <div style="font-size: 0.8rem; color: var(--text-muted); font-weight: 600; display: flex; align-items: center; gap: 6px;">
+                            <i data-lucide="filter" style="width: 14px;"></i> Latest First
+                        </div>
+                    </div>
 
-                            <div class="feed-stack" style="display: flex; flex-direction: column; gap: 20px;">
-                                ${list.map(a => {
-                                    let prioColor = a.priority === 'high' ? '#f43f5e' : (a.priority === 'medium' ? '#f59e0b' : '#64748b');
-                                    let typeIcon = a.type === 'urgent' ? 'shield-alert' : (a.type === 'event' ? 'sparkles' : (a.type === 'policy' ? 'file-lock-2' : 'info'));
+                    <!-- Feed Cards Container -->
+                    <div style="display: flex; flex-direction: column; gap: 16px;">
+                        ${list.map((a, i) => {
+                            const isHigh = a.priority === 'high';
+                            const prioColor = isHigh ? '#ef4444' : (a.priority === 'medium' ? '#f59e0b' : '#3b82f6');
+                            const prioBg = isHigh ? 'rgba(239,68,68,0.1)' : (a.priority === 'medium' ? 'rgba(245,158,11,0.1)' : 'rgba(59,130,246,0.1)');
+                            const typeIcon = a.type === 'urgent' ? 'alert-triangle' : (a.type === 'event' ? 'calendar' : (a.type === 'policy' ? 'shield' : 'info'));
+                            const dateStr = new Date(a.created_at).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' });
+                            
+                            const delay = i * 0.05;
+
+                            // Strip emojis
+                            const stripEmojis = str => str ? str.replace(/[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{1F1E6}-\u{1F1FF}\u{1F600}-\u{1F64F}\u{1F680}-\u{1F6FF}]/gu, '').trim() : '';
+                            const cleanFeedTitle = stripEmojis(a.title);
+
+                            return `
+                                <div class="premium-hover-card fade-in-up" onclick="viewAnnouncement('${a.id}')" style="animation-delay: ${delay}s; background: var(--card-bg); border-radius: 16px; border: 1px solid ${!a.is_read ? 'rgba(99, 102, 241, 0.3)' : 'var(--border-color)'}; padding: 16px 20px; position: relative; overflow: hidden; cursor: pointer; box-shadow: ${!a.is_read ? '0 10px 25px -5px rgba(99, 102, 241, 0.1)' : '0 2px 4px -1px rgba(0,0,0,0.02)'}; transition: transform 0.2s ease, box-shadow 0.2s ease;">
                                     
-                                    return `
-                                        <div class="premium-feed-card fade-in" onclick="viewAnnouncement('${a.id}')" style="background: white; border-radius: 28px; padding: 25px; display: flex; gap: 25px; border: 1px solid ${a.is_read ? 'rgba(0,0,0,0.03)' : 'rgba(79, 70, 229, 0.1)'}; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer; position: relative; ${a.is_read ? 'opacity: 0.85;' : 'box-shadow: 0 15px 35px rgba(0,0,0,0.03); transform: scale(1);'}">
-                                            
-                                            <!-- Visual Accent -->
-                                            <div style="background: ${prioColor}08; color: ${prioColor}; width: 64px; height: 64px; border-radius: 20px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: inset 0 0 0 1px ${prioColor}15;">
-                                                <i data-lucide="${typeIcon}" style="width: 28px;"></i>
+                                    ${!a.is_read ? `<div style="position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: linear-gradient(to bottom, #6366f1, #a855f7);"></div>` : ''}
+
+                                    <div style="display: flex; gap: 16px;">
+                                        <!-- Icon -->
+                                        <div style="width: 40px; height: 40px; border-radius: 10px; background: ${prioBg}; display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1px solid rgba(255,255,255,0.5);">
+                                            <i data-lucide="${typeIcon}" style="width: 18px; color: ${prioColor};"></i>
+                                        </div>
+
+                                        <!-- Content -->
+                                        <div style="flex: 1; min-width: 0;">
+                                            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px;">
+                                                <div style="display: flex; align-items: center; gap: 8px;">
+                                                    <span style="font-size: 0.6rem; font-weight: 800; color: ${prioColor}; text-transform: uppercase; letter-spacing: 0.5px; background: ${prioBg}; padding: 2px 8px; border-radius: 4px;">${a.priority}</span>
+                                                    ${!a.is_read ? `<span style="width: 6px; height: 6px; background: #6366f1; border-radius: 50%; box-shadow: 0 0 8px rgba(99,102,241,0.6);"></span><span style="font-size: 0.65rem; font-weight: 700; color: #6366f1;">New</span>` : ''}
+                                                </div>
+                                                <div style="text-align: right;">
+                                                    <div style="font-size: 0.75rem; font-weight: 600; color: var(--text-dark); line-height: 1;">${dateStr}</div>
+                                                    <div style="font-size: 0.65rem; color: var(--text-muted); margin-top: 4px;">${timeSince(new Date(a.created_at))} ago</div>
+                                                </div>
                                             </div>
 
-                                            <div style="flex: 1;">
-                                                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 12px;">
-                                                    <div style="display: flex; align-items: center; gap: 10px;">
-                                                        <span style="font-size: 0.65rem; font-weight: 900; background: ${prioColor}; color: white; padding: 4px 12px; border-radius: 50px; text-transform: uppercase; letter-spacing: 0.5px;">${a.priority} Priority</span>
-                                                        ${!a.is_read ? `<div class="pulse-dot" style="width: 8px; height: 8px; background: #6366f1; border-radius: 50%; box-shadow: 0 0 10px #6366f1;"></div>` : ''}
-                                                        <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: 800;">• ${timeSince(new Date(a.created_at))} ago</span>
-                                                    </div>
-                                                    <div style="font-size: 0.8rem; color: var(--text-muted); font-weight: 700;"><i data-lucide="eye" style="width: 14px; vertical-align: middle;"></i> 242</div>
+                                            <h4 style="font-size: 0.95rem; font-weight: 700; color: var(--text-dark); margin: 0 0 6px 0; line-height: 1.3;">${cleanFeedTitle}</h4>
+                                            
+                                            <p style="font-size: 0.85rem; color: var(--text-body); line-height: 1.4; margin: 0 0 12px 0; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; padding-right: 20px;">
+                                                ${a.description}
+                                            </p>
+
+                                            <!-- Footer of card -->
+                                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                                <div style="display: flex; align-items: center; gap: 6px;">
+                                                    <div style="width: 18px; height: 18px; background: #1e1b4b; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 0.5rem; font-weight: 800;">HA</div>
+                                                    <span style="font-size: 0.7rem; font-weight: 600; color: var(--text-muted);">Posted by HR Dept</span>
                                                 </div>
-                                                
-                                                <h4 style="font-size: 1.25rem; font-weight: 950; margin: 0; color: #0f172a; line-height: 1.4;">${a.title}</h4>
-                                                <p style="font-size: 0.95rem; color: #64748b; margin-top: 10px; line-height: 1.6; max-width: 90%;">${a.description}</p>
-                                                
-                                                <div style="margin-top: 20px; display: flex; align-items: center; gap: 20px;">
-                                                    <div style="display: flex; align-items: center; gap: 6px;">
-                                                        <img src="https://ui-avatars.com/api/?name=HR&background=1e1b4b&color=fff" style="width: 24px; height: 24px; border-radius: 50%; border: 2px solid white; box-shadow: 0 0 10px rgba(0,0,0,0.1);">
-                                                        <span style="font-size: 0.75rem; font-weight: 800; color: #1e1b4b;">HR Internal</span>
-                                                    </div>
-                                                    <div style="height: 4px; width: 4px; background: #cbd5e1; border-radius: 50%;"></div>
-                                                    <div style="font-size: 0.75rem; color: var(--accent); font-weight: 900; letter-spacing: 0.5px;">VIEW FULL BROADCAST <i data-lucide="arrow-right" style="width: 14px; vertical-align: middle;"></i></div>
+                                                <div style="font-size: 0.7rem; font-weight: 700; color: var(--accent); display: flex; align-items: center; gap: 4px; transition: gap 0.2s;" class="read-more-link">
+                                                    Read Full Update <i data-lucide="arrow-right" style="width: 12px;"></i>
                                                 </div>
                                             </div>
                                         </div>
-                                    `;
-                                }).join('')}
+                                    </div>
+                                </div>
+                            `;
+                        }).join('')}
+
+                        ${list.length === 0 ? `
+                            <div style="padding: 60px 24px; text-align: center; background: var(--card-bg); border-radius: 20px; border: 1px dashed var(--border-color);">
+                                <div style="width: 64px; height: 64px; background: #f8fafc; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;">
+                                    <i data-lucide="inbox" style="width: 32px; height: 32px; color: #cbd5e1;"></i>
+                                </div>
+                                <p style="font-size: 1.1rem; color: var(--text-dark); font-weight: 700; margin-bottom: 8px;">You're all caught up!</p>
+                                <p style="font-size: 0.9rem; color: var(--text-muted);">No new announcements at this time.</p>
+                            </div>
+                        ` : ''}
+                    </div>
+                </div>
+            `;
+        }
+    },
+
+    policies: {
+        title: "Company Policies & Compliance",
+        render: () => {
+            // Mock data representing the assigned policies (Normally fetched from Supabase)
+            const assignedPolicies = [
+                { id: 'p1', title: 'Work From Home Policy v2', category: 'Leave / Attendance', version: 'v2', effective_date: '2026-04-01', status: 'pending', url: '#' },
+                { id: 'p2', title: 'Employee Code of Conduct', category: 'Human Resources', version: 'v1', effective_date: '2026-01-01', status: 'acknowledged', url: '#' },
+                { id: 'p3', title: 'Data Security & IT Policy', category: 'Security', version: 'v3', effective_date: '2025-11-15', status: 'acknowledged', url: '#' }
+            ];
+
+            const pending = assignedPolicies.filter(p => p.status === 'pending');
+            const acked = assignedPolicies.filter(p => p.status === 'acknowledged');
+
+            return `
+                <div class="fade-in-up" style="width: 100%; margin: 0 auto; padding-bottom: 50px;">
+                    <div style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); border-radius: 20px; padding: 40px; margin-bottom: 30px; position: relative; overflow: hidden; color: white;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; position: relative; z-index: 1;">
+                            <div>
+                                <span style="background: rgba(255,255,255,0.1); padding: 6px 12px; border-radius: 50px; font-size: 0.75rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;">Legal & Compliance</span>
+                                <h2 style="font-size: 2.2rem; font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 900; margin: 15px 0 5px; line-height: 1.1;">Company Policies</h2>
+                                <p style="font-size: 1rem; color: #cbd5e1; margin: 0;">Review and acknowledge important company disclosures.</p>
+                            </div>
+                            <div style="display: flex; gap: 20px;">
+                                <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 20px; border-radius: 16px; backdrop-filter: blur(12px); text-align: center; min-width: 120px;">
+                                    <div style="font-size: 2rem; font-weight: 900; color: #ef4444; line-height: 1;">${pending.length}</div>
+                                    <div style="font-size: 0.75rem; font-weight: 700; color: #cbd5e1; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 5px;">Pending Action</div>
+                                </div>
+                                <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 20px; border-radius: 16px; backdrop-filter: blur(12px); text-align: center; min-width: 120px;">
+                                    <div style="font-size: 2rem; font-weight: 900; color: #10b981; line-height: 1;">${acked.length}</div>
+                                    <div style="font-size: 0.75rem; font-weight: 700; color: #cbd5e1; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 5px;">Acknowledged</div>
+                                </div>
                             </div>
                         </div>
+                        <i data-lucide="scale" style="position: absolute; right: 5%; bottom: -20px; width: 180px; height: 180px; color: white; opacity: 0.03; transform: rotate(-10deg);"></i>
+                    </div>
 
-                        <!-- Right Utility Pane -->
-                        <div class="feed-sidebar">
-                            <div style="background: white; border-radius: 28px; padding: 25px; box-shadow: 0 10px 40px rgba(0,0,0,0.02); border: 1px solid var(--border-color); position: sticky; top: 20px;">
-                                <h3 style="font-size: 1rem; font-weight: 950; margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
-                                    <i data-lucide="crosshair" style="color: #6366f1;"></i> Targeted Streams
-                                </h3>
-                                <div style="display: flex; flex-direction: column; gap: 12px;">
-                                    <div style="padding: 15px; border-radius: 18px; background: #f8fafc; display: flex; align-items: center; justify-content: space-between;">
-                                        <div style="display: flex; align-items: center; gap: 12px;">
-                                            <div style="width: 32px; height: 32px; background: white; border-radius: 10px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.05);"><i data-lucide="users" style="width: 16px; color: #6366f1;"></i></div>
-                                            <div style="font-size: 0.8rem; font-weight: 800; color: #334155;">Department</div>
+                    ${pending.length > 0 ? `
+                    <div style="background: #fef2f2; border: 1px solid #fee2e2; border-radius: 16px; padding: 25px; margin-bottom: 30px;">
+                        <h3 style="color: #991b1b; font-size: 1.1rem; font-weight: 800; margin-top: 0; margin-bottom: 15px; display: flex; align-items: center; gap: 8px;"><i data-lucide="alert-circle" style="width: 20px;"></i> Pending Acknowledgements</h3>
+                        <div style="display: grid; gap: 15px;">
+                            ${pending.map(p => `
+                                <div style="background: white; border-radius: 12px; padding: 20px; border: 1px solid #fca5a5; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 6px -1px rgba(239,68,68,0.1);">
+                                    <div style="display: flex; gap: 16px; align-items: center;">
+                                        <div style="width: 46px; height: 46px; border-radius: 12px; background: #fef2f2; display: flex; align-items: center; justify-content: center; color: #ef4444;">
+                                            <i data-lucide="file-warning"></i>
                                         </div>
-                                        <span style="font-size: 0.65rem; font-weight: 950; background: #6366f1; color: white; padding: 3px 10px; border-radius: 50px;">${dashboardData.employee.department}</span>
-                                    </div>
-                                    <div style="padding: 15px; border-radius: 18px; background: #f8fafc; display: flex; align-items: center; justify-content: space-between;">
-                                        <div style="display: flex; align-items: center; gap: 12px;">
-                                            <div style="width: 32px; height: 32px; background: white; border-radius: 10px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.05);"><i data-lucide="map-pin" style="width: 16px; color: #10b981;"></i></div>
-                                            <div style="font-size: 0.8rem; font-weight: 800; color: #334155;">Location</div>
-                                        </div>
-                                        <span style="font-size: 0.65rem; font-weight: 950; color: #10b981;">Ahmedabad, IN</span>
-                                    </div>
-                                </div>
-
-                                <div style="margin-top: 30px; padding: 20px; background: linear-gradient(135deg, #eff6ff, #f0f9ff); border-radius: 20px; border: 1px solid #dbeafe;">
-                                    <div style="display: flex; gap: 12px; align-items: start;">
-                                        <div style="background: white; width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 4px 10px rgba(79, 70, 229, 0.1);"><i data-lucide="bell" style="width: 18px; color: #4f46e5;"></i></div>
                                         <div>
-                                            <div style="font-size: 0.85rem; font-weight: 900; color: #1e3a8a;">Push Notifications</div>
-                                            <p style="font-size: 0.75rem; color: #1e3a8a; opacity: 0.8; margin-top: 4px; line-height: 1.4;">Get broad-casts on mobile app instantly.</p>
-                                            <button style="margin-top: 12px; background: #1e3a8a; color: white; border: none; padding: 8px 15px; border-radius: 8px; font-weight: 800; font-size: 0.7rem; cursor: pointer;">Enable Alerts</button>
+                                            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 4px;">
+                                                <h4 style="margin: 0; font-size: 1.05rem; font-weight: 800; color: #1e293b;">${p.title}</h4>
+                                                <span style="background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-size: 0.65rem; font-weight: 800; color: #475569;">${p.version}</span>
+                                            </div>
+                                            <div style="font-size: 0.8rem; color: #64748b; font-weight: 500;">Category: <b>${p.category}</b> &nbsp;&bull;&nbsp; Effective: ${new Date(p.effective_date).toLocaleDateString()}</div>
                                         </div>
                                     </div>
+                                    <button onclick="viewPolicy('${p.id}')" style="background: #ef4444; color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 700; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 10px rgba(239,68,68,0.3); transition: 0.2s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='none'">
+                                        Review & Acknowledge <i data-lucide="arrow-right" style="width:16px;"></i>
+                                    </button>
                                 </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                    ` : ''}
+
+                    <div style="background: white; border-radius: 16px; border: 1px solid var(--border-color); overflow: hidden;">
+                        <div style="padding: 20px 24px; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center;">
+                            <h3 style="font-size: 1.1rem; font-weight: 800; color: var(--text-dark); margin: 0;">All Applicable Policies</h3>
+                            <div style="display: flex; gap: 10px;">
+                                <select style="padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border-color); font-size: 0.8rem; color: var(--text-dark); font-weight: 500; outline: none;">
+                                    <option>All Categories</option>
+                                    <option>Leave</option>
+                                    <option>Security</option>
+                                </select>
                             </div>
+                        </div>
+                        <div style="padding: 24px;">
+                            ${assignedPolicies.length > 0 ? `
+                                <table style="width: 100%; border-collapse: collapse;">
+                                    <thead>
+                                        <tr>
+                                            <th style="text-align: left; padding: 12px; font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); border-bottom: 2px solid #f1f5f9;">Policy Document</th>
+                                            <th style="text-align: left; padding: 12px; font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); border-bottom: 2px solid #f1f5f9;">Category</th>
+                                            <th style="text-align: left; padding: 12px; font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); border-bottom: 2px solid #f1f5f9;">Effective Date</th>
+                                            <th style="text-align: left; padding: 12px; font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); border-bottom: 2px solid #f1f5f9;">Status</th>
+                                            <th style="text-align: right; padding: 12px; font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); border-bottom: 2px solid #f1f5f9;">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        ${assignedPolicies.map(p => `
+                                            <tr>
+                                                <td style="padding: 16px 12px; border-bottom: 1px solid #f1f5f9;">
+                                                    <div style="display: flex; align-items: center; gap: 12px;">
+                                                        <i data-lucide="file-text" style="color: var(--brand-purple); width: 20px;"></i>
+                                                        <div>
+                                                            <div style="font-weight: 800; color: var(--text-dark); font-size: 0.95rem;">${p.title}</div>
+                                                            <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 2px;">Version ${p.version}</div>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td style="padding: 16px 12px; border-bottom: 1px solid #f1f5f9;">
+                                                    <span style="background: #f1f5f9; padding: 4px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; color: #475569;">${p.category}</span>
+                                                </td>
+                                                <td style="padding: 16px 12px; border-bottom: 1px solid #f1f5f9; font-size: 0.85rem; color: var(--text-dark); font-weight: 600;">
+                                                    ${new Date(p.effective_date).toLocaleDateString()}
+                                                </td>
+                                                <td style="padding: 16px 12px; border-bottom: 1px solid #f1f5f9;">
+                                                    ${p.status === 'acknowledged' 
+                                                        ? `<span style="color: #10b981; font-weight: 700; font-size: 0.8rem; display: flex; align-items: center; gap: 4px;"><i data-lucide="check-circle-2" style="width: 14px;"></i> Accepted</span>`
+                                                        : `<span style="color: #ef4444; font-weight: 700; font-size: 0.8rem; display: flex; align-items: center; gap: 4px;"><i data-lucide="alert-circle" style="width: 14px;"></i> Action Req.</span>`
+                                                    }
+                                                </td>
+                                                <td style="padding: 16px 12px; border-bottom: 1px solid #f1f5f9; text-align: right;">
+                                                    <button onclick="viewPolicy('${p.id}')" style="background: transparent; border: 1px solid var(--border-color); padding: 8px 12px; border-radius: 8px; font-weight: 700; font-size: 0.75rem; color: var(--text-dark); cursor: pointer; transition: 0.2s;" onmouseover="this.style.borderColor='var(--brand-purple)'; this.style.color='var(--brand-purple)';" onmouseout="this.style.borderColor='var(--border-color)'; this.style.color='var(--text-dark)';">
+                                                        ${p.status === 'acknowledged' ? 'View Document' : 'Read Policy'}
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        `).join('')}
+                                    </tbody>
+                                </table>
+                            ` : `
+                                <div style="text-align: center; padding: 40px;">
+                                    <div style="width: 64px; height: 64px; background: #f8fafc; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;">
+                                        <i data-lucide="shield" style="width: 32px; height: 32px; color: #cbd5e1;"></i>
+                                    </div>
+                                    <p style="font-size: 1.1rem; color: var(--text-dark); font-weight: 700; margin-bottom: 8px;">No policies assigned yet 📜</p>
+                                    <p style="font-size: 0.9rem; color: var(--text-muted);">When HR publishes new guidelines, they will appear here.</p>
+                                </div>
+                            `}
                         </div>
                     </div>
                 </div>
-            `
-        },
+            `;
+        }
     },
+
 
     analytics: {
         title: "Enterprise Performance Hub",
@@ -1791,6 +1924,10 @@ function switchSection(id) {
     $('#dashboard-content').fadeOut(150, function () {
         const html = section.render();
         $(this).html(html).fadeIn(150);
+        
+        // Force Reflow to handle browser rendering stalls
+        this.offsetHeight; 
+        
         lucide.createIcons();
         if (id === 'overview' || id === 'attendance') {
             updateAttendanceUI();
@@ -2996,6 +3133,10 @@ function viewCourse(courseId) {
     $('#dashboard-content').fadeOut(200, function() {
         const html = renderCoursePlayer(courseId);
         $(this).html(html).fadeIn(200);
+        
+        // Force Reflow
+        this.offsetHeight;
+        
         lucide.createIcons();
         window.scrollTo(0,0);
     });
@@ -3102,30 +3243,49 @@ function viewAnnouncement(id) {
     // Mark as read immediately
     ann.is_read = true;
     
-    const prioColor = ann.priority === 'high' ? '#f43f5e' : (ann.priority === 'medium' ? '#f59e0b' : '#64748b');
+    const prioColor = ann.priority === 'high' ? '#ef4444' : (ann.priority === 'medium' ? '#f59e0b' : '#3b82f6');
+    const prioBg = ann.priority === 'high' ? 'rgba(239,68,68,0.1)' : (ann.priority === 'medium' ? 'rgba(245,158,11,0.1)' : 'rgba(59,130,246,0.1)');
+    const typeIcon = ann.type === 'urgent' ? 'alert-triangle' : (ann.type === 'event' ? 'calendar' : (ann.type === 'policy' ? 'shield' : 'info'));
+
+    // Strip basic emojis
+    const stripEmojis = str => str ? str.replace(/[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{1F1E6}-\u{1F1FF}\u{1F600}-\u{1F64F}\u{1F680}-\u{1F6FF}]/gu, '').trim() : '';
+    const cleanTitle = stripEmojis(ann.title);
+    const cleanDesc = stripEmojis(ann.description);
 
     $('#modal-container').html(`
-        <div id="ann-modal" class="modal-overlay fade-in" style="position:fixed; inset:0; background:rgba(0,0,0,0.4); display:flex; align-items:center; justify-content:center; z-index:9000; backdrop-filter:blur(8px);">
-            <div class="modal-content scale-in" style="background:white; width:600px; max-width:95%; border-radius:32px; overflow:hidden; box-shadow: 0 30px 60px rgba(0,0,0,0.2);">
-                <div style="height:120px; background:${prioColor}; position:relative; overflow:hidden; display:flex; align-items:center; justify-content:center;">
-                    <div style="position:absolute; inset:0; background:linear-gradient(rgba(0,0,0,0), rgba(0,0,0,0.3));"></div>
-                    <i data-lucide="megaphone" style="width:60px; height:60px; color:white; opacity:0.3;"></i>
-                </div>
-                <div style="padding:40px;">
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-                        <span style="font-size:0.75rem; font-weight:900; background:${prioColor}15; color:${prioColor}; padding:4px 12px; border-radius:50px; text-transform:uppercase;">${ann.priority} Priority</span>
-                        <span style="font-size:0.8rem; color:var(--text-muted); font-weight:600;">${new Date(ann.created_at).toLocaleDateString()}</span>
-                    </div>
-                    <h2 style="font-size:1.8rem; font-weight:950; color:var(--text-dark); line-height:1.2;">${ann.title}</h2>
-                    <div style="margin-top:25px; font-size:1rem; line-height:1.7; color:#475569;">
-                        ${ann.description}
-                    </div>
-                    <div style="margin-top:40px; padding-top:25px; border-top:1px solid #f1f5f9; display:flex; justify-content:space-between; align-items:center;">
-                        <div style="font-size:0.75rem; color:var(--text-muted); display:flex; align-items:center; gap:8px;">
-                            <img src="https://ui-avatars.com/api/?name=HR+Admin&background=4D4286&color=fff" style="width:24px; height:24px; border-radius:50%;">
-                            <span>Broadcasted by HR Internal</span>
+        <div id="ann-modal" class="modal-overlay fade-in" style="position:fixed; inset:0; background:rgba(0,0,0,0.6); display:flex; align-items:center; justify-content:center; z-index:9000; backdrop-filter:blur(4px);">
+            <div class="modal-content scale-in" style="background:white; width:540px; max-width:95%; border-radius:24px; overflow:hidden; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); position:relative;">
+                
+                <!-- Colored Top Border -->
+                <div style="height: 6px; width: 100%; background: ${prioColor};"></div>
+
+                <div style="padding: 30px;">
+                    <button onclick="closeAnnModal()" style="position: absolute; top: 20px; right: 20px; background: none; border: none; cursor: pointer; color: var(--text-muted); padding: 5px; border-radius: 50%; display: flex; align-items: center; justify-content: center; hover:bg-gray-100;">
+                        <i data-lucide="x" style="width: 20px; height: 20px;"></i>
+                    </button>
+
+                    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 20px;">
+                        <div style="width: 40px; height: 40px; border-radius: 10px; background: ${prioBg}; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(0,0,0,0.05);">
+                            <i data-lucide="${typeIcon}" style="width: 20px; color: ${prioColor};"></i>
                         </div>
-                        <button class="btn-premium-solid" style="padding:10px 25px; border-radius:12px;" onclick="closeAnnModal()">Acknowledge & Close</button>
+                        <div>
+                            <span style="font-size: 0.65rem; font-weight: 800; color: ${prioColor}; text-transform: uppercase; letter-spacing: 0.5px;">${ann.priority} Priority</span>
+                            <div style="font-size: 0.75rem; color: var(--text-muted); font-weight: 600; margin-top:2px;">${new Date(ann.created_at).toLocaleDateString()} &middot; internal broadcast</div>
+                        </div>
+                    </div>
+                    
+                    <h2 style="font-size: 1.4rem; font-weight: 800; color: var(--text-dark); margin: 0 0 16px 0; line-height: 1.3;">${cleanTitle}</h2>
+                    
+                    <div style="font-size: 0.95rem; line-height: 1.6; color: var(--text-body); background: #f8fafc; padding: 20px; border-radius: 16px; border: 1px solid var(--border-color);">
+                        ${cleanDesc}
+                    </div>
+
+                    <div style="margin-top: 30px; display: flex; justify-content: space-between; align-items: center;">
+                        <div style="font-size: 0.75rem; color: var(--text-muted); display: flex; align-items: center; gap: 8px;">
+                            <img src="https://ui-avatars.com/api/?name=HR+Admin&background=4D4286&color=fff" style="width: 24px; height: 24px; border-radius: 50%;">
+                            <span>Posted by HR Dept</span>
+                        </div>
+                        <button class="btn-premium-solid" style="padding: 10px 20px; border-radius: 12px; font-size: 0.85rem;" onclick="closeAnnModal()">Close Update</button>
                     </div>
                 </div>
             </div>
@@ -3136,6 +3296,8 @@ function viewAnnouncement(id) {
     // Refresh the list view in background to show 'read' state
     const hash = window.location.hash.replace('#', '') || 'overview';
     if (hash === 'announcements') {
+        // Find if list exists in DOM and just update UI class instead of total re-render if possible
+        // but for now re-render handles badges correctly
         const sectionContent = sections.announcements.render();
         $('#dashboard-content').html(sectionContent);
         lucide.createIcons();
@@ -3160,3 +3322,119 @@ function timeSince(date) {
     if (interval > 1) return Math.floor(interval) + "m";
     return Math.floor(seconds) + "s";
 }
+
+// ----------------------------------------------------
+// Policy Management Modals
+// ----------------------------------------------------
+window.viewPolicy = function(policyId) {
+    // Mock policy lookup
+    const policy = {
+        id: policyId,
+        title: policyId === 'p1' ? 'Work From Home Policy v2' : (policyId === 'p2' ? 'Employee Code of Conduct' : 'Data Security & IT Policy'),
+        content: '<p>This document outlines the rules and expectations regarding work. By acknowledging this policy, you agree to adhere to its principles.</p><ul><li>Maintain professional conduct</li><li>Secure all data</li><li>Report issues immediately</li></ul>',
+        status: policyId === 'p1' ? 'pending' : 'acknowledged',
+        version: policyId === 'p1' ? 'v2' : 'v1'
+    };
+
+    const container = $('#modal-container');
+    container.html(`
+        <div style="background: white; border-radius: 20px; width: 650px; max-width: 95%; max-height: 90vh; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);">
+            <div style="padding: 24px; border-bottom: 2px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center; background: #fafafa;">
+                <div>
+                    <h3 style="margin: 0; font-size: 1.25rem; font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800; color: #1e293b;">${policy.title}</h3>
+                    <div style="font-size: 0.8rem; color: #64748b; font-weight: 600; margin-top: 4px;">Version ${policy.version}</div>
+                </div>
+                <button onclick="closePolicyModal()" style="background: #f1f5f9; border: none; width: 36px; height: 36px; border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; color: #475569; transition: 0.2s;" onmouseover="this.style.background='#e2e8f0'" onmouseout="this.style.background='#f1f5f9'"><i data-lucide="x" style="width: 18px;"></i></button>
+            </div>
+            
+            <div style="padding: 30px 24px; overflow-y: auto; color: #334155; font-size: 0.95rem; line-height: 1.6;">
+                <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; text-align: center; margin-bottom: 24px;">
+                    <i data-lucide="file-text" style="width: 48px; height: 48px; color: #94a3b8; margin-bottom: 10px;"></i>
+                    <div style="font-weight: 700; color: #475569;">PDF Document Attached</div>
+                    <button style="margin-top: 10px; background: white; border: 1px solid #cbd5e1; padding: 8px 16px; border-radius: 8px; font-weight: 600; color: #1e293b; cursor: pointer; display: inline-flex; align-items: center; gap: 8px;"><i data-lucide="download" style="width:14px;"></i> Download PDF</button>
+                </div>
+                
+                <h4 style="margin-top: 0; color: #1e293b; font-weight: 800; margin-bottom: 10px;">Policy Summary</h4>
+                ${policy.content}
+            </div>
+
+            ${policy.status === 'pending' ? `
+                <div style="padding: 20px 24px; border-top: 1px solid #e2e8f0; background: #fffbfa;">
+                    <div style="display: flex; gap: 12px; margin-bottom: 16px;">
+                        <input type="checkbox" id="ack-checkbox" style="width: 20px; height: 20px; margin-top: 2px;">
+                        <label for="ack-checkbox" style="font-size: 0.85rem; color: #475569; font-weight: 500; line-height: 1.4;">
+                            I acknowledge that I have received, read, and fully understand the <strong style="color:#1e293b;">${policy.title}</strong> document. I agree to comply with its terms and conditions.
+                        </label>
+                    </div>
+                    <div style="display: flex; justify-content: flex-end;">
+                        <button id="btn-acknowledge" onclick="acknowledgePolicy('${policy.id}')" disabled style="background: var(--success); color: white; border: none; padding: 12px 24px; border-radius: 10px; font-weight: 700; display: flex; align-items: center; gap: 8px; opacity: 0.5; transition: 0.2s;">
+                            <i data-lucide="check-square" style="width: 16px;"></i> Sign & Acknowledge
+                        </button>
+                    </div>
+                </div>
+            ` : `
+                <div style="padding: 20px 24px; border-top: 1px solid #e2e8f0; background: #f0fdf4; display: flex; align-items: center; gap: 12px; justify-content: center; color: #166534;">
+                    <i data-lucide="shield-check" style="width: 24px;"></i>
+                    <div>
+                        <div style="font-weight: 800; font-size: 0.95rem;">Digitally Signed & Acknowledged</div>
+                        <div style="font-size: 0.75rem; font-weight: 600; opacity: 0.8;">Recorded on ${new Date().toLocaleDateString()}</div>
+                    </div>
+                </div>
+            `}
+        </div>
+    `);
+
+    // Add event listener to checkbox
+    setTimeout(() => {
+        const cb = document.getElementById('ack-checkbox');
+        const btn = document.getElementById('btn-acknowledge');
+        if (cb && btn) {
+            cb.addEventListener('change', (e) => {
+                if (e.target.checked) {
+                    btn.removeAttribute('disabled');
+                    btn.style.opacity = '1';
+                    btn.style.cursor = 'pointer';
+                } else {
+                    btn.setAttribute('disabled', 'true');
+                    btn.style.opacity = '0.5';
+                    btn.style.cursor = 'not-allowed';
+                }
+            });
+        }
+    }, 100);
+
+    container.removeClass('hidden').css({
+        'display': 'flex',
+        'position': 'fixed',
+        'inset': '0',
+        'z-index': '9999',
+        'background-color': 'rgba(15, 23, 42, 0.6)',
+        'backdrop-filter': 'blur(10px)',
+        'align-items': 'center',
+        'justify-content': 'center'
+    });
+    lucide.createIcons();
+};
+
+window.closePolicyModal = function() {
+    $('#modal-container').addClass('hidden').empty().removeAttr('style');
+};
+
+window.acknowledgePolicy = function(policyId) {
+    const btn = $('#btn-acknowledge');
+    btn.html('<i data-lucide="loader" class="spin" style="width: 16px;"></i> Signing...').css('opacity', '0.8');
+    lucide.createIcons();
+    
+    // Simulate API call
+    setTimeout(() => {
+        closePolicyModal();
+        // Force refresh UI (mock logic)
+        alert('Policy acknowledged successfully! Your compliance record has been updated.');
+        // In real app, we would update state and re-render
+        if(window.location.hash.replace('#', '') === 'policies') {
+           const sectionContent = sections.policies.render();
+           $('#dashboard-content').html(sectionContent);
+           lucide.createIcons();
+        }
+    }, 1000);
+};

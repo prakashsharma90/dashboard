@@ -1,4 +1,6 @@
 {
+  "buildCommand": "echo 'Static HTML, skipping Vite build'",
+  "outputDirectory": ".",
   "cleanUrls": true,
   "rewrites": [
     { "source": "/employee-dashboard", "destination": "/employee-dashboard.html" },

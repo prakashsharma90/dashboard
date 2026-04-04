@@ -53,19 +53,7 @@
             animation-timing-function: cubic-bezier(0.19, 1, 0.22, 1);
         }
 
-        /* Dashboard Grid Layout - Integrated from dashboard-style.css */
-        .dashboard {
-            display: grid;
-            grid-template-columns: 250px 1fr;
-            height: 100vh;
-            max-width: 100vw;
-        }
-
-        @media (max-width: 1024px) {
-            .dashboard {
-                grid-template-columns: 80px 1fr;
-            }
-        }
+        /* Main content layout is now managed via dashboard-style.css */
 
         /* 15. Main Content */
         .main-content {
@@ -264,15 +252,7 @@
             color: var(--text-muted);
         }
 
-        /* 4. Company Overview & 15. Cards Grid */
-        .cards {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-            gap: 20px;
-            margin-bottom: 24px;
-            width: 100%;
-        }
-
+        /* General Panel Layouts */
         .overview-card {
             background: var(--card-white);
             padding: 24px;
@@ -330,7 +310,6 @@
             color: #2563eb;
         }
 
-        /* General Panel Layouts */
         .panel {
             background: var(--card-white);
             border-radius: var(--radius-lg);
@@ -390,57 +369,7 @@
             gap: 8px;
         }
 
-        /* 5. Analytics Section Grid */
-        .grid-analytics {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
-            margin-bottom: 24px;
-        }
 
-        /* Desktop specific overrides for balance */
-        @media (min-width: 1200px) {
-            .grid-3-col {
-                grid-template-columns: 1.5fr 1fr 1fr !important;
-            }
-
-            .grid-2-col {
-                grid-template-columns: 1fr 1fr !important;
-            }
-
-            .grid-large-small {
-                grid-template-columns: 2fr 1fr !important;
-            }
-        }
-
-        @media (max-width: 1199px) {
-            .grid-analytics {
-                grid-template-columns: 1fr 1fr;
-            }
-        }
-
-        @media (max-width: 768px) {
-
-            .grid-analytics,
-            .cards,
-            .grid-3 {
-                grid-template-columns: 1fr !important;
-            }
-
-            .main-content {
-                padding: 16px;
-            }
-
-            .top-bar {
-                flex-direction: column;
-                gap: 15px;
-                padding: 20px;
-            }
-
-            .search-container {
-                width: 100%;
-            }
-        }
 
         .chart-container {
             position: relative;
@@ -900,7 +829,7 @@
                 </div>
 
                 <!-- 4. COMPANY OVERVIEW (TOP CARDS) -->
-                <div class="cards">
+                <div class="resp-cards">
                     <div class="overview-card">
 
                         <div class="o-icon ic-purple"><i data-lucide="users"></i></div>
@@ -933,7 +862,7 @@
                 </div>
 
                 <!-- 5. ANALYTICS & PREMIUM WIDGETS SECTION -->
-                <div class="grid-analytics grid-3-col">
+                <div class="resp-analytics grid-3-col">
                     <div class="panel">
                         <div class="panel-header">
                             <h3 class="panel-title">Employee Growth & Attendance Trend</h3>
@@ -994,7 +923,7 @@
                 </div>
 
                 <!-- PREMIUM ROW 1: Performance, Payroll -->
-                <div class="grid-analytics" style="grid-template-columns: 1fr 1fr;">
+                <div class="resp-analytics grid-2-col">
                     <!-- Performance Widget -->
                     <div class="panel">
                         <div class="panel-header">
@@ -1062,7 +991,7 @@
                 </div>
 
                 <!-- PREMIUM ROW 2: Calendar & Activities -->
-                <div class="grid-analytics grid-2-col">
+                <div class="resp-analytics grid-2-col">
                     <!-- Calendar Mini Widget -->
                     <div class="panel">
                         <div class="panel-header">
@@ -1145,13 +1074,13 @@
                 </div>
 
                 <!-- Recent Employees & Leave Requests Row -->
-                <div class="grid-analytics">
+                <div class="resp-analytics">
                     <div class="panel">
                         <div class="panel-header">
                             <h3 class="panel-title">Recent Employees</h3>
                             <button class="btn-outline btn-sm">View All</button>
                         </div>
-                        <div style="overflow-x: auto;">
+                        <div class="resp-table-container">
                             <table class="data-table">
                                 <thead>
                                     <tr>
@@ -1253,7 +1182,7 @@
                         <button class="btn-primary btn-sm"><i data-lucide="plus" style="width: 14px;"></i> Post New
                             Job</button>
                     </div>
-                    <div style="overflow-x: auto;">
+                    <div class="resp-table-container">
                         <table class="data-table">
                             <thead>
                                 <tr>
@@ -1315,7 +1244,7 @@
                                 style="vertical-align:middle; margin-right:8px; width:20px;"></i> Pending Profile
                             Verification</h3>
                     </div>
-                    <div style="overflow-x: auto;">
+                    <div class="resp-table-container">
                         <table class="data-table" id="verification-table">
                             <thead>
                                 <tr>
@@ -1345,7 +1274,7 @@
                                     data-lucide="plus" style="width: 16px;"></i> Add Employee</button>
                         </div>
                     </div>
-                    <div style="overflow-x: auto;">
+                    <div class="resp-table-container">
                         <table class="data-table" id="employee-table">
                             <thead>
                                 <tr>
@@ -1376,7 +1305,7 @@
                 </div>
 
                 <!-- Stats Cards -->
-                <div class="cards" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); margin-bottom: 24px;">
+                <div class="resp-cards">
                     <div class="overview-card">
                         <div class="o-icon ic-green"><i data-lucide="user-check"></i></div>
                         <div class="o-info">

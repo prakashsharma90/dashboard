@@ -27,11 +27,7 @@
             --success: #10b981;
         }
 
-        .dashboard {
-            display: grid;
-            grid-template-columns: 250px 1fr;
-            height: 100vh;
-        }
+        /* Dashboard layout handled by dashboard-style.css */
 
         .main-content {
             padding: 2.5rem;
@@ -209,6 +205,27 @@
 
         /* Quill height */
         #editor { height: 200px; border-radius: 10px; }
+
+        @media (max-width: 768px) {
+            .setup-tabs {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+                flex-wrap: nowrap;
+                gap: 4px;
+                padding: 6px;
+            }
+
+            .tab-btn {
+                white-space: nowrap;
+                font-size: 0.75rem;
+                padding: 8px 12px;
+                flex-shrink: 0;
+            }
+
+            .card { padding: 16px; border-radius: 12px; }
+            .form-grid { grid-template-columns: 1fr !important; }
+            .policy-list { font-size: 0.8rem; }
+        }
     </style>
 </head>
 <body>
@@ -240,57 +257,87 @@
                     <form id="policy-form">
                         <div class="form-grid">
                             <div class="form-group">
-                                <label>Policy Name</label>
-                                <input type="text" placeholder="e.g. Remote Work Guidelines" required>
+                                <label>Policy Title</label>
+                                <input type="text" placeholder="e.g. Remote Work Guidelines v2" required>
                             </div>
                             <div class="form-group">
-                                <label>Policy Type</label>
-                                <select>
-                                    <option>Leave Policy</option>
-                                    <option>Attendance</option>
-                                    <option>Code of Conduct</option>
-                                    <option>Remote Work</option>
-                                    <option>Sexual Harassment (POSH)</option>
+                                <label>Category</label>
+                                <select required>
+                                    <option value="leave">Leave Policy</option>
+                                    <option value="attendance">Attendance</option>
+                                    <option value="code_of_conduct">Code of Conduct</option>
+                                    <option value="payroll">Payroll</option>
+                                    <option value="security">Security / IT</option>
                                 </select>
                             </div>
+                            <div class="form-group">
+                                <label>Target Audience</label>
+                                <select required>
+                                    <option value="all">All Employees</option>
+                                    <option value="department">Specific Department</option>
+                                    <option value="role">Specific Role</option>
+                                </select>
+                            </div>
+                            <div class="form-group" id="target-value-group" style="display:none;">
+                                <label>Target Value</label>
+                                <input type="text" placeholder="e.g. Engineering, Sales, Manager">
+                            </div>
+                            
                             <div class="form-group">
                                 <label>Effective Date</label>
                                 <input type="date" required>
                             </div>
                             <div class="form-group">
+                                <label>Expiry Date (Optional)</label>
+                                <input type="date">
+                            </div>
+                            <div class="form-group">
                                 <label>Attachment (PDF/DOC)</label>
-                                <input type="file">
+                                <input type="file" accept=".pdf,.doc,.docx">
                             </div>
                         </div>
                         <div class="form-group" style="margin-top: 20px;">
-                            <label>Description</label>
+                            <label>Policy Summary / Description</label>
                             <div id="editor"></div>
                         </div>
                         <div style="margin-top: 24px; display: flex; justify-content: flex-end;">
-                            <button class="btn-save" type="submit"><i data-lucide="upload-cloud"></i> Publish Policy</button>
+                            <button class="btn-save" type="submit"><i data-lucide="upload-cloud"></i> Publish Policy & Notify Staff</button>
                         </div>
                     </form>
                 </div>
 
                 <div class="card">
-                    <h3 class="card-title" style="margin-bottom: 20px;">Active Company Policies</h3>
+                    <h3 class="card-title" style="margin-bottom: 20px;">Policy Tracking & Compliance</h3>
                     <table class="policy-list">
                         <thead>
                             <tr>
                                 <th>Policy Name</th>
-                                <th>Type</th>
-                                <th>Effective Date</th>
+                                <th>Category</th>
+                                <th>Total Assigned</th>
+                                <th>Acknowledged</th>
+                                <th>Pending</th>
                                 <th>Status</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr>
+                                <td><b>Remote Work Guidelines v2</b></td>
+                                <td><span class="badge-type" style="background: #f1f5f9; color: #1e293b;">Leave / Remote</span></td>
+                                <td>50</td>
+                                <td><span style="color: var(--success); font-weight:700;">40</span></td>
+                                <td><span style="color: #ef4444; font-weight:700;">10</span></td>
+                                <td><span style="color: var(--success); font-weight: 700;">● Active</span></td>
+                                <td><button class="btn-save" style="padding: 6px 12px; font-size: 0.75rem;"><i data-lucide="eye" style="width:14px;"></i> View Details</button></td>
+                            </tr>
+                            <tr>
                                 <td><b>Company Code of Conduct</b></td>
                                 <td><span class="badge-type" style="background: #f1f5f9; color: #1e293b;">Conduct</span></td>
-                                <td>01 Jan 2026</td>
+                                <td>50</td>
+                                <td><span style="color: var(--success); font-weight:700;">50</span></td>
+                                <td><span style="color: #ef4444; font-weight:700;">0</span></td>
                                 <td><span style="color: var(--success); font-weight: 700;">● Active</span></td>
-                                <td><button class="btn-save" style="padding: 6px 12px; font-size: 0.75rem;"><i data-lucide="eye" style="width:14px;"></i> View</button></td>
+                                <td><button class="btn-save" style="padding: 6px 12px; font-size: 0.75rem;"><i data-lucide="eye" style="width:14px;"></i> View Details</button></td>
                             </tr>
                         </tbody>
                     </table>

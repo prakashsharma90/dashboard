@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analytics & Reports | Salarite Employer</title>
+    <link rel="stylesheet" href="dashboard-style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@700;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <style>
+        /* Reports Specific Styles */
+        .employer-sidebar { width: 250px; background: white; border-right: 1px solid #e2e8f0; }
+        .dashboard-layout { display: flex; height: 100vh; }
+
+        .main-content {
+            flex: 1;
+            width: 100%;
+            height: 100vh;
+            overflow-y: auto;
+            background: #f8fafc;
+        }
+
+        .reports-container {
+            padding: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .reports-header-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 2rem;
+            background: white;
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .reports-header-bar h2 {
+            font-size: 1.1rem;
+            font-weight: 800;
+            color: var(--text-dark);
+            margin: 0;
+        }
+
+        .filter-bar {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .filter-item select, .filter-item input {
+            padding: 8px 12px;
+            height: 38px;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            font-size: 0.85rem;
+            font-family: 'Inter', sans-serif;
+            color: var(--text-dark);
+            outline: none;
+            cursor: pointer;
+            background: white;
+        }
+
+        #export-master {
+            height: 38px;
+            padding: 0 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .reports-nav {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 2rem;
+            overflow-x: auto;
+            padding-bottom: 8px;
+            scrollbar-width: none;
+        }
+
+        .reports-nav::-webkit-scrollbar { display: none; }
+
+        .nav-tab {
+            padding: 10px 20px;
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.2s;
+        }
+
+        .nav-tab:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .nav-tab.active {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+            box-shadow: 0 4px 12px rgba(77, 66, 134, 0.2);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* KPI Grid */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .kpi-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+            transition: transform 0.2s;
+        }
+
+        .kpi-card:hover {
+             transform: translateY(-4px);
+        }
+
+        .kpi-card label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-muted);
+            font-weight: 700;
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .kpi-card .value {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: var(--text-dark);
+            margin-bottom: 4px;
+        }
+
+        .kpi-card .trend {
+            font-size: 0.8rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .trend.up { color: var(--success); }
+        .trend.down { color: var(--danger); }
+
+        .trend i { width: 14px; height: 14px; }
+
+        /* Charts Grid */
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .chart-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 20px;
+            border: 1px solid var(--border-color);
+            min-height: 400px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chart-card.full-width {
+            grid-column: span 2;
+        }
+
+        .chart-card h3 {
+            font-size: 1.05rem;
+            font-weight: 800;
+            margin-bottom: 1.5rem;
+            color: var(--text-dark);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .chart-card h3 i { width: 18px; height: 18px; color: var(--accent); }
+
+        .chart-container {
+            flex-grow: 1;
+            position: relative;
+        }
+
+        /* Tables & Lists */
+        .list-card {
+            background: white;
+            border-radius: 20px;
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+        }
+
+        .list-header {
+            padding: 1.25rem 1.5rem;
+            background: #f8fafc;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .list-header h4 {
+            font-size: 1rem;
+            font-weight: 800;
+        }
+
+        /* Table UI */
+        .analytics-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .analytics-table th {
+            text-align: left;
+            padding: 12px 16px;
+            background: #f8fafc;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        .analytics-table td {
+            padding: 14px 16px;
+            border-bottom: 1px solid #f1f5f9;
+            font-size: 0.9rem;
+        }
+
+        /* AI Insights Panel */
+        .insights-panel {
+            background: linear-gradient(135deg, #4D4286, #6366f1);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 20px;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .insight-icon {
+            width: 50px;
+            height: 50px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .insight-content h4 {
+            font-size: 1.1rem;
+            margin-bottom: 4px;
+        }
+
+        .insight-content p {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+            .chart-card.full-width {
+                grid-column: span 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-layout">
+        <div id="sidebar-placeholder"></div>
+        <script src="employer-sidebar.js"></script>
+
+        <main class="main-content">
+            <div class="reports-header-bar">
+                <h2>Analytics & Reports</h2>
+                <div class="filter-bar">
+                    <div class="filter-item">
+                        <select id="time-filter">
+                            <option value="today">Today</option>
+                            <option value="week">This Week</option>
+                            <option value="month" selected>This Month</option>
+                            <option value="year">This Year</option>
+                            <option value="custom">Custom Range</option>
+                        </select>
+                    </div>
+                    <div class="filter-item">
+                        <select id="dept-filter">
+                            <option value="all">All Departments</option>
+                            <option value="hr">Human Resources</option>
+                            <option value="it">Engineering/IT</option>
+                            <option value="sales">Sales & Marketing</option>
+                            <option value="ops">Operations</option>
+                            <option value="accounts">Accounts</option>
+                        </select>
+                    </div>
+                    <button class="primary-btn" id="export-master">
+                        <i data-lucide="download"></i> Export Data
+                    </button>
+                </div>
+            </div>
+
+            <div class="reports-container">
+                <!-- AI Smart Insight Bar -->
+                <div class="insights-panel">
+                    <div class="insight-icon">
+                        <i data-lucide="sparkles"></i>
+                    </div>
+                    <div class="insight-content">
+                        <h4>AI Intelligence Insight</h4>
+                        <p id="ai-insight-text">Employee productivity has increased by 12% this month. Based on current trends, we recommend reviewing bonus allocations for the engineering team.</p>
+                    </div>
+                </div>
+
+                <!-- Tab Navigation -->
+                <nav class="reports-nav">
+                    <div class="nav-tab active" data-tab="overview">Dashboard Overview</div>
+                    <div class="nav-tab" data-tab="performance">Performance Analytics</div>
+                    <div class="nav-tab" data-tab="attendance">Attendance & Trends</div>
+                    <div class="nav-tab" data-tab="leave">Leave Utilization</div>
+                    <div class="nav-tab" data-tab="recruitment">Recruitment (ATS)</div>
+                    <div class="nav-tab" data-tab="payroll">Payroll Analytics</div>
+                    <div class="nav-tab" data-tab="custom">Report Generator</div>
+                </nav>
+
+                <!-- 1. OVERVIEW -->
+                <div class="tab-content active" id="overview-tab">
+                    <div class="kpi-grid">
+                        <div class="kpi-card">
+                            <label>Total Workforce</label>
+                            <div class="value" id="stat-total-emp">124</div>
+                            <div class="trend up"><i data-lucide="arrow-up"></i> +5 New</div>
+                        </div>
+                        <div class="kpi-card">
+                            <label>Avg. Attendance</label>
+                            <div class="value" id="stat-attendance">94.2%</div>
+                            <div class="trend up"><i data-lucide="arrow-up"></i> 2.1% improvement</div>
+                        </div>
+                        <div class="kpi-card">
+                            <label>Monthly Payroll</label>
+                            <div class="value" id="stat-payroll">₹18.4L</div>
+                            <div class="trend down"><i data-lucide="arrow-down"></i> -1.2% cost diff</div>
+                        </div>
+                        <div class="kpi-card">
+                            <label>Hiring Velocity</label>
+                            <div class="value" id="stat-hiring">12.5%</div>
+                            <div class="trend up"><i data-lucide="arrow-up"></i> High</div>
+                        </div>
+                    </div>
+
+                    <div class="charts-grid">
+                        <div class="chart-card full-width">
+                            <h3><i data-lucide="trending-up"></i> Organization Productivity Trends</h3>
+                            <div class="chart-container">
+                                <canvas id="productivityChart"></canvas>
+                            </div>
+                        </div>
+                        <div class="chart-card">
+                            <h3><i data-lucide="users"></i> Department Distribution</h3>
+                            <div class="chart-container">
+                                <canvas id="deptDistributionChart"></canvas>
+                            </div>
+                        </div>
+                        <div class="chart-card">
+                            <h3><i data-lucide="calendar"></i> Headcount Growth</h3>
+                            <div class="chart-container">
+                                <canvas id="growthChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Department-Level Analytics Table -->
+                    <div class="list-card" style="margin-top: 2rem;">
+                        <div class="list-header" style="flex-wrap: wrap; gap: 10px;">
+                            <h4 style="display: flex; align-items: center; gap: 8px;"><i data-lucide="building" style="color: var(--accent);"></i> Department Analytics</h4>
+                            <div class="filter-group" style="display: flex; gap: 10px; align-items: center;">
+                                <input type="text" id="dept-search" class="date-input" placeholder="Search Dept..." style="padding: 6px 12px;">
+                                <select id="dept-status-filter" class="date-input" style="padding: 6px 12px;">
+                                    <option value="all">All Status</option>
+                                    <option value="high-perf">High Performance</option>
+                                    <option value="low-perf">Low Performance</option>
+                                </select>
+                                <button class="btn-outline btn-sm" onclick="exportDeptData()" style="padding: 6px 12px; font-size: 0.8rem; border-radius: 8px;"><i data-lucide="download" style="width: 14px;"></i> Export</button>
+                            </div>
+                        </div>
+                        <div style="overflow-x: auto;">
+                            <table class="analytics-table">
+                                <thead>
+                                    <tr>
+                                        <th>Department Name</th>
+                                        <th>Total Employees</th>
+                                        <th>Active Today</th>
+                                        <th>Avg Attendance</th>
+                                        <th>Productivity Score</th>
+                                        <th style="text-align: right;">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="dept-analytics-body">
+                                    <!-- Injected via JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. PERFORMANCE -->
+                <div class="tab-content" id="performance-tab">
+                    <div class="charts-grid">
+                        <div class="chart-card">
+                            <h3><i data-lucide="award"></i> Top Performing Departments</h3>
+                            <div class="chart-container">
+                                <canvas id="perfDeptChart"></canvas>
+                            </div>
+                        </div>
+                        <div class="chart-card">
+                            <h3><i data-lucide="check-circle"></i> Task Completion Efficiency</h3>
+                            <div class="chart-container">
+                                <canvas id="taskCompletionChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="list-card">
+                        <div class="list-header">
+                            <h4>Top Performing Employees 🏆</h4>
+                            <button class="icon-btn"><i data-lucide="more-horizontal"></i></button>
+                        </div>
+                        <table class="analytics-table">
+                            <thead>
+                                <tr>
+                                    <th>Employee</th>
+                                    <th>Department</th>
+                                    <th>KPI Score</th>
+                                    <th>Tasks Done</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="top-performers-body">
+                                <!-- JS Injected -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- 3. ATTENDANCE -->
+                <div class="tab-content" id="attendance-tab">
+                   <div class="charts-grid">
+                        <div class="chart-card full-width">
+                            <h3><i data-lucide="clock"></i> Daily Attendance Patterns</h3>
+                            <div class="chart-container">
+                                <canvas id="attendancePatternChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 4. LEAVE -->
+                <div class="tab-content" id="leave-tab">
+                    <div class="charts-grid">
+                        <div class="chart-card">
+                            <h3><i data-lucide="pie-chart"></i> Leave Type Distribution</h3>
+                            <div class="chart-container">
+                                <canvas id="leaveDistributionChart"></canvas>
+                            </div>
+                        </div>
+                        <div class="chart-card">
+                            <h3><i data-lucide="alert-triangle"></i> High Absenteeism Risk</h3>
+                            <div class="chart-container">
+                                <canvas id="absenteeismChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 5. RECRUITMENT -->
+                <div class="tab-content" id="recruitment-tab">
+                    <div class="kpi-grid">
+                        <div class="kpi-card">
+                            <label>Total Applications</label>
+                            <div class="value">458</div>
+                        </div>
+                        <div class="kpi-card">
+                            <label>Offer Accept Rate</label>
+                            <div class="value">82%</div>
+                        </div>
+                        <div class="kpi-card">
+                            <label>Cost per Hire</label>
+                            <div class="value">₹12.4K</div>
+                        </div>
+                        <div class="kpi-card">
+                            <label>Med. Time to Hire</label>
+                            <div class="value">18 Days</div>
+                        </div>
+                    </div>
+                    <div class="charts-grid">
+                        <div class="chart-card full-width">
+                            <h3><i data-lucide="filter"></i> Application Pipeline Funnel</h3>
+                            <div class="chart-container">
+                                <canvas id="recruitmentFunnelChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 6. PAYROLL -->
+                <div class="tab-content" id="payroll-tab">
+                    <div class="charts-grid">
+                        <div class="chart-card">
+                            <h3><i data-lucide="layers"></i> Department-wise Salary Expense</h3>
+                            <div class="chart-container">
+                                <canvas id="payrollDeptChart"></canvas>
+                            </div>
+                        </div>
+                        <div class="chart-card">
+                            <h3><i data-lucide="trending-up"></i> Annual Spending Forecast</h3>
+                            <div class="chart-container">
+                                <canvas id="payrollTrendChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 7. CUSTOM REPORTS -->
+                <div class="tab-content" id="custom-tab">
+                    <div class="list-card" style="padding: 2rem;">
+                         <div style="max-width: 600px; margin: 0 auto; text-align: center;">
+                            <i data-lucide="file-text" style="width: 48px; height: 48px; color: var(--accent); margin-bottom: 1rem;"></i>
+                            <h3>Generate Custom Intelligence Report</h3>
+                            <p style="color: var(--text-muted); margin-bottom: 2rem;">Select your parameters to build a detailed analytical report.</p>
+                            
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; text-align: left; margin-bottom: 2rem;">
+                                <div class="filter-item" style="display: flex; flex-direction: column; gap: 8px;">
+                                    <label style="font-size: 0.8rem; font-weight: 700; color: var(--text-dark);">Report Type</label>
+                                    <select style="width: 100%;" id="report-type-select">
+                                        <option value="attendance">Full Attendance Audit</option>
+                                        <option value="payroll">Payroll Expense Analysis</option>
+                                        <option value="performance">Employee Performance Review</option>
+                                        <option value="recruitment">Recruitment Pipeline Stats</option>
+                                    </select>
+                                </div>
+                                <div class="filter-item" style="display: flex; flex-direction: column; gap: 8px;">
+                                    <label style="font-size: 0.8rem; font-weight: 700; color: var(--text-dark);">Date Range</label>
+                                    <input type="date" style="width: 100%;">
+                                </div>
+                            </div>
+                            
+                            <button class="primary-btn" style="width: 100%; padding: 12px; justify-content: center;">
+                                <i data-lucide="activity"></i> Generate Real-time Report
+                            </button>
+                         </div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- Modals / Overlays for Drilldown -->
+    <!-- 1. Department Employee List Overlay -->
+    <div id="dept-drilldown-overlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:var(--main-bg); z-index:2000; overflow-y:auto; flex-direction:column;">
+        <header class="reports-header-bar" style="background: white; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <button onclick="closeDeptDrilldown()" class="icon-btn"><i data-lucide="arrow-left"></i></button>
+                <div>
+                    <h2 style="margin:0; font-size: 1.2rem; font-weight: 800;" id="drilldown-dept-name">Department Name</h2>
+                    <p style="margin: 2px 0 0; font-size: 0.8rem; color: var(--text-muted);">Employee Roster & Performance Overview</p>
+                </div>
+            </div>
+            <div class="filter-bar">
+                <input type="text" id="emp-search" placeholder="Search Employee..." style="padding: 6px 12px; border: 1px solid #e2e8f0; border-radius: 8px;">
+                <select id="emp-filter" style="padding: 6px 12px; border: 1px solid #e2e8f0; border-radius: 8px;">
+                    <option value="all">All Employees</option>
+                    <option value="top">Top Performers</option>
+                    <option value="low-att">Low Attendance</option>
+                    <option value="leave">On Leave</option>
+                </select>
+                <button class="primary-btn" onclick="exportEmpList()"><i data-lucide="download"></i> Bulk Export</button>
+            </div>
+        </header>
+        <div style="padding: 2rem; max-width: 1400px; margin: 0 auto; width: 100%;">
+            <div class="list-card">
+                <div style="overflow-x: auto;">
+                    <table class="analytics-table">
+                        <thead>
+                            <tr>
+                                <th>Employee ID</th>
+                                <th>Name</th>
+                                <th>Role</th>
+                                <th>Experience</th>
+                                <th>Attendance</th>
+                                <th>Performance</th>
+                                <th>Status</th>
+                                <th style="text-align: right;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="emp-drilldown-body">
+                            <!-- Injected JS -->
+                        </tbody>
+                    </table>
+                </div>
+                <div style="padding: 15px; border-top: 1px solid var(--border-color); display: flex; justify-content: center; gap: 10px;">
+                    <button class="btn-outline btn-sm" style="border-radius:6px; padding: 6px 12px;">Previous</button>
+                    <button class="btn-primary btn-sm" style="border-radius:6px; padding: 6px 12px;">1</button>
+                    <button class="btn-outline btn-sm" style="border-radius:6px; padding: 6px 12px;">2</button>
+                    <button class="btn-outline btn-sm" style="border-radius:6px; padding: 6px 12px;">Next</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. Full Employee Deep Analytics Modal -->
+    <div id="emp-deep-overlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:var(--main-bg); z-index:3000; overflow-y:auto; flex-direction:column;">
+        <header class="reports-header-bar" style="background: white; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 10px rgba(0,0,0,0.05); gap: 15px;">
+             <button onclick="closeEmpDeepAnalytics()" class="icon-btn"><i data-lucide="arrow-left"></i></button>
+             <h2 style="margin:0; font-size: 1.2rem; font-weight: 800; flex-grow: 1;">Employee 360° Report</h2>
+             <span class="badge" style="background: rgba(77, 66, 134, 0.1); color: var(--accent); padding: 4px 10px; border-radius: 8px; font-weight: 700;">READ-ONLY MODE</span>
+        </header>
+
+        <div style="padding: 2rem; max-width: 1400px; margin: 0 auto; width: 100%;">
+            <!-- Employee Header Info -->
+            <div class="premium-profile-card" style="margin-bottom: 2rem; background: white; border-radius: 20px; border: 1px solid var(--border-color); overflow: hidden;">
+                <div style="height: 100px; background: linear-gradient(90deg, #4D4286 0%, #6366f1 100%);"></div>
+                <div style="padding: 0 40px 25px; display: flex; align-items: flex-end; gap: 30px;">
+                    <div style="margin-top: -50px; position: relative; z-index: 5; width: 100px; height: 100px; border-radius: 50%; border: 5px solid white; background: var(--accent); display: flex; align-items: center; justify-content: center; font-size: 2rem; font-weight: 800; color: white;">
+                        <span id="deep-emp-initial">E</span>
+                    </div>
+                    <div style="flex-grow: 1;">
+                        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 4px;">
+                            <h2 style="font-size: 1.5rem; font-weight: 800; color: var(--text-dark);" id="deep-emp-name">Employee Name</h2>
+                        </div>
+                        <div style="font-size: 0.9rem; font-weight: 600; color: var(--text-muted); margin-bottom: 12px;" id="deep-emp-role">Role • Department</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- AI Insights -->
+            <div class="insights-panel" style="background: linear-gradient(135deg, #10b981, #059669); margin-bottom: 2rem;">
+                <div class="insight-icon"><i data-lucide="bot"></i></div>
+                <div class="insight-content">
+                    <h4>AI Productivity Insight</h4>
+                    <p>Peak productivity observed between 10:00 AM and 1:00 PM. No major burnout risk detected. Engagement in Learning modules is in the top 10%.</p>
+                </div>
+            </div>
+
+            <!-- Dashboard Mirror Grid -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;">
+                
+                <!-- Performance -->
+                <div class="kpi-card" style="grid-column: span 1;">
+                     <h3 style="font-size: 1rem; font-weight: 800; margin-bottom: 15px; display: flex; align-items: center; gap: 8px;"><i data-lucide="activity" style="color:var(--accent);"></i> Performance</h3>
+                     <div style="display: flex; flex-direction: column; gap: 15px;">
+                         <div>
+                             <div style="font-size: 0.75rem; color: var(--text-muted); font-weight: 700;">PRODUCTIVITY SCORE</div>
+                             <div style="font-size: 1.5rem; font-weight: 800;">94% <span style="font-size:0.8rem; color:var(--success);">↑ Top 15%</span></div>
+                         </div>
+                         <div>
+                             <div style="font-size: 0.75rem; color: var(--text-muted); font-weight: 700;">TASK COMPLETION</div>
+                             <div style="font-size: 1.5rem; font-weight: 800;">45/50 <span style="font-size:0.8rem; color:var(--text-muted);">This month</span></div>
+                         </div>
+                     </div>
+                </div>
+
+                <!-- Attendance -->
+                <div class="kpi-card" style="grid-column: span 1;">
+                     <h3 style="font-size: 1rem; font-weight: 800; margin-bottom: 15px; display: flex; align-items: center; gap: 8px;"><i data-lucide="clock" style="color:var(--accent);"></i> Attendance</h3>
+                     <div style="display: flex; flex-direction: column; gap: 15px;">
+                         <div>
+                             <div style="font-size: 0.75rem; color: var(--text-muted); font-weight: 700;">MONTHLY ATTENDANCE</div>
+                             <div style="font-size: 1.5rem; font-weight: 800;">98% <span style="font-size:0.8rem; color:var(--success);">Exceptional</span></div>
+                         </div>
+                         <div style="display: flex; gap: 20px;">
+                             <div>
+                                 <div style="font-size: 0.75rem; color: var(--text-muted); font-weight: 700;">LATE</div>
+                                 <div style="font-size: 1.2rem; font-weight: 800;">2</div>
+                             </div>
+                             <div>
+                                 <div style="font-size: 0.75rem; color: var(--text-muted); font-weight: 700;">ABSENT</div>
+                                 <div style="font-size: 1.2rem; font-weight: 800;">0</div>
+                             </div>
+                         </div>
+                     </div>
+                </div>
+
+                <!-- Payroll & Leaves -->
+                <div class="kpi-card" style="grid-column: span 1;">
+                     <h3 style="font-size: 1rem; font-weight: 800; margin-bottom: 15px; display: flex; align-items: center; gap: 8px;"><i data-lucide="wallet" style="color:var(--accent);"></i> Payroll & Leave</h3>
+                     <div style="display: flex; flex-direction: column; gap: 15px;">
+                         <div>
+                             <div style="font-size: 0.75rem; color: var(--text-muted); font-weight: 700;">NET SALARY PROJECTION</div>
+                             <div style="font-size: 1.5rem; font-weight: 800;">₹45,000 <span style="font-size:0.8rem; color:var(--text-muted);">Base</span></div>
+                         </div>
+                         <div>
+                             <div style="font-size: 0.75rem; color: var(--text-muted); font-weight: 700;">REMAINING LEAVES</div>
+                             <div style="font-size: 1.2rem; font-weight: 800;">8 Days <span style="font-size:0.8rem; color:var(--text-muted);">(4 Sick, 4 Casual)</span></div>
+                         </div>
+                     </div>
+                </div>
+
+                <!-- Learning & Growth -->
+                <div class="kpi-card" style="grid-column: span 1;">
+                     <h3 style="font-size: 1rem; font-weight: 800; margin-bottom: 15px; display: flex; align-items: center; gap: 8px;"><i data-lucide="book-open" style="color:var(--accent);"></i> Learning & Growth</h3>
+                     <div style="display: flex; flex-direction: column; gap: 15px;">
+                         <div>
+                             <div style="font-size: 0.75rem; color: var(--text-muted); font-weight: 700;">SKILL PROGRESS</div>
+                             <div style="font-size: 1.5rem; font-weight: 800;">Advanced <span style="font-size:0.8rem; color:var(--text-muted);">React/Node</span></div>
+                         </div>
+                         <div>
+                             <div style="font-size: 0.75rem; color: var(--text-muted); font-weight: 700;">COURSE COMPLETION</div>
+                             <div style="font-size: 1.2rem; font-weight: 800;">85%</div>
+                             <div style="width: 100%; height: 6px; background: #e2e8f0; border-radius: 10px; overflow: hidden; margin-top: 4px;">
+                                 <div style="width: 85%; height: 100%; background: var(--success);"></div>
+                             </div>
+                         </div>
+                     </div>
+                </div>
+
+            </div>
+            
+            <!-- Benchmarking Section -->
+            <div class="list-card" style="margin-top: 2rem;">
+                <div class="list-header">
+                    <h4><i data-lucide="bar-chart-2" style="width: 16px; margin-right: 8px; vertical-align: middle; color: var(--accent);"></i> Performance Benchmarking</h4>
+                </div>
+                <table class="analytics-table">
+                    <thead>
+                        <tr>
+                            <th>Metric</th>
+                            <th>Employee Score</th>
+                            <th>Department Avg</th>
+                            <th>Company Avg</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Productivity</td>
+                            <td style="font-weight: 700;">94%</td>
+                            <td>85%</td>
+                            <td>82%</td>
+                            <td><span style="color: var(--success); font-weight: 600;">+9% vs Dept</span></td>
+                        </tr>
+                        <tr>
+                            <td>Task Velocity</td>
+                            <td style="font-weight: 700;">2.1 Days</td>
+                            <td>2.8 Days</td>
+                            <td>3.1 Days</td>
+                            <td><span style="color: var(--success); font-weight: 600;">Faster</span></td>
+                        </tr>
+                        <tr>
+                            <td>Leave Utilization</td>
+                            <td style="font-weight: 700;">30%</td>
+                            <td>45%</td>
+                            <td>50%</td>
+                            <td><span style="color: var(--text-muted); font-weight: 600;">Optimal</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Scripts -->
+
+    <script src="reports.js"></script>
+</body>
+</html>

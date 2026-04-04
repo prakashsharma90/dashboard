@@ -289,3 +289,46 @@ create table public.holidays (
 alter table holidays enable row level security;
 create policy "Public read holidays" on holidays for select using (true);
 
+-- 12. HR Policies & Compliance
+create table public.policies (
+    id uuid default uuid_generate_v4() primary key,
+    title text not null,
+    description text,
+    category text,
+    version text default 'v1',
+    document_url text,
+    created_by uuid references auth.users,
+    created_at timestamp with time zone default now(),
+    effective_date date,
+    expiry_date date,
+    is_active boolean default true
+);
+
+alter table public.policies enable row level security;
+create policy "Public read policies" on public.policies for select using (true);
+create policy "Employers full access policies" on public.policies for all using (auth.uid() in (select user_id from employees where role in ('employer', 'admin')));
+
+create table public.policy_targets (
+    id uuid default uuid_generate_v4() primary key,
+    policy_id uuid references public.policies(id) on delete cascade not null,
+    target_type text not null, -- 'all', 'department', 'role', 'specific_users'
+    target_value text -- comma separated values or single value, nullable if 'all'
+);
+
+alter table public.policy_targets enable row level security;
+create policy "Public read policy targets" on public.policy_targets for select using (true);
+create policy "Employers full access targets" on public.policy_targets for all using (auth.uid() in (select user_id from employees where role in ('employer', 'admin')));
+
+create table public.policy_acknowledgements (
+    id uuid default uuid_generate_v4() primary key,
+    policy_id uuid references public.policies(id) on delete cascade not null,
+    employee_id uuid references public.employees(id) on delete cascade not null,
+    is_acknowledged boolean default false,
+    acknowledged_at timestamp with time zone,
+    unique(policy_id, employee_id)
+);
+
+alter table public.policy_acknowledgements enable row level security;
+create policy "Users manage own acknowledgements" on public.policy_acknowledgements
+for all using (auth.uid() in (select user_id from employees where id = employee_id));
+create policy "Employers full access acknowledgements" on public.policy_acknowledgements for select using (auth.uid() in (select user_id from employees where role in ('employer', 'admin')));
