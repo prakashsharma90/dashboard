@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enterprise Setup | Salarite</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        :root {
+            --brand-purple: #4D4286;
+            --brand-light: #6366f1;
+            --brand-dark: #3b3268;
+            --text-main: #1e293b;
+            --text-soft: #64748b;
+            --bg-body: #ffffff;
+            --accent: #f5f3ff;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            overflow-x: hidden;
+        }
+
+        /* Hero Side */
+        .hero-panel {
+            flex: 1.1;
+            background: linear-gradient(145deg, var(--brand-purple) 0%, var(--brand-dark) 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 80px;
+            color: white;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-panel::after {
+            content: '';
+            position: absolute;
+            bottom: -10%;
+            right: -10%;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.2) 0%, transparent 70%);
+            z-index: -1;
+            filter: blur(60px);
+        }
+
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 80px;
+        }
+
+        .logo-icon {
+            width: 44px;
+            height: 44px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .logo-text {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 1.6rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+        }
+
+        .hero-headline {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 3.8rem;
+            font-weight: 800;
+            line-height: 1.05;
+            margin-bottom: 24px;
+            letter-spacing: -2px;
+        }
+
+        .hero-subtext {
+            font-size: 1.25rem;
+            line-height: 1.6;
+            opacity: 0.8;
+            max-width: 480px;
+            margin-bottom: 60px;
+        }
+
+        .benefit-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 24px;
+            border-radius: 24px;
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            max-width: 400px;
+            margin-bottom: 16px;
+            transition: 0.3s;
+        }
+
+        .benefit-card:hover {
+            background: rgba(255, 255, 255, 0.08);
+            transform: translateX(10px);
+        }
+
+        .benefit-icon {
+            width: 48px;
+            height: 48px;
+            background: var(--brand-light);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .benefit-info h4 {
+            font-weight: 800;
+            margin-bottom: 4px;
+        }
+
+        .benefit-info p {
+            font-size: 0.9rem;
+            opacity: 0.7;
+        }
+
+        /* Form Side */
+        .form-panel {
+            flex: 0.9;
+            background: #fcfdff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 60px;
+        }
+
+        .form-wrapper {
+            width: 100%;
+            max-width: 440px;
+        }
+
+        .form-lead {
+            margin-bottom: 48px;
+        }
+
+        .form-lead h2 {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 2.2rem;
+            font-weight: 800;
+            letter-spacing: -1px;
+            margin-bottom: 8px;
+        }
+
+        .form-lead p {
+            color: var(--text-soft);
+            font-weight: 500;
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 800;
+            color: var(--text-soft);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 10px;
+        }
+
+        .input-pill {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-pill i {
+            position: absolute;
+            left: 20px;
+            color: var(--brand-purple);
+            width: 20px;
+            height: 20px;
+            opacity: 0.5;
+        }
+
+        .input-pill input {
+            width: 100%;
+            padding: 18px 20px 18px 56px;
+            border-radius: 18px;
+            border: 2px solid #edf2f7;
+            background: white;
+            font-family: inherit;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            outline: none;
+        }
+
+        .input-pill input:focus {
+            border-color: var(--brand-purple);
+            box-shadow: 0 10px 30px -10px rgba(77, 66, 134, 0.15);
+            background: white;
+        }
+
+        .input-pill input::placeholder {
+            color: #cbd5e1;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 20px;
+            border-radius: 20px;
+            border: none;
+            background: var(--brand-purple);
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 800;
+            cursor: pointer;
+            transition: 0.3s;
+            margin-top: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            box-shadow: 0 20px 40px -15px rgba(77, 66, 134, 0.4);
+        }
+
+        .submit-btn:hover {
+            background: var(--brand-dark);
+            transform: translateY(-3px);
+            box-shadow: 0 25px 50px -12px rgba(77, 66, 134, 0.5);
+        }
+
+        .login-prompt {
+            text-align: center;
+            margin-top: 32px;
+            font-weight: 600;
+            color: var(--text-soft);
+        }
+
+        .login-prompt a {
+            color: var(--brand-purple);
+            text-decoration: none;
+            font-weight: 800;
+        }
+
+        @media (max-width: 1100px) {
+            .hero-panel {
+                display: none;
+            }
+
+            .form-panel {
+                background: white;
+                padding: 40px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="hero-panel">
+        <div class="logo-area">
+            <div class="logo-icon">
+                <i data-lucide="layers"></i>
+            </div>
+            <span class="logo-text">Salarite</span>
+        </div>
+
+        <h1 class="hero-headline">Scale Your <br>Ambition.</h1>
+        <p class="hero-subtext">The all-in-one ecosystem for hyper-growth companies. Automate your HR, payroll, and
+            compliance in one unified portal.</p>
+
+        <div class="benefit-card">
+            <div class="benefit-icon">
+                <i data-lucide="zap"></i>
+            </div>
+            <div class="benefit-info">
+                <h4>Rapid Launch</h4>
+                <p>Deploy your workspace in under 60 seconds.</p>
+            </div>
+        </div>
+
+        <div class="benefit-card">
+            <div class="benefit-icon">
+                <i data-lucide="shield"></i>
+            </div>
+            <div class="benefit-info">
+                <h4>Compliance Built-in</h4>
+                <p>Automated legal & tax frameworks for India.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-panel">
+        <div class="form-wrapper">
+            <div class="form-lead">
+                <h2>Begin Enterprise Journey</h2>
+                <p>Register your organization to access the dashboard.</p>
+            </div>
+
+            <form id="reg-form">
+                <div class="form-group">
+                    <label>Full Name (Founder/CEO)</label>
+                    <div class="input-pill">
+                        <i data-lucide="user"></i>
+                        <input type="text" id="full-name" placeholder="e.g. Vikram Singh" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Organization Legal Name</label>
+                    <div class="input-pill">
+                        <i data-lucide="building"></i>
+                        <input type="text" id="company-name" placeholder="Inc., Ltd., or LLC" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Work Email Address</label>
+                    <div class="input-pill">
+                        <i data-lucide="mail"></i>
+                        <input type="email" id="email" placeholder="ceo@company.com" required>
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 32px;">
+                    <label>Security Password</label>
+                    <div class="input-pill">
+                        <i data-lucide="lock"></i>
+                        <input type="password" id="password" placeholder="••••••••" required>
+                    </div>
+                </div>
+
+                <button type="submit" class="submit-btn">
+                    <span>Deploy Enterprise Portal</span>
+                    <i data-lucide="check-circle" style="width:20px;"></i>
+                </button>
+            </form>
+
+            <p class="login-prompt">Already scaling? <a href="login.html">Sign in here</a></p>
+        </div>
+    </div>
+
+    <script>
+        lucide.createIcons();
+
+        document.getElementById('reg-form').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            // Core Session State
+            localStorage.setItem('salarite_employer_name', document.getElementById('full-name').value);
+            localStorage.setItem('salarite_company_name', document.getElementById('company-name').value);
+            localStorage.setItem('salarite_new_employer', 'true');
+            localStorage.setItem('salarite_profile_complete', 'false');
+
+            // Handoff to Initialization View
+            window.location.href = 'employer-dashboard.html?setup=true';
+        });
+    </script>
+</body>
+
+</html>

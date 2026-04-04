@@ -1,0 +1,81 @@
+<aside class="employer-sidebar" style="width: 250px; background: white; border-right: 1px solid #e2e8f0; height: 100vh; display: flex; flex-direction: column; padding: 0; font-family: 'Inter', sans-serif;">
+    <!-- Sidebar Header: Identity Section -->
+    <div class="sidebar-header" style="padding: 16px 20px 12px; border-bottom: 1px solid #f1f5f9; margin-bottom: 6px;">
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <div class="logo" style="width: 40px; height: 40px; background: #4D4286; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 1.2rem; flex-shrink: 0;">S</div>
+            <div style="display: flex; flex-direction: column; justify-content: center;">
+                <div class="brand" id="company-brand-sidebar" style="font-weight: 850; font-size: 1.15rem; color: #1e293b; line-height: 1.1; margin-bottom: 2px; letter-spacing: -0.3px;">Salarite</div>
+                <div class="badge" style="background: rgba(77, 66, 134, 0.08); color: #4D4286; font-size: 0.6rem; padding: 3px 8px; border-radius: 5px; font-weight: 850; letter-spacing: 0.5px; text-transform: uppercase; width: fit-content;">ADMIN</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation Menu -->
+    <nav class="nav-menu" style="flex: 1; overflow-y: auto; padding: 0 10px 14px; display: flex; flex-direction: column; gap: 1px;">
+        <style>
+            .employer-sidebar .nav-item {
+                display: flex !important;
+                align-items: center !important;
+                gap: 8px !important;
+                padding: 6px 12px !important;
+                border-radius: 8px !important;
+                color: #64748b !important;
+                text-decoration: none !important;
+                font-size: 0.8rem !important;
+                font-weight: 800 !important;
+                transition: all 0.2s ease !important;
+                border: none !important;
+                background: transparent !important;
+                letter-spacing: -0.1px !important;
+            }
+            .employer-sidebar .nav-item:hover {
+                background: #f8fafc !important;
+                color: #4D4286 !important;
+            }
+            .employer-sidebar .nav-item.active {
+                background: #4D4286 !important;
+                color: white !important;
+                box-shadow: 0 4px 12px rgba(77, 66, 134, 0.12) !important;
+            }
+            .employer-sidebar .nav-item i {
+                width: 16px !important;
+                height: 16px !important;
+                stroke-width: 2.5px !important;
+            }
+            .employer-sidebar .sidebar-category {
+                font-size: 0.6rem !important;
+                font-weight: 900 !important;
+                color: #94a3b8 !important;
+                text-transform: uppercase !important;
+                letter-spacing: 0.6px !important;
+                margin: 12px 0 4px 12px !important;
+            }
+        </style>
+
+        <a href="employer-dashboard.html" class="nav-item" data-page="employer-dashboard.html"><i data-lucide="layout-grid"></i> Dashboard</a>
+
+        <div class="sidebar-category">Organization</div>
+        <a href="company-profile.html" class="nav-item" data-page="company-profile.html"><i data-lucide="building"></i> Company Profile</a>
+        <a href="user-management.html" class="nav-item" data-page="user-management.html"><i data-lucide="user-cog"></i> User Management</a>
+        <a href="hr-setup.html" class="nav-item" data-page="hr-setup.html"><i data-lucide="shield-check"></i> HR Setup & Policies</a>
+
+        <div class="sidebar-category">Talent</div>
+        <a href="employees.html" class="nav-item" data-page="employees.html"><i data-lucide="users"></i> Employee Directory</a>
+        <a href="recruitment.html" class="nav-item" data-page="recruitment.html"><i data-lucide="briefcase"></i> Recruitment / ATS</a>
+
+        <div class="sidebar-category">Operations</div>
+        <a href="attendance.html" class="nav-item" data-page="attendance.html"><i data-lucide="clock"></i> Attendance</a>
+        <a href="leave.html" class="nav-item" data-page="leave.html"><i data-lucide="calendar"></i> Leave Management</a>
+        <a href="payroll.html" class="nav-item" data-page="payroll.html"><i data-lucide="banknote"></i> Payroll</a>
+        <a href="documents.html" class="nav-item" data-page="documents.html"><i data-lucide="folder"></i> Document Center</a>
+        <a href="reports.html" class="nav-item" data-page="reports.html"><i data-lucide="bar-chart-3"></i> Analytics & Reports</a>
+        <a href="grievances.html" class="nav-item" data-page="grievances.html"><i data-lucide="shield-alert"></i> Grievance Management</a>
+    </nav>
+
+    <!-- Bottom Actions -->
+    <div style="padding: 8px 12px 16px; border-top: 1px solid #f1f5f9; display: flex; flex-direction: column; gap: 2px;">
+        <a href="company-profile.html" class="nav-item" data-page="company-profile.html"><i data-lucide="building"></i> About Company</a>
+        <a href="#" class="nav-item" data-page="settings.html"><i data-lucide="settings"></i> System Settings</a>
+        <a href="index.html" class="nav-item logout-link" style="color: #ef4444 !important;" data-page="index.html"><i data-lucide="log-out"></i> Logout</a>
+    </div>
+</aside>

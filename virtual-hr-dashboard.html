@@ -1,0 +1,1426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Virtual HR | Salarite Premium</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <link rel="stylesheet" href="dashboard-style.css">
+    <style>
+        :root {
+            --hr-purple: #7c3aed;
+            --hr-purple-soft: rgba(124, 58, 237, 0.1);
+            --company-blue: #0ea5e9;
+            --company-blue-soft: rgba(14, 165, 233, 0.1);
+            --accent: #4D4286;
+        }
+
+        body {
+            background: #f8fafc;
+            margin: 0;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            overflow: hidden;
+        }
+
+        /* SELECTION SCREEN */
+        #selection-screen {
+            position: fixed;
+            inset: 0;
+            background: linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 5000;
+            transition: all 0.5s ease;
+        }
+
+        .selector-card {
+            background: white;
+            padding: 3rem;
+            border-radius: 24px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.08);
+            width: 100%;
+            max-width: 500px;
+            border: 1px solid #e2e8f0;
+            text-align: center;
+        }
+
+        .selector-header h1 {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-weight: 800;
+            font-size: 1.75rem;
+            color: #1e293b;
+            margin-bottom: 0.5rem;
+        }
+
+        .selector-header p {
+            color: #64748b;
+            margin-bottom: 2.5rem;
+        }
+
+        .company-dropdown-container {
+            position: relative;
+            text-align: left;
+        }
+
+        .dropdown-trigger {
+            width: 100%;
+            padding: 1rem 1.25rem;
+            background: #f1f5f9;
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+            color: #1e293b;
+        }
+
+        .dropdown-trigger:hover {
+            border-color: var(--hr-purple);
+            background: white;
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            top: 110%;
+            left: 0;
+            right: 0;
+            background: white;
+            border-radius: 14px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            overflow: hidden;
+            display: none;
+            z-index: 10;
+        }
+
+        .dropdown-search {
+            padding: 10px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .dropdown-search input {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            outline: none;
+            font-family: inherit;
+        }
+
+        .dropdown-list {
+            max-height: 250px;
+            overflow-y: auto;
+        }
+
+        .dropdown-item {
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .dropdown-item:hover {
+            background: #f8fafc;
+        }
+
+        .company-info-small {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .company-info-small .c-name {
+            font-weight: 700;
+            font-size: 0.95rem;
+            color: #1e293b;
+        }
+
+        .company-info-small .c-meta {
+            font-size: 0.75rem;
+            color: #94a3b8;
+        }
+
+        .c-status {
+            font-size: 0.65rem;
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .status-active { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
+        .status-pending { background: #fef9c3; color: #854d0e; border: 1px solid #fef08a; }
+
+        .btn-enter-dashboard {
+            width: 100%;
+            margin-top: 2rem;
+            padding: 1.25rem;
+            background: linear-gradient(135deg, #4D4286, #3b3268);
+            color: white;
+            border: none;
+            border-radius: 18px;
+            font-weight: 700;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            cursor: pointer;
+            box-shadow: 0 15px 30px rgba(77, 66, 134, 0.3);
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            font-size: 1rem;
+        }
+
+        .btn-enter-dashboard:hover:not(:disabled) {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(77, 66, 134, 0.4);
+        }
+
+        .btn-enter-dashboard:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            background: #94a3b8;
+            box-shadow: none;
+        }
+
+        .selected-company-strip {
+            padding: 0.75rem 2rem;
+            background: white;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 90;
+        }
+
+        .view-toggle {
+            display: flex;
+            background: #f1f5f9;
+            padding: 6px;
+            border-radius: 14px;
+            gap: 4px;
+        }
+
+        .toggle-btn {
+            padding: 10px 22px;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            cursor: pointer;
+            border: none;
+            background: none;
+            color: #64748b;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .toggle-btn.active {
+            background: white;
+            color: #4D4286;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+
+        .toggle-btn:hover:not(.active) {
+            background: rgba(255,255,255,0.6);
+            color: #1e293b;
+        }
+
+        /* EMPLOYER-STYLE SIDEBAR OVERHAUL */
+        .employer-sidebar {
+            background: white;
+            border-right: 1px solid #e2e8f0;
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+            z-index: 100;
+        }
+
+        .sidebar-header {
+            display: flex !important;
+            align-items: center !important;
+            gap: 10px !important;
+            margin-bottom: 0.4rem !important;
+            padding-bottom: 0.4rem !important;
+            border-bottom: 1px solid #f1f5f9 !important;
+        }
+
+        .sidebar-header .logo {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, #4D4286, #3b3268);
+            border-radius: 10px;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 1rem;
+        }
+
+        .sidebar-header .brand {
+            font-weight: 700;
+            font-size: 1.25rem;
+            color: #1e293b;
+        }
+
+        .sidebar-header .badge {
+            background: rgba(77, 66, 134, 0.1);
+            color: #4D4286;
+            font-size: 0.65rem;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-weight: 700;
+            margin-top: 2px;
+            display: inline-block;
+        }
+
+        .nav-menu {
+            display: flex;
+            flex-direction: column;
+            gap: 1px;
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .sidebar-category {
+            font-size: 0.75rem !important;
+            font-weight: 800 !important;
+            color: #1e293b !important;
+            text-transform: uppercase !important;
+            letter-spacing: 1px !important;
+            margin: 0.2rem 0 0.4rem 12px !important;
+            font-family: 'Plus Jakarta Sans', sans-serif !important;
+        }
+
+        .employer-sidebar .nav-item {
+            display: flex !important;
+            align-items: center !important;
+            gap: 12px !important;
+            padding: 8px 14px !important;
+            border-radius: 12px !important;
+            color: #4f6487 !important;
+            text-decoration: none !important;
+            font-size: 0.95rem !important;
+            font-weight: 700 !important;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+            cursor: pointer !important;
+            border: none !important;
+            background: transparent !important;
+            width: 100% !important;
+            text-align: left !important;
+            font-family: 'Plus Jakarta Sans', sans-serif !important;
+        }
+
+        .employer-sidebar .nav-item:hover {
+            background: rgba(77, 66, 134, 0.05) !important;
+            color: #4D4286 !important;
+            transform: translateX(4px) !important;
+        }
+
+        .employer-sidebar .nav-item i {
+            width: 20px !important;
+            height: 20px !important;
+            stroke-width: 2.5px !important;
+        }
+
+        .employer-sidebar .nav-item.active {
+            background: linear-gradient(135deg, #4D4286, #3b3268) !important;
+            color: white !important;
+            font-weight: 800 !important;
+            padding: 8px 24px !important;
+            box-shadow: 0 10px 20px rgba(77, 66, 134, 0.2) !important;
+        }
+
+        .nav-item.active i {
+            color: white;
+        }
+
+        /* 2. MAIN SPLIT DASHBOARD VIEW */
+        #main-dashboard-view {
+            display: none;
+            grid-template-columns: 260px 1fr;
+            height: 100vh;
+            width: 100vw;
+            background: #f8fafc;
+        }
+
+        .main-content-hr {
+            flex: 1;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .hr-dashboard-padding {
+            padding: 2.5rem;
+        }
+
+        .grid-hr {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .stat-card-hr {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 20px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.02);
+            transition: 0.3s;
+        }
+        
+        .stat-card-hr:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+        }
+
+        .stat-label {
+            color: #64748b;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .stat-value {
+            font-size: 1.75rem;
+            font-weight: 800;
+            color: #1e293b;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        .badge {
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 0.65rem;
+            font-weight: 800;
+            text-transform: uppercase;
+        }
+
+        .custom-scroll::-webkit-scrollbar { width: 4px; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
+
+        @keyframes pulse {
+            0% { opacity: 0.6; }
+            50% { opacity: 1; transform: scale(1.1); }
+            100% { opacity: 0.6; }
+        }
+
+        .sub-view { 
+            display: none; 
+            opacity: 0; 
+            transform: translateY(10px);
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); 
+        }
+        .sub-view.active { 
+            display: block; 
+            opacity: 1; 
+            transform: translateY(0);
+        }
+        .btn-primary { 
+            background: linear-gradient(135deg, #4D4286, #3b3268); 
+            color: white; 
+            border: none; 
+            padding: 12px 24px; 
+            border-radius: 12px; 
+            font-weight: 700; 
+            cursor: pointer; 
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1); 
+            text-decoration: none; 
+            display: inline-flex; 
+            align-items:center; 
+            gap:8px; 
+        }
+        .btn-primary:hover { 
+            transform: translateY(-2px); 
+            box-shadow: 0 8px 20px rgba(77, 66, 134, 0.25);
+        }
+        .btn-primary:active { transform: translateY(0); }
+        .nav-btn { background: #f8fafc; border: 1px solid #e2e8f0; padding: 8px 16px; border-radius: 10px; font-size: 0.8rem; font-weight: 700; cursor: pointer; color: #475569; transition: 0.2s; }
+        .nav-btn:hover { background: #f1f5f9; border-color: #cbd5e1; }
+
+        .dashboard-header-hr { padding: 1.25rem 0; border-bottom: 1px solid #f1f5f9; margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; }
+        .context-badge { background: #f1f5f9; color: #4D4286; padding: 5px 12px; border-radius: 20px; font-size: 0.7rem; font-weight: 850; border: 1px solid #e2e8f0; }
+
+        /* RESPONSIVE OPTIMIZATIONS */
+        @media (max-width: 1200px) {
+            #main-dashboard-view {
+                grid-template-columns: 80px 1fr;
+            }
+            .employer-sidebar .brand, .employer-sidebar .badge, .employer-sidebar .sidebar-category, .employer-sidebar span, .employer-sidebar .info {
+                display: none;
+            }
+            .nav-item {
+                justify-content: center;
+                padding: 12px;
+            }
+            .nav-item i {
+                margin: 0;
+            }
+        }
+
+        @media (max-width: 900px) {
+            .grid-hr {
+                grid-template-columns: 1fr 1fr;
+            }
+            .dashboard-header-hr {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 20px;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .grid-hr {
+                grid-template-columns: 1fr;
+            }
+            .hr-dashboard-padding {
+                padding: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 1. SELECTION SCREEN (Layer 1) -->
+    <div id="selection-screen">
+        <!-- Floating Ambient Blurs -->
+        <div style="position:fixed; top:-10%; right:-10%; width:500px; height:500px; background:rgba(77, 66, 134, 0.08); filter:blur(100px); border-radius:50%; pointer-events:none;"></div>
+        <div style="position:fixed; bottom:-10%; left:-10%; width:500px; height:500px; background:rgba(14, 165, 233, 0.08); filter:blur(100px); border-radius:50%; pointer-events:none;"></div>
+
+        <div style="background:rgba(255,255,255,0.8); width:100%; max-width:580px; border-radius:36px; box-shadow:0 40px 100px -10px rgba(0,0,0,0.12); padding:60px; border:1px solid rgba(255,255,255,0.6); backdrop-filter: blur(20px);">
+            <div style="text-align:center; margin-bottom:50px;">
+                <div style="width:80px; height:80px; background:linear-gradient(135deg, #4D4286, #3b3268); border-radius:24px; margin:0 auto 28px; display:flex; align-items:center; justify-content:center; color:white; box-shadow: 0 20px 40px rgba(77, 66, 134, 0.35);">
+                    <i data-lucide="shield-check" style="width:40px; height:40px;"></i>
+                </div>
+                <h1 style="font-size:2.5rem; font-weight:900; color:#1e293b; letter-spacing:-1.5px; margin-bottom:12px; font-family:'Plus Jakarta Sans', sans-serif;">Authorized Access</h1>
+                <p style="color:#64748b; font-size:1.15rem; font-weight:500;">Secure Operational Context Initialization</p>
+            </div>
+
+            <div style="position:relative; margin-bottom:35px;">
+                <label style="display:block; font-size:0.7rem; font-weight:900; color:#94a3b8; text-transform:uppercase; margin-bottom:12px; letter-spacing:1px;">Authorized Access Contexts</label>
+                <div id="dropdown-trigger" style="background:#f8fafc; border:2px solid #e2e8f0; border-radius:18px; padding:20px; cursor:pointer; display:flex; justify-content:space-between; align-items:center; transition:0.3s;" onmouseover="this.style.borderColor='var(--hr-purple)'" onmouseout="this.style.borderColor='#e2e8f0'">
+                    <span id="selected-company-text" style="font-weight:700; color:#1e293b; font-size:1.05rem;">Choose Organization to Manage...</span>
+                    <i data-lucide="chevron-down" style="width:20px; color:#64748b;"></i>
+                </div>
+                
+                <div id="dropdown-menu" style="display:none; position:absolute; top:100%; left:0; width:100%; background:white; border:1px solid #e2e8f0; border-radius:20px; box-shadow:0 20px 50px rgba(0,0,0,0.1); margin-top:12px; z-index:100; max-height:400px; overflow:hidden; display:flex; flex-direction:column; animation: slideDown 0.3s cubic-bezier(0.16, 1, 0.3, 1);">
+                    <style>
+                        @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+                        .dropdown-item { padding:18px 25px; cursor:pointer; display:flex; align-items:center; gap:20px; border-bottom:1px solid #f1f5f9; transition:0.2s; }
+                        .dropdown-item:hover { background:rgba(139, 92, 246, 0.04); }
+                        .dropdown-item:last-child { border-bottom:none; }
+                        .item-name { font-weight:700; color:#1e293b; font-size:1rem; }
+                        .item-meta { font-size:0.75rem; color:#64748b; margin-top:4px; }
+                    </style>
+                    <div style="padding:15px; border-bottom:1px solid #f1f5f9; background:white; position:sticky; top:0; z-index:10;">
+                        <input type="text" id="company-search" placeholder="Search assigned companies..." style="width:100%; padding:15px; border:1.5px solid #e2e8f0; border-radius:14px; outline:none; font-size:1rem; font-family:inherit; transition:0.2s;">
+                    </div>
+                    <div class="custom-scroll" style="overflow-y:auto; flex:1;">
+                        <div class="dropdown-item" data-company="Salarite Pvt Ltd" data-id="sal-01" data-status="active" data-emp="142" data-last="2 hours ago">
+                            <div style="flex:1;">
+                                <div class="item-name">Salarite Pvt Ltd</div>
+                                <div class="item-meta">IT Automation • 142 Employees • 2h ago</div>
+                            </div>
+                            <span class="badge" style="background:#dcfce7; color:#166534;">Active</span>
+                        </div>
+                        <div class="dropdown-item" data-company="TechNova Solutions" data-id="tn-05" data-status="active" data-emp="88" data-last="6 hours ago">
+                            <div style="flex:1;">
+                                <div class="item-name">TechNova Solutions</div>
+                                <div class="item-meta">Medical R&D • 88 Employees • 6h ago</div>
+                            </div>
+                            <span class="badge" style="background:#dcfce7; color:#166534;">Active</span>
+                        </div>
+                        <div class="dropdown-item" data-company="Global Logistics" data-id="gl-09" data-status="pending" data-emp="315" data-last="3 days ago">
+                            <div style="flex:1;">
+                                <div class="item-name">Global Logistics</div>
+                                <div class="item-meta">Fleet Mgmt • 315 Employees • 3d ago</div>
+                            </div>
+                            <span class="badge" style="background:#fefce8; color:#854d0e;">Pending Auth</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <button id="btn-continue" class="btn-enter-dashboard" disabled>
+                Initialize Operations Context
+            </button>
+            <div style="text-align:center; margin-top:30px; font-size:0.8rem; color:#94a3b8; font-weight:600;">
+                Certified Personnel: <span style="color:#1e293b; font-weight:800;">PRAKASH S. (SAL-VHR-82)</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. MAIN SPLIT DASHBOARD VIEW -->
+    <div id="main-dashboard-view">
+        <div id="sidebar-placeholder"></div>
+        <script src="employer-sidebar.js"></script>
+
+        <main style="flex:1; display:flex; flex-direction:column;">
+            <div class="selected-company-strip">
+                <div style="display:flex; align-items:center; gap:12px;">
+                    <div style="width:40px; height:40px; background:var(--company-blue-soft); border-radius:10px; color:var(--company-blue); display:flex; align-items:center; justify-content:center;"><i data-lucide="building" style="width:20px;"></i></div>
+                    <div>
+                        <span style="font-size: 0.7rem; color:#94a3b8; font-weight:700; text-transform:uppercase;">Current Context</span>
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <strong id="display-company-name" style="font-size:1.1rem; color:#1e293b;">Initializing Context...</strong>
+                            <button id="btn-change-company" style="background:#f1f5f9; border:none; padding:4px 8px; border-radius:6px; color:var(--hr-purple); font-weight:800; font-size:0.65rem; cursor:pointer;">SWITCH</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="view-toggle">
+                    <button class="toggle-btn active" onclick="switchView('personal')">My Workspace</button>
+                    <button class="toggle-btn" onclick="switchView('company')">Client Operations</button>
+                </div>
+
+                <div style="display:flex; align-items:center; gap:14px;">
+                    <div style="display:flex; gap:10px;">
+                        <div class="notif-bell-container">
+                            <button class="nav-btn" style="width:42px; height:42px; border-radius:12px; padding:0; display:flex; align-items:center; justify-content:center; border: 1px solid #e2e8f0;">
+                                <i data-lucide="bell" style="width:20px; color:#64748b;"></i>
+                            </button>
+                            <span class="notif-count">3</span>
+                        </div>
+                        <button id="btn-quick-ai" class="nav-btn" style="background: linear-gradient(135deg, #4D4286, #3b3268); border:none; color:white; width:42px; height:42px; border-radius:12px; padding:0; display:flex; align-items:center; justify-content:center; box-shadow: 0 4px 12px rgba(77, 66, 134, 0.2);"><i data-lucide="zap" style="width:18px;"></i></button>
+                    </div>
+                    
+                    <div class="admin-profile" style="display: flex; align-items: center; gap: 14px; cursor: pointer; padding-left: 20px; border-left: 2px solid #f1f5f9;">
+                        <div style="text-align: right;">
+                            <h6 style="margin:0; font-size:0.9rem; font-weight:700; color:#1e293b;">Prakash Sharma</h6>
+                            <p style="margin:0; font-size:0.75rem; color:#64748b; font-weight:600;">VHR Senior Specialist</p>
+                        </div>
+                        <img src="https://i.pravatar.cc/150?u=vhr1" alt="VHR" style="width:38px; height:38px; border-radius:50%; object-fit:cover; border: 2.5px solid #f8fafc; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                        <i data-lucide="chevron-down" style="width:16px; color:#94a3b8;"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="main-content-hr custom-scroll">
+                <div class="hr-dashboard-padding">
+                    <!-- 🧑💼 LAYER 2 — PERSONAL HR DASHBOARD (Self View) -->
+                    <div id="personal-dashboard" class="sub-view">
+                        <div class="dashboard-header-hr">
+                            <div>
+                                <h1 style="font-size:1.75rem; font-weight:950; color:#1e293b; letter-spacing:-1.2px; margin-bottom:2px;">Workflow Control</h1>
+                                <p style="color:#64748b; font-weight:700; font-size:0.95rem;">Operational Performance Live Monitoring</p>
+                            </div>
+                            <div style="display:flex; gap:12px; align-items:center;">
+                                <div style="display:flex; align-items:center; gap:1px; background:white; padding:4px; border-radius:18px; border:1.5px solid #e2e8f0; box-shadow:0 4px 12px rgba(0,0,0,0.03);">
+                                    <div style="padding:10px 18px; text-align:center; border-right:1.5px solid #f1f5f9;">
+                                        <div style="font-size:0.55rem; color:#94a3b8; font-weight:900; text-transform:uppercase; letter-spacing:1px; margin-bottom:3px;">Timer</div>
+                                        <div id="session-timer" style="font-family:'Inter', sans-serif; font-weight:800; font-size:1.2rem; color:#1e293b; min-width:85px;">00:00:00</div>
+                                    </div>
+                                    <div style="padding:10px 18px; text-align:center;">
+                                        <div style="font-size:0.55rem; color:#94a3b8; font-weight:900; text-transform:uppercase; letter-spacing:1px; margin-bottom:3px;">IST Local</div>
+                                        <div id="digital-clock" style="font-family:'Inter', sans-serif; font-weight:800; font-size:1.2rem; color:#4D4286; min-width:95px;">--:--:--</div>
+                                    </div>
+                                </div>
+                                
+                                <button id="btn-attendance-toggle" class="btn-primary" style="height:48px; font-size:0.9rem; padding:0 20px; border-radius:14px; background:linear-gradient(135deg, #10b981, #059669); border:none; box-shadow:0 10px 25px rgba(16, 185, 129, 0.2);">
+                                    <i data-lucide="play" fill="white" style="width:16px;"></i>
+                                    <span>Check In</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- 📊 2.2 PERSONAL OVERVIEW CARDS (Top Row) -->
+                        <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap:1rem; margin-bottom:1.5rem;">
+                            <div class="stat-card-hr">
+                                <div class="stat-label">Hours Logged Today</div>
+                                <div class="stat-value" id="hours-today">0h 00m</div>
+                                <div style="font-size:0.75rem; color:#10b981; font-weight:700; margin-top:10px;">+12% vs yesterday</div>
+                            </div>
+                            <div class="stat-card-hr">
+                                <div class="stat-label">Monthly Velocity</div>
+                                <div class="stat-value">142h / 160h</div>
+                                <div style="height:6px; background:#f1f5f9; border-radius:3px; margin-top:10px;"><div style="width:88%; height:100%; background:var(--hr-purple); border-radius:3px;"></div></div>
+                            </div>
+                            <div class="stat-card-hr">
+                                <div class="stat-label">Active Company Clients</div>
+                                <div class="stat-value">3 Active</div>
+                                <div style="font-size:0.75rem; color:#64748b; font-weight:600; margin-top:10px;">2 Pipeline leads</div>
+                            </div>
+                            <div class="stat-card-hr">
+                                <div class="stat-label">HR Performance Score</div>
+                                <div class="stat-value" style="color:#10b981;">91%</div>
+                                <div style="font-size:0.75rem; color:#64748b; font-weight:600; margin-top:10px;">Platinum Quadrant</div>
+                            </div>
+                        </div>
+
+                        <div style="display:grid; grid-template-columns: 1.8fr 1.2fr; gap:1.25rem; margin-bottom:1.5rem;">
+                            <!-- 📈 2.4 PERSONAL KRA DASHBOARD -->
+                            <div class="stat-card-hr" style="padding:0; overflow:hidden;">
+                                <div style="padding:18px 24px; border-bottom:1px solid #f1f5f9; display:flex; justify-content:space-between; align-items:center;">
+                                    <h3 style="font-size:1rem; font-weight:900; color:#1e293b; margin:0;">Operational KRA Scorecard</h3>
+                                    <span class="context-badge">Cycle: March 2026</span>
+                                </div>
+                                <div style="padding:12px;">
+                                    <table style="width:100%; border-collapse:collapse; font-size:0.85rem;">
+                                        <thead>
+                                            <tr style="text-align:left; border-bottom:2px solid #f1f5f9;">
+                                                <th style="padding:15px; color:#94a3b8; font-weight:900; text-transform:uppercase; font-size:0.65rem; letter-spacing:1px;">Key Result Area</th>
+                                                <th style="padding:15px; text-align:center; color:#94a3b8; font-weight:900; text-transform:uppercase; font-size:0.65rem; letter-spacing:1px;">Target</th>
+                                                <th style="padding:15px; text-align:center; color:#94a3b8; font-weight:900; text-transform:uppercase; font-size:0.65rem; letter-spacing:1px;">Achieved</th>
+                                                <th style="padding:15px; text-align:right; color:#94a3b8; font-weight:900; text-transform:uppercase; font-size:0.65rem; letter-spacing:1px;">Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr style="border-bottom:1px solid #f8fafc;">
+                                                <td style="padding:18px 15px;"><b>Positions Closed</b></td>
+                                                <td style="text-align:center;">10/mo</td>
+                                                <td style="text-align:center;">7</td>
+                                                <td style="text-align:right;"><span class="badge" style="background:#fefce8; color:#a16207;">70.0%</span></td>
+                                            </tr>
+                                            <tr style="border-bottom:1px solid #f8fafc;">
+                                                <td style="padding:18px 15px;"><b>Avg Time to Hire</b></td>
+                                                <td style="text-align:center;">&lt; 15d</td>
+                                                <td style="text-align:center;">12d</td>
+                                                <td style="text-align:right;"><span class="badge" style="background:#dcfce7; color:#15803d;">On Track</span></td>
+                                            </tr>
+                                            <tr style="border-bottom:1px solid #f8fafc;">
+                                                <td style="padding:18px 15px;"><b>Employee Queries</b></td>
+                                                <td style="text-align:center;">95% Res</td>
+                                                <td style="text-align:center;">97%</td>
+                                                <td style="text-align:right;"><span class="badge" style="background:#dcfce7; color:#15803d;">Exceeded</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td style="padding:18px 15px;"><b>Grievance SLA</b></td>
+                                                <td style="text-align:center;">7 Days</td>
+                                                <td style="text-align:center;">5.8 Days</td>
+                                                <td style="text-align:right;"><span class="badge" style="background:#dcfce7; color:#15803d;">Met</span></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <!-- 📋 2.8 AI ASSISTANT PANEL (Personal) -->
+                            <div class="stat-card-hr" style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); color:white; border:none; display:flex; flex-direction:column;">
+                                <div style="display:flex; align-items:center; gap:8px; margin-bottom:1.25rem;">
+                                    <div style="width:10px; height:10px; background:#38bdf8; border-radius:50%; box-shadow:0 0 12px #38bdf8;"></div>
+                                    <h3 style="font-size:1rem; font-weight:900; margin:0;">AI HR Operations Hub</h3>
+                                </div>
+                                <div style="flex:1; display:flex; flex-direction:column; gap:10px;">
+                                    <div style="background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); padding:12px; border-radius:12px; font-size:0.75rem; line-height:1.5; color:#cbd5e1;">
+                                        "Prakash, based on your current workload for <b>Salarite</b>, I recommend finalizing the Technical Lead interview feedback within the next 45 minutes to meet the SLA."
+                                    </div>
+                                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+                                        <button style="background:rgba(255,255,255,0.1); border:none; color:white; padding:12px; border-radius:10px; font-size:0.75rem; font-weight:700; cursor:pointer;">Draft Offer Letter</button>
+                                        <button style="background:rgba(255,255,255,0.1); border:none; color:white; padding:12px; border-radius:10px; font-size:0.75rem; font-weight:700; cursor:pointer;">Summarize Tasks</button>
+                                    </div>
+                                    <div style="margin-top:auto; position:relative;">
+                                        <input type="text" placeholder="Command AI..." style="width:100%; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.2); padding:14px; padding-right:45px; border-radius:14px; color:white; outline:none; font-size:0.9rem;">
+                                        <i data-lucide="zap" style="position:absolute; right:15px; top:15px; width:18px; color:#38bdf8;"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="display:grid; grid-template-columns: 1fr 1.5fr; gap:1.25rem;">
+                            <!-- 🕐 2.3 TIME TRACKER ANALYTICS -->
+                            <div class="stat-card-hr">
+                                <h3 style="font-size:1rem; font-weight:900; margin-bottom:1.25rem;">Daily Productivity Log</h3>
+                                <div style="display:flex; flex-direction:column; gap:15px;">
+                                    <div style="display:flex; justify-content:space-between; align-items:center; padding:12px; background:#f8fafc; border-radius:10px;">
+                                        <div style="font-size:0.8rem; font-weight:700;">Recruitment & ATS</div>
+                                        <div style="font-weight:800; color:var(--hr-purple);">2h 15m</div>
+                                    </div>
+                                    <div style="display:flex; justify-content:space-between; align-items:center; padding:12px; background:#f8fafc; border-radius:10px;">
+                                        <div style="font-size:0.8rem; font-weight:700;">Payroll Processing</div>
+                                        <div style="font-weight:800; color:var(--hr-purple);">1h 40m</div>
+                                    </div>
+                                    <div style="display:flex; justify-content:space-between; align-items:center; padding:12px; background:#f8fafc; border-radius:10px;">
+                                        <div style="font-size:0.8rem; font-weight:700;">Employee Queries</div>
+                                        <div style="font-weight:800; color:var(--hr-purple);">55m</div>
+                                    </div>
+                                    <button class="nav-btn" style="width:100%; margin-top:10px;">View Full Timesheet Report</button>
+                                </div>
+                            </div>
+
+                            <!-- 📋 2.6 MY TASK MANAGER -->
+                            <div class="stat-card-hr">
+                                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+                                    <h3 style="font-size:1.15rem; font-weight:800; margin:0;">Active Operational Tasks</h3>
+                                    <button class="nav-btn" style="padding:4px 10px;">+ Quick Add</button>
+                                </div>
+                                <div style="display:flex; gap:15px; height:250px;">
+                                    <div style="flex:1; background:#f1f5f9; border-radius:12px; padding:12px; display:flex; flex-direction:column; gap:10px;">
+                                        <div style="font-size:0.6rem; font-weight:900; color:#64748b; text-transform:uppercase; letter-spacing:1px;">Today's Priorities</div>
+                                        <div style="background:white; padding:12px; border-radius:10px; border-left:4px solid #ef4444; font-size:0.85rem; font-weight:700; box-shadow:0 4px 6px -1px rgba(0,0,0,0.05);">Finalize Salarite Mar Payroll</div>
+                                        <div style="background:white; padding:12px; border-radius:10px; border-left:4px solid #f59e0b; font-size:0.85rem; font-weight:700; box-shadow:0 4px 6px -1px rgba(0,0,0,0.05);">Interview: Tech Architect</div>
+                                    </div>
+                                    <div style="flex:1; background:#f1f5f9; border-radius:12px; padding:12px; display:flex; flex-direction:column; gap:10px;">
+                                        <div style="font-size:0.6rem; font-weight:900; color:#64748b; text-transform:uppercase; letter-spacing:1px;">In Progress</div>
+                                        <div style="background:white; padding:12px; border-radius:10px; border-left:4px solid #3b82f6; font-size:0.85rem; font-weight:700; box-shadow:0 4px 6px -1px rgba(0,0,0,0.05);">Grievance Investigation #902</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- PERSONAL - TASKS -->
+                    <div id="personal-tasks" class="sub-view">
+                        <h2 style="font-size:1.75rem; font-weight:800; color:#1e293b; margin-bottom:1.5rem;">Workflow Task Board</h2>
+                        <div style="display:flex; flex-direction:column; gap:12px;">
+                            <div class="stat-card-hr" style="display:flex; align-items:center; gap:20px;">
+                                <div style="background:var(--hr-purple-soft); padding:10px; border-radius:10px;"><i data-lucide="file-check" style="color:var(--hr-purple);"></i></div>
+                                <div style="flex:1;"><b>Verify IT Declarations: Global Logistics</b><br><small>14 Pending • Deadline: 31st Mar</small></div>
+                                <button class="btn-primary" style="padding:8px 16px;">Action</button>
+                            </div>
+                            <div class="stat-card-hr" style="display:flex; align-items:center; gap:20px;">
+                                <div style="background:#fff1f2; padding:10px; border-radius:10px;"><i data-lucide="alert-circle" style="color:#ef4444;"></i></div>
+                                <div style="flex:1;"><b>High Priority: Grievance ID #892</b><br><small>Assigned 2 hrs ago • TechNova</small></div>
+                                <button class="btn-primary" style="padding:8px 16px; background:#ef4444;">Resolve</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- PERSONAL - ATTENDANCE -->
+                    <div id="personal-attendance" class="sub-view">
+                        <h2 style="font-size:1.75rem; font-weight:800; color:#1e293b; margin-bottom:1.5rem;">My Workflow History</h2>
+                        <div class="stat-card-hr" style="padding:0; overflow:hidden;">
+                            <table style="width:100%; border-collapse:collapse;">
+                                <tr style="background:#f8fafc; border-bottom:1px solid #e2e8f0; font-size:0.75rem; color:#64748b; text-align:left;">
+                                    <th style="padding:15px 20px;">SESSION DATE</th><th style="padding:15px 20px;">IN</th><th style="padding:15px 20px;">OUT</th><th style="padding:15px 20px;">EFFICIENCY</th>
+                                </tr>
+                                <tr style="border-bottom:1px solid #f1f5f9; font-size:0.9rem;">
+                                    <td style="padding:15px 20px;"><b>29 Mar, 2026</b></td><td style="padding:15px 20px;">09:00 AM</td><td style="padding:15px 20px;">--</td><td style="padding:15px 20px;"><span class="badge" style="background:#dcfce7; color:#166534;">Online</span></td>
+                                </tr>
+                                <tr style="border-bottom:1px solid #f1f5f9; font-size:0.9rem;">
+                                    <td style="padding:15px 20px;"><b>28 Mar, 2026</b></td><td style="padding:15px 20px;">08:50 AM</td><td style="padding:15px 20px;">06:12 PM</td><td style="padding:15px 20px;">94%</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- PERSONAL - PERFORMANCE -->
+                    <div id="personal-performance" class="sub-view">
+                        <h2 style="font-size:1.75rem; font-weight:800; color:#1e293b; margin-bottom:1.5rem;">My HR Service Portfolio</h2>
+                        <div class="grid-hr">
+                            <div class="stat-card-hr"><div class="stat-label">Hiring Velocity</div><div class="stat-value">1.4 days</div></div>
+                            <div class="stat-card-hr"><div class="stat-label">Avg Rating</div><div class="stat-value">4.9 / 5</div></div>
+                            <div class="stat-card-hr"><div class="stat-label">Retention Score</div><div class="stat-value">98.8%</div></div>
+                        </div>
+                    </div>
+
+                    <!-- COMPANY - PROFILE (Imported context) -->
+                    <div id="company-profile" class="sub-view">
+                        <div class="dashboard-header-hr">
+                            <h2 style="font-size:1.5rem; font-weight:800; color:#1e293b;">Enterprise Client Profile</h2>
+                        </div>
+                        <div class="stat-card-hr">
+                            <div style="display:flex; gap:30px; align-items:flex-start;">
+                                <div style="width:120px; height:120px; background:#f1f5f9; border-radius:24px; display:flex; align-items:center; justify-content:center; color:#1e293b; font-size:2.5rem; font-weight:900; border:1px solid #e2e8f0;">[L]</div>
+                                <div style="flex:1;">
+                                    <h3 id="profile-company-name-view" style="font-size:1.75rem; font-weight:800; margin-bottom:10px;">XYZ Solutions Pvt Ltd</h3>
+                                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px;">
+                                        <div><small style="color:#94a3b8; font-weight:700;">REGISTRATION ID</small><br><b>SAL-CORP-9021</b></div>
+                                        <div><small style="color:#94a3b8; font-weight:700;">INDUSTRY</small><br><b>SaaS • Fintech</b></div>
+                                        <div><small style="color:#94a3b8; font-weight:700;">HEADQUARTERS</small><br><b>Bengaluru, Karnataka</b></div>
+                                        <div><small style="color:#94a3b8; font-weight:700;">STATUS</small><br><span class="badge" style="background:#dcfce7; color:#166534;">Verified Enterprise</span></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="stat-card-hr">
+                            <h3 style="font-size:1.1rem; margin-bottom:1.5rem;">Legal & Primary Contact</h3>
+                            <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:20px;">
+                                <div style="padding:15px; background:#f8fafc; border-radius:12px;"><b>Authorized Signatory</b><br><small>Mr. Ankit Roy (CEO)</small></div>
+                                <div style="padding:15px; background:#f8fafc; border-radius:12px;"><b>GSTN Number</b><br><small>29AAAAA0000A1Z5</small></div>
+                                <div style="padding:15px; background:#f8fafc; border-radius:12px;"><b>Registered Address</b><br><small>Indiranagar, Bangalore</small></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- COMPANY - USER MANAGEMENT (Imported context) -->
+                    <div id="company-users" class="sub-view">
+                        <div class="dashboard-header-hr">
+                            <h2 style="font-size:1.5rem; font-weight:800; color:#1e293b;">Access Control & RBAC</h2>
+                            <button class="btn-primary" style="background:#4D4286; border:none; padding:10px 20px; border-radius:12px; color:white; font-weight:700;">+ Invite Admin</button>
+                        </div>
+                        <div class="stat-card-hr" style="padding:0; overflow:hidden;">
+                            <table style="width:100%; border-collapse:collapse;">
+                                <tr style="background:#f8fafc; border-bottom:1px solid #e2e8f0; font-size:0.75rem; color:#64748b; text-align:left;">
+                                    <th style="padding:15px 20px;">ADMIN USER</th><th style="padding:15px 20px;">ROLE</th><th style="padding:15px 20px;">PERMISSIONS</th><th style="padding:15px 20px;">LAST LOGIN</th>
+                                </tr>
+                                <tr style="border-bottom:1px solid #f1f5f9;">
+                                    <td style="padding:15px 20px;"><b>Ankit Roy</b><br><small>ceo@xyzsolutions.com</small></td><td>Owner</td><td>Full Access</td><td>10m ago</td>
+                                </tr>
+                                <tr style="border-bottom:1px solid #f1f5f9;">
+                                    <td style="padding:15px 20px;"><b>Prakash Sharma</b><br><small>vhr@salarite.com</small></td><td>Virtual HR</td><td>Operational Control</td><td>Active Now</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- COMPANY - OVERVIEW (Synced Dashboard) -->
+                    <div id="company-overview" class="sub-view">
+                        <div class="dashboard-header-hr">
+                            <h2 style="font-size:1.5rem; font-weight:800; color:#1e293b;">Operational Command Center</h2>
+                            <div style="display:flex; gap:10px;">
+                                <span class="context-badge" id="overview-context-label">XYZ Solutions</span>
+                            </div>
+                        </div>
+                        <div class="grid-hr">
+                            <div class="stat-card-hr" style="border-left: 4px solid var(--company-blue);"><div class="stat-label">Total Enterprise Strength</div><div class="stat-value" id="comp-total-emp">124</div></div>
+                            <div class="stat-card-hr" style="border-left: 4px solid #ef4444;"><div class="stat-label">Critical Grievances</div><div class="stat-value">3 Open</div></div>
+                            <div class="stat-card-hr"><div class="stat-label">Talent Pipeline</div><div class="stat-value">8 Active Roles</div></div>
+                        </div>
+                        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1.5rem;">
+                            <div class="stat-card-hr">
+                                <h3 style="font-size:1.1rem; margin-bottom:1.5rem;">Recruitment Funnel</h3>
+                                <div style="display:flex; align-items:center; justify-content:center; height:200px; background:#f8fafc; border-radius:12px; border:1px dashed #e2e8f0; color:#94a3b8;">[ Visual: Pipeline Trend ]</div>
+                            </div>
+                            <div class="stat-card-hr">
+                                <h3 style="font-size:1.1rem; margin-bottom:1.5rem;">Recent Grievances</h3>
+                                <div style="padding:15px; background:#fff1f2; border-radius:12px; margin-bottom:10px;">
+                                    <div style="font-weight:700; color:#991b1b;">Harassment Complaint: #901</div>
+                                    <div style="font-size:0.75rem; color:#b91c1c; margin-top:4px;">Severity: EXTREME • 15m old</div>
+                                </div>
+                                <div style="padding:15px; background:#f8fafc; border-radius:12px;">
+                                    <div style="font-weight:700; color:#1e293b;">Delayed Salary Access</div>
+                                    <div style="font-size:0.75rem; color:#64748b; margin-top:4px;">Severity: MED • 2h old</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- COMPANY - EMPLOYEES -->
+                    <div id="company-employees" class="sub-view">
+                        <div class="dashboard-header-hr">
+                            <h2 style="font-size:1.5rem; font-weight:800; color:#1e293b;">Enterprise Directory</h2>
+                            <div style="display:flex; gap:10px;">
+                                <input type="text" placeholder="Search employees..." class="nav-btn" style="width:250px; text-align:left;">
+                                <button class="btn-primary" style="background:var(--company-blue); border:none; padding:10px 20px; border-radius:12px; color:white; font-weight:700;">+ Add Employee</button>
+                            </div>
+                        </div>
+                        <div class="stat-card-hr" style="padding:0; overflow:hidden;">
+                            <table style="width:100%; border-collapse:collapse;">
+                                <tr style="background:#f8fafc; border-bottom:1px solid #e2e8f0; font-size:0.75rem; color:#64748b; text-align:left;">
+                                    <th style="padding:15px 20px;">NAME</th><th style="padding:15px 20px;">ROLE</th><th style="padding:15px 20px;">DEPARTMENT</th><th style="padding:15px 20px;">SHIFT</th><th style="padding:15px 20px;">STATUS</th>
+                                </tr>
+                                <tr style="border-bottom:1px solid #f1f5f9; font-size:0.9rem;">
+                                    <td style="padding:15px 20px;"><b>Rahul Sharma</b><br><small>rahul.s@salarite.com</small></td><td style="padding:15px 20px;">Fullstack Dev</td><td style="padding:15px 20px;">Engineering</td><td style="padding:15px 20px;">General (09-18)</td><td style="padding:15px 20px;"><span class="badge" style="background:#dcfce7; color:#166534;">Online</span></td>
+                                </tr>
+                                <tr style="border-bottom:1px solid #f1f5f9; font-size:0.9rem;">
+                                    <td style="padding:15px 20px;"><b>Sneha Patil</b><br><small>sneha.p@salarite.com</small></td><td style="padding:15px 20px;">UX Designer</td><td style="padding:15px 20px;">Product</td><td style="padding:15px 20px;">Morning (07-16)</td><td style="padding:15px 20px;"><span class="badge" style="background:#f1f5f9; color:#64748b;">Offline</span></td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- COMPANY - ATTENDANCE & SHIFTS -->
+                    <div id="company-attendance" class="sub-view">
+                        <div class="dashboard-header-hr">
+                            <h2 style="font-size:1.5rem; font-weight:800; color:#1e293b;">Attendance & Shift Management</h2>
+                            <div style="display:flex; gap:10px;">
+                                <button class="nav-btn" style="padding:8px 16px;">Export Report</button>
+                                <button class="btn-primary" style="background:#4D4286; border:none; padding:10px 20px; border-radius:12px; color:white; font-weight:700;">Shift Scheduler</button>
+                            </div>
+                        </div>
+                        
+                        <div style="display:grid; grid-template-columns: 2fr 1fr; gap:1.5rem;">
+                            <div class="stat-card-hr">
+                                <h3 style="font-size:1.1rem; margin-bottom:1.25rem;">Shift Rotation Overview</h3>
+                                <div style="display:flex; flex-direction:column; gap:12px;">
+                                    <div style="display:flex; justify-content:space-between; align-items:center; padding:12px; border:1px solid #f1f5f9; border-radius:10px;">
+                                        <div><b>General Shift</b><br><small>09:00 AM - 06:00 PM</small></div>
+                                        <div style="text-align:right;"><b>42 Active</b><br><small style="color:#10b981;">On Time</small></div>
+                                    </div>
+                                    <div style="display:flex; justify-content:space-between; align-items:center; padding:12px; border:1px solid #f1f5f9; border-radius:10px;">
+                                        <div><b>US Night Shift</b><br><small>09:00 PM - 06:00 AM</small></div>
+                                        <div style="text-align:right;"><b>12 Active</b><br><small style="color:#f59e0b;">5 Late Entries</small></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="stat-card-hr">
+                                <h3 style="font-size:1.1rem; margin-bottom:1.25rem;">Live Clock-ins</h3>
+                                <div style="display:flex; flex-direction:column; gap:10px;">
+                                    <div style="display:flex; align-items:center; gap:10px; font-size:0.85rem;">
+                                        <div style="width:8px; height:8px; background:#10b981; border-radius:50%;"></div>
+                                        <span><b>Rahul S.</b> clocked in at 09:02 AM</span>
+                                    </div>
+                                    <div style="display:flex; align-items:center; gap:10px; font-size:0.85rem;">
+                                        <div style="width:8px; height:8px; background:#f59e0b; border-radius:50%;"></div>
+                                        <span><b>Amit K.</b> late entry at 09:45 AM</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- COMPANY - RECRUITMENT -->
+                    <div id="company-recruitment" class="sub-view">
+                        <h2 style="font-size:1.75rem; font-weight:800; color:#1e293b; margin-bottom:1.5rem;">Talent Pipeline</h2>
+                        <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap:1rem;">
+                            <div style="background:#f1f5f9; padding:15px; border-radius:12px;">
+                                <h4 style="font-size:0.75rem; color:#64748b; margin-bottom:15px;">APPLIED (12)</h4>
+                                <div style="background:white; padding:12px; border-radius:8px; margin-bottom:10px; border:1px solid #e2e8f0; font-size:0.85rem;"><b>Aman Gupta</b><br>Fullstack Dev</div>
+                                <div style="background:white; padding:12px; border-radius:8px; border:1px solid #e2e8f0; font-size:0.85rem;"><b>Riya Sharma</b><br>Product Mgr</div>
+                            </div>
+                            <div style="background:#eff6ff; padding:15px; border-radius:12px;">
+                                <h4 style="font-size:0.75rem; color:#1d4ed8; margin-bottom:15px;">SCREENING (4)</h4>
+                                <div style="background:white; padding:12px; border-radius:8px; margin-bottom:10px; border:1px solid #bfdbfe; font-size:0.85rem;"><b>Vivek Khanna</b><br>HR Intern</div>
+                            </div>
+                            <div style="background:#fff7ed; padding:15px; border-radius:12px;">
+                                <h4 style="font-size:0.75rem; color:#ea580c; margin-bottom:15px;">INTERVIEW (2)</h4>
+                                <div style="background:white; padding:12px; border-radius:8px; margin-bottom:10px; border:1px solid #fed7aa; font-size:0.85rem;"><b>Pooja Hegde</b><br>UX Designer</div>
+                            </div>
+                            <div style="background:#f0fdf4; padding:15px; border-radius:12px;">
+                                <h4 style="font-size:0.75rem; color:#16a34a; margin-bottom:15px;">HIRED (1)</h4>
+                                <div style="background:#10b981; color:white; padding:12px; border-radius:8px; margin-bottom:10px; font-size:0.85rem;"><b>Manoj Bajpaye</b><br>Sales Lead</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- COMPANY - GRIEVANCES -->
+                    <div id="company-grievances" class="sub-view">
+                        <h2 style="font-size:1.75rem; font-weight:800; color:#1e293b; margin-bottom:1.5rem;">Corporate Grievance Tracking</h2>
+                        <div style="padding:20px; border-radius:16px; background:#fff1f2; border:1px solid #fecdd3; margin-bottom:1.5rem; display:flex; gap:20px; align-items:center;">
+                            <div style="background:#ef4444; color:white; width:48px; height:48px; border-radius:12px; display:flex; align-items:center; justify-content:center;"><i data-lucide="shield-alert" style="width:24px;"></i></div>
+                            <div style="flex:1;">
+                                <div style="display:flex; justify-content:space-between;">
+                                    <b style="color:#991b1b; font-size:1.1rem;">#924: Unethical Conduct Report</b>
+                                    <span class="badge" style="background:#ef4444; color:white;">CRITICAL</span>
+                                </div>
+                                <div style="color:#b91c1c; font-size:0.85rem; margin-top:5px;">Severity: High • Status: Investigation Active</div>
+                                <div style="font-size:0.75rem; color:#b91c1c; margin-top:10px;">Submitted 42 mins ago. Action Required.</div>
+                            </div>
+                            <button class="btn-primary" style="background:#ef4444;">Review Case</button>
+                        </div>
+                        <div class="stat-card-hr">
+                            <h3 style="font-size:1.1rem; margin-bottom:1.5rem;">Open Grievance Backlog</h3>
+                            <div style="display:flex; flex-direction:column; gap:12px;">
+                                <div style="padding:15px; border:1px solid #f1f5f9; border-radius:12px; display:flex; justify-content:space-between; align-items:center;">
+                                    <div><b>Salary Credit Delay</b><br><small>Finance Dept • Pending Finance Approval</small></div>
+                                    <span class="badge" style="background:#fefce8; color:#a16207;">MEDIUM</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- COMPANY - PAYROLL -->
+                    <div id="company-payroll" class="sub-view">
+                        <h2 style="font-size:1.75rem; font-weight:800; color:#1e293b; margin-bottom:1.5rem;">Company Payroll Analytics</h2>
+                        <div class="grid-hr">
+                            <div class="stat-card-hr"><div class="stat-label">Total Payout (Mar)</div><div class="stat-value">₹42.50 L</div><div style="font-size:0.75rem; color:#10b981; margin-top:8px;">+4.2% from Feb</div></div>
+                            <div class="stat-card-hr"><div class="stat-label">Tax Compliance</div><div class="stat-value">100%</div><div style="font-size:0.75rem; color:#10b981; margin-top:8px;">Mar TDS Filed</div></div>
+                            <div class="stat-card-hr"><div class="stat-label">Disbursement Date</div><div class="stat-value">PAID</div><div style="font-size:0.75rem; color:#64748b; margin-top:8px;">29 Mar, 2026</div></div>
+                        </div>
+                        <div class="stat-card-hr">
+                            <h3 style="font-size:1.15rem; margin-bottom:1.5rem;">Department Breakdown</h3>
+                            <div style="height:250px; background:#f8fafc; border-radius:12px; border:1px dashed #e2e8f0; display:flex; align-items:center; justify-content:center; color:#94a3b8;">[ Visual: Pie Chart ]</div>
+                        </div>
+                    </div>
+
+                    <!-- COMPANY - PERFORMANCE -->
+                    <div id="company-performance" class="sub-view">
+                        <h2 style="font-size:1.75rem; font-weight:800; color:#1e293b; margin-bottom:1.5rem;">Operational Efficiency</h2>
+                        <div style="display:grid; grid-template-columns: 2fr 1fr; gap:1.5rem;">
+                            <div class="stat-card-hr">
+                                <h3 style="font-size:1.15rem; margin-bottom:1.5rem;">Hiring SLA Tracking</h3>
+                                <div style="height:300px; background:#f8fafc; border-radius:12px; border:1px dashed #e2e8f0; display:flex; align-items:center; justify-content:center; color:#94a3b8;">[ Visual: Ops Performance Graph ]</div>
+                            </div>
+                            <div class="stat-card-hr">
+                                <h3 style="font-size:1.15rem; margin-bottom:1.5rem;">Pulse Check Score</h3>
+                                <div style="text-align:center; padding:2rem 0;">
+                                    <div style="font-size:3.5rem; font-weight:900; color:#10b981;">8.4</div>
+                                    <div style="color:#64748b; font-size:0.9rem; margin-top:10px;">Avg Employee Satisfaction</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                     <!-- MODULE 1 — EMPLOYEE MANAGEMENT -->
+                    <div id="company-employees" class="sub-view">
+                        <div class="dashboard-header-hr">
+                            <h2 style="font-size:1.5rem; font-weight:800;">Employee Directory</h2>
+                            <div style="display:flex; gap:10px;">
+                                <input type="text" placeholder="Search directory..." class="nav-btn" style="width:250px; text-align:left;">
+                                <button class="btn-primary">+ Add Employee</button>
+                            </div>
+                        </div>
+                        <div class="stat-card-hr" style="padding:0;">
+                            <table style="width:100%; border-collapse:collapse;">
+                                <thead style="background:#f8fafc;">
+                                    <tr style="text-align:left;">
+                                        <th style="padding:15px; font-size:0.7rem; text-transform:uppercase; color:#94a3b8;">Employee</th>
+                                        <th style="padding:15px; font-size:0.7rem; text-transform:uppercase; color:#94a3b8;">Department</th>
+                                        <th style="padding:15px; font-size:0.7rem; text-transform:uppercase; color:#94a3b8;">Status</th>
+                                        <th style="padding:15px; font-size:0.7rem; text-transform:uppercase; color:#94a3b8;">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr style="border-bottom:1px solid #f1f5f9;">
+                                        <td style="padding:15px;"><b>Rahul Gupta</b><br><small>SAL-102 • SDE II</small></td>
+                                        <td style="padding:15px;">Engineering</td>
+                                        <td style="padding:15px;"><span class="badge" style="background:#dcfce7; color:#166534;">Active</span></td>
+                                        <td style="padding:15px;"><button class="nav-btn">View Profile</button></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- MODULE 2 — ATTENDANCE & LEAVE -->
+                    <div id="company-attendance" class="sub-view">
+                        <h2 style="font-size:1.75rem; font-weight:800; margin-bottom:1.5rem;">Workforce Presence</h2>
+                        <div class="grid-hr">
+                            <div class="stat-card-hr"><div class="stat-label">In Office</div><div class="stat-value">84</div></div>
+                            <div class="stat-card-hr"><div class="stat-label">Remote</div><div class="stat-value">32</div></div>
+                            <div class="stat-card-hr"><div class="stat-label">Late Logins</div><div class="stat-value" style="color:#ef4444;">14</div></div>
+                        </div>
+                        <div class="stat-card-hr">
+                            <h3>Real-time Tracking</h3>
+                            <div style="height:200px; background:#f8fafc; border-radius:12px; border:1px dashed #e2e8f0; display:flex; align-items:center; justify-content:center; color:#94a3b8;">[ Heatmap: Attendance Trends ]</div>
+                        </div>
+                    </div>
+
+                    <!-- MODULE 3 — PAYROLL -->
+                    <div id="company-payroll" class="sub-view">
+                        <div style="display:flex; justify-content:space-between; margin-bottom:2rem;">
+                            <h2 style="font-size:1.75rem; font-weight:800;">Payroll processing</h2>
+                            <button class="btn-primary" style="background:#10b981;">Run Monthly Payroll</button>
+                        </div>
+                        <div class="grid-hr">
+                            <div class="stat-card-hr"><div class="stat-label">Gross Payout</div><div class="stat-value">₹42.50 L</div></div>
+                            <div class="stat-card-hr"><div class="stat-label">Compliance Filings</div><div class="stat-value">PF / ESI / TDS</div></div>
+                        </div>
+                    </div>
+
+                    <!-- MODULE 4 — RECRUITMENT -->
+                    <div id="company-recruitment" class="sub-view">
+                        <h2 style="font-size:1.75rem; font-weight:800; margin-bottom:1.5rem;">Applicant Tracking System</h2>
+                        <div style="display:flex; gap:15px; overflow-x:auto; padding-bottom:15px;">
+                            <div style="min-width:250px; background:#f1f5f9; border-radius:12px; padding:15px;">
+                                <div style="font-size:0.6rem; font-weight:900; margin-bottom:15px;">SCREENING (12)</div>
+                                <div style="background:white; padding:12px; border-radius:8px; margin-bottom:10px; font-size:0.8rem;"><b>Amit Singh</b><br><small>Frontend Dev</small></div>
+                            </div>
+                            <div style="min-width:250px; background:#f1f5f9; border-radius:12px; padding:15px;">
+                                <div style="font-size:0.6rem; font-weight:900; margin-bottom:15px;">INTERVIEW (5)</div>
+                                <div style="background:white; padding:12px; border-radius:8px; margin-bottom:10px; font-size:0.8rem;"><b>Sneha Rao</b><br><small>UI/UX Lead</small></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- MODULE 5 — COMMUNICATION -->
+                    <div id="com-hub" class="sub-view">
+                        <h2 style="font-size:1.75rem; font-weight:800; margin-bottom:1.5rem;">Communication Hub</h2>
+                        <div class="grid-hr" style="grid-template-columns: 1fr 1fr;">
+                            <div class="stat-card-hr">
+                                <h3>Zoom Integration</h3>
+                                <p style="font-size:0.85rem; color:#64748b;">Schedule and participate in video interviews directly.</p>
+                                <button class="btn-primary" style="background:#2563eb; margin-top:20px;">Connect Zoom Account</button>
+                            </div>
+                            <div class="stat-card-hr">
+                                <h3>VoIP Calling</h3>
+                                <p style="font-size:0.85rem; color:#64748b;">Cloud telephony for candidate and employee discussions.</p>
+                                <button class="btn-primary" style="background:#0ea5e9; margin-top:20px;">Open Dialer</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- MODULE 6 — GRIEVANCE -->
+                    <div id="vhr-grievances" class="sub-view">
+                        <h2 style="font-size:1.75rem; font-weight:800; margin-bottom:1.5rem;">Grievance Investigation Desk</h2>
+                        <div class="stat-card-hr" style="border-left:4px solid #ef4444;">
+                            <div style="display:flex; justify-content:space-between;">
+                                <div><b style="color:#ef4444;">#902: Pay Discrepancy</b><br><small>Submitted by anonymous • Finance Dept</small></div>
+                                <span class="badge" style="background:#fee2e2; color:#991b1b;">High Priority</span>
+                            </div>
+                            <div style="margin-top:20px;"><button class="nav-btn">Start Case Review</button></div>
+                        </div>
+                    </div>
+
+                    <!-- MODULE 7 — PERFORMANCE -->
+                    <div id="company-performance" class="sub-view">
+                        <h2 style="font-size:1.75rem; font-weight:800; margin-bottom:1.5rem;">Operational OKR Dashboard</h2>
+                        <div class="stat-card-hr">
+                            <div style="display:flex; justify-content:space-between; margin-bottom:1rem;">
+                                <b>Company Retention Rate</b>
+                                <b>94.2%</b>
+                            </div>
+                            <div style="height:10px; background:#f1f5f9; border-radius:5px;"><div style="width:94%; height:100%; background:#10b981; border-radius:5px;"></div></div>
+                        </div>
+                    </div>
+
+                    <!-- MODULE 8 — TRAINING -->
+                    <div id="vhr-training" class="sub-view">
+                        <h2 style="font-size:1.75rem; font-weight:800; margin-bottom:1.5rem;">Training & orientation</h2>
+                        <div class="grid-hr">
+                            <div class="stat-card-hr">
+                                <h3>New Orientation Plan</h3>
+                                <small>Next batch: Apr 02, 2026</small>
+                                <button class="nav-btn" style="width:100%; margin-top:15px;">Manage Curriculum</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- MODULE 9 — ANALYTICS -->
+                    <div id="ana-reports" class="sub-view">
+                        <h2 style="font-size:1.75rem; font-weight:800; margin-bottom:1.5rem;">Head-count Analytics</h2>
+                        <div style="height:350px; background:#f8fafc; border-radius:20px; border:1px dashed #cbd5e1; display:flex; align-items:center; justify-content:center; color:#94a3b8;">[ Visual: Interactive Workforce Growth Chart ]</div>
+                    </div>
+
+                    <!-- MODULE 10 — CONFIG -->
+                    <div id="adm-config" class="sub-view">
+                        <h2 style="font-size:1.75rem; font-weight:800; margin-bottom:1.5rem;">Global Configuration</h2>
+                        <div class="grid-hr">
+                            <div class="stat-card-hr"><h3>Shift Rules</h3><p style="font-size:0.8rem; color:#64748b;">Configure global shift timings and late login penalties.</p></div>
+                            <div class="stat-card-hr"><h3>Access Control</h3><p style="font-size:0.8rem; color:#64748b;">Manage RBAC permissions for department heads.</p></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        lucide.createIcons();
+
+        // 1. DOM REFERENCES
+        const selectionScreen = document.getElementById('selection-screen');
+        const mainDashboard = document.getElementById('main-dashboard-view');
+        const trigger = document.getElementById('dropdown-trigger');
+        const menu = document.getElementById('dropdown-menu');
+        const searchInput = document.getElementById('company-search');
+        const listItems = document.querySelectorAll('.dropdown-item');
+        const activeCompSidebar = document.getElementById('active-company-name-sidebar');
+        const compContextPill = document.getElementById('company-context-pill');
+        const btnSwitchContext = document.getElementById('btn-switch-context');
+        const btnContinue = document.getElementById('btn-continue');
+        const selectedCompText = document.getElementById('selected-company-text');
+
+        const btnAttendance = document.getElementById('btn-attendance-toggle');
+        const timerDisplay = document.getElementById('session-timer');
+        const pulse = document.getElementById('attendance-pulse');
+        const digitalClock = document.getElementById('digital-clock');
+
+        // 2. STATE & PERSISTENCE
+        let selectedCompanyData = null;
+        let isCheckedIn = localStorage.getItem('vhr_checked_in') === 'true';
+        let startTime = localStorage.getItem('vhr_start_time');
+        let timerInterval = null;
+
+        // 3. SELECTION & CONTEXT LOGIC
+        if(trigger) {
+            trigger.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const isOpen = menu.style.display === 'flex';
+                menu.style.display = isOpen ? 'none' : 'flex';
+                if (!isOpen && searchInput) searchInput.focus();
+            });
+        }
+
+        listItems.forEach(item => {
+            item.addEventListener('click', () => {
+                selectedCompanyData = {
+                    name: item.dataset.company,
+                    id: item.dataset.id,
+                    emp: item.dataset.emp
+                };
+                if(selectedCompText) selectedCompText.innerText = selectedCompanyData.name;
+                if(menu) menu.style.display = 'none';
+                
+                if(btnContinue) {
+                    btnContinue.disabled = false;
+                    btnContinue.style.opacity = '1';
+                    btnContinue.style.cursor = 'pointer';
+                }
+                if(trigger) trigger.style.borderColor = 'var(--hr-purple)';
+            });
+        });
+
+        if(searchInput) {
+            searchInput.addEventListener('input', (e) => {
+                const term = e.target.value.toLowerCase();
+                listItems.forEach(item => {
+                    const name = item.dataset.company.toLowerCase();
+                    item.style.display = name.includes(term) ? 'flex' : 'none';
+                });
+            });
+        }
+
+        if(btnContinue) {
+            btnContinue.addEventListener('click', () => {
+                if (!selectedCompanyData) return;
+                if(activeCompSidebar) activeCompSidebar.innerText = selectedCompanyData.name;
+                if(compContextPill) compContextPill.style.display = 'block';
+                if(btnSwitchContext) btnSwitchContext.style.display = 'flex';
+                
+                selectionScreen.style.opacity = '0';
+                selectionScreen.style.transform = 'scale(0.95)';
+                setTimeout(() => {
+                    selectionScreen.style.display = 'none';
+                    mainDashboard.style.display = 'grid';
+                    switchSubView('personal-dashboard');
+                    lucide.createIcons();
+                }, 500);
+            });
+        }
+
+        if(btnSwitchContext) {
+            btnSwitchContext.addEventListener('click', () => {
+                 mainDashboard.style.display = 'none';
+                 selectionScreen.style.display = 'flex';
+                 selectionScreen.style.opacity = '1';
+                 selectionScreen.style.transform = 'scale(1)';
+            });
+        }
+
+        // 4. NAVIGATION LOGIC
+        function switchSubView(viewId) {
+            document.querySelectorAll('.sub-view').forEach(v => v.classList.remove('active'));
+            document.querySelectorAll('.nav-item-hr').forEach(n => n.classList.remove('active'));
+            
+            const target = document.getElementById(viewId);
+            if (target) target.classList.add('active');
+            
+            const nav = document.querySelector(`[data-view="${viewId}"]`);
+            if (nav) nav.classList.add('active');
+            
+            lucide.createIcons();
+        }
+
+        function switchView(layer) {
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            const event = window.event;
+            if (event && event.target) {
+                event.target.classList.add('active');
+            } else {
+                const targetBtn = layer === 'personal' ? document.querySelector('.toggle-btn:nth-child(1)') : document.querySelector('.toggle-btn:nth-child(2)');
+                if (targetBtn) targetBtn.classList.add('active');
+            }
+
+            if (layer === 'personal') {
+                switchSubView('personal-dashboard');
+            } else {
+                switchSubView('company-overview');
+            }
+        }
+
+        document.querySelectorAll('.nav-item-hr').forEach(item => {
+            item.addEventListener('click', (e) => {
+                e.preventDefault();
+                const v = item.dataset.view;
+                if (v) {
+                    switchSubView(v);
+                    // Also sync the top layer toggle
+                    const isPersonal = v.startsWith('personal') || v.startsWith('vhr');
+                    const btns = document.querySelectorAll('.toggle-btn');
+                    btns.forEach(b => b.classList.remove('active'));
+                    if (isPersonal) btns[0].classList.add('active');
+                    else btns[1].classList.add('active');
+                }
+            });
+        });
+
+        // 5. ATTENDANCE & REAL-TIME LOGIC
+        function updateDigitalClock() {
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
+            if (digitalClock) digitalClock.innerText = timeStr;
+        }
+
+        function formatTimeDiff(ms) {
+            let s = Math.floor(ms / 1000);
+            const h = Math.floor(s / 3600);
+            const m = Math.floor((s % 3600) / 60);
+            const sec = s % 60;
+            return [h, m, sec].map(v => v < 10 ? "0" + v : v).join(":");
+        }
+
+        function startTimer() {
+            if (timerInterval) clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                const now = Date.now();
+                const diff = now - parseInt(startTime);
+                if(timerDisplay) timerDisplay.innerText = formatTimeDiff(diff);
+            }, 1000);
+        }
+
+        function initAttendance() {
+            if (isCheckedIn && startTime) {
+                const span = btnAttendance.querySelector('span');
+                const icon = btnAttendance.querySelector('i');
+                
+                if(btnAttendance) {
+                    if (span) span.innerText = "Check Out";
+                    btnAttendance.style.background = "linear-gradient(135deg, #ef4444, #dc2626)";
+                    btnAttendance.style.boxShadow = "0 10px 25px rgba(239, 68, 68, 0.3)";
+                    if (icon) {
+                        icon.setAttribute('data-lucide', 'square');
+                        icon.setAttribute('fill', 'white');
+                    }
+                }
+                startTimer();
+                lucide.createIcons();
+            }
+        }
+
+        if(btnAttendance) {
+            btnAttendance.addEventListener('click', () => {
+                const span = btnAttendance.querySelector('span');
+                const icon = btnAttendance.querySelector('i');
+
+                if (!isCheckedIn) {
+                    isCheckedIn = true;
+                    startTime = Date.now().toString();
+                    localStorage.setItem('vhr_checked_in', 'true');
+                    localStorage.setItem('vhr_start_time', startTime);
+                    
+                    if (span) span.innerText = "Check Out";
+                    btnAttendance.style.background = "linear-gradient(135deg, #ef4444, #dc2626)";
+                    btnAttendance.style.boxShadow = "0 10px 25px rgba(239, 68, 68, 0.3)";
+                    if (icon) {
+                        icon.setAttribute('data-lucide', 'square');
+                        icon.setAttribute('fill', 'white');
+                    }
+                    startTimer();
+                } else {
+                    const finalTime = timerDisplay ? timerDisplay.innerText : "N/A";
+                    isCheckedIn = false;
+                    localStorage.removeItem('vhr_checked_in');
+                    localStorage.removeItem('vhr_start_time');
+                    
+                    if (span) span.innerText = "Check In";
+                    btnAttendance.style.background = "linear-gradient(135deg, #10b981, #059669)";
+                    btnAttendance.style.boxShadow = "0 10px 25px rgba(16, 185, 129, 0.3)";
+                    if (icon) {
+                        icon.setAttribute('data-lucide', 'play');
+                        icon.setAttribute('fill', 'white');
+                    }
+                    if(timerInterval) clearInterval(timerInterval);
+                    if(timerDisplay) timerDisplay.innerText = "00:00:00";
+                    alert(`Session Ended. Total Duration: ${finalTime}`);
+                }
+                lucide.createIcons();
+            });
+        }
+
+        // Global Initialization
+        document.addEventListener('DOMContentLoaded', () => {
+            setInterval(updateDigitalClock, 1000);
+            updateDigitalClock();
+            initAttendance();
+        });
+
+        document.addEventListener('click', (e) => {
+            if (trigger && !trigger.contains(e.target) && menu && !menu.contains(e.target)) {
+                menu.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>

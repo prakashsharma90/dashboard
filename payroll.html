@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Salarite | Payroll & Compliance Hub</title>
+    <!-- Fonts: Inter & Plus Jakarta Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;0,800;1,200;1,300;1,400;1,500;1,600;1,700;1,800&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="dashboard-style.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css">
+    <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+    
+    <style>
+        :root {
+            --pr-primary: #4D4286;
+            --pr-bg: #f8fafc;
+            --pr-border: #e2e8f0;
+            --pr-text: #1e293b;
+            --pr-text-muted: #64748b;
+            --pr-success: #10b981;
+            --pr-danger: #ef4444;
+            --font-main: 'Inter', sans-serif;
+            --font-heading: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        body { background: var(--pr-bg); font-family: var(--font-main); margin: 0; display: flex; color: var(--pr-text); height: 100vh; overflow: hidden; }
+        
+        .main-content { padding: 1rem 1.75rem; max-width: 1600px; margin: 0 auto; width: 100%; height: 100vh; overflow-y: auto; scroll-behavior: smooth; }
+        
+        /* Typography Restoration */
+        h1, h2, h3, h4, .value, .amount, .stat-label, .page-title, .payroll-tab { font-family: var(--font-heading) !important; }
+
+        .breadcrumb { font-size: 0.6rem; font-weight: 850; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 4px; display: flex; align-items: center; gap: 4px; }
+        .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+        .page-title { font-size: 1.25rem; font-weight: 800; color: var(--pr-text); margin: 0; display: flex; align-items: center; gap: 10px; letter-spacing: -0.5px; }
+
+        /* Navigation Density */
+        .payroll-tabs { display: flex; gap: 20px; border-bottom: 1px solid var(--pr-border); margin-bottom: 1.25rem; background: white; padding: 0 20px; margin: 0 -1.75rem 1.25rem; position: sticky; top: -1rem; z-index: 100; border-top: 1px solid #f1f5f9; }
+        .payroll-tab { padding: 12px 2px; font-weight: 800; font-size: 0.75rem; color: var(--pr-text-muted); cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.2s; white-space: nowrap; display: flex; align-items: center; gap: 8px; }
+        .payroll-tab:hover { color: var(--pr-primary); }
+        .payroll-tab.active { color: var(--pr-primary); border-bottom-color: var(--pr-primary); }
+
+        /* Stats Grid */
+        .payroll-stats { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 1.5rem; }
+        .stat-card { background: white; padding: 14px; border-radius: 12px; border: 1px solid var(--pr-border); display: flex; flex-direction: column; gap: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.01); transition: 0.2s; }
+        .stat-card:hover { border-color: var(--pr-primary); box-shadow: 0 10px 20px rgba(0,0,0,0.04); }
+        .stat-label { font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.8px; color: var(--pr-text-muted); font-weight: 900; }
+        .stat-value { font-size: 1.3rem; font-weight: 800; color: #1e293b; margin-top: 2px; letter-spacing: -0.5px; }
+        .stat-sub { font-size: 0.6rem; font-weight: 800; color: var(--pr-success); background: #f0fdf4; padding: 2px 8px; border-radius: 20px; width: fit-content; margin-top: 4px; }
+
+        /* High-Density Tables */
+        .payroll-card { background: white; border-radius: 12px; border: 1px solid #e2e8f0; margin-bottom: 25px; transition: transform 0.3s; position: relative; }
+        .payroll-card:hover { transform: translateY(-3px); box-shadow: 0 10px 40px rgba(0,0,0,0.05); }
+        .card-header { padding: 15px 20px; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center; gap: 20px; }
+        .card-header h3 { font-size: 0.85rem; font-weight: 950; margin: 0; color: #1e293b; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; }
+
+        /* HEADER-INTEGRATED SEARCH BAR & LENGTH MENU */
+        .table-search-box { flex: 1; display: flex; justify-content: flex-end; align-items: center; gap: 12px; }
+        .dataTables_filter { margin: 0 !important; }
+        .dataTables_filter label { display: flex; align-items: center; gap: 8px; font-weight: 950; font-size: 0.65rem; color: #64748b; margin-bottom: 0px !important; }
+        .dataTables_filter input { 
+            height: 34px !important; 
+            width: 260px !important; 
+            border-radius: 10px !important; 
+            background: #f8fafc !important; 
+            border: 1px solid #e2e8f0 !important; 
+            padding-left: 12px !important;
+            font-size: 0.7rem !important;
+            font-weight: 800 !important;
+            font-family: 'Plus Jakarta Sans', sans-serif !important;
+            transition: all 0.2s;
+        }
+        .dataTables_filter input:focus { border-color: var(--pr-primary) !important; background: white !important; box-shadow: 0 0 0 4px rgba(77, 66, 134, 0.05); }
+
+        .dataTables_length { margin: 0 !important; }
+        .dataTables_length label { display: flex; align-items: center; gap: 6px; font-weight: 950; font-size: 0.65rem; color: #64748b; margin: 0 !important; text-transform: uppercase; }
+        .dataTables_length select { 
+            height: 34px !important; 
+            border-radius: 10px !important; 
+            background: #f8fafc !important; 
+            border: 1px solid #e2e8f0 !important; 
+            font-size: 0.65rem !important;
+            font-weight: 900 !important;
+            font-family: 'Plus Jakarta Sans', sans-serif !important;
+            padding: 0 10px !important;
+            cursor: pointer;
+        }
+        .dataTables_length select:focus { border-color: var(--pr-primary) !important; outline: none; box-shadow: 0 0 0 4px rgba(77, 66, 134, 0.05); }
+
+        .dataTables_info { font-family: 'Plus Jakarta Sans', sans-serif !important; font-size: 0.65rem !important; font-weight: 900 !important; color: #94a3b8 !important; padding-top: 15px !important; text-transform: uppercase; letter-spacing: 0.5px; text-align: center; border-top: 1px solid #f1f5f9; margin-top: 10px; }
+        .dataTables_wrapper .dataTables_paginate { padding-top: 15px !important; }
+        table.dataTable thead th { background: #f8fafc !important; color: #64748b !important; font-weight: 900 !important; text-transform: uppercase !important; font-size: 0.6rem !important; letter-spacing: 1px !important; border-bottom: 1px solid #e2e8f0 !important; padding: 12px 16px !important; }
+        table.dataTable tbody td { padding: 10px 16px !important; border-bottom: 1px solid #f1f5f9 !important; font-weight: 600; color: #1e293b; }
+        .dataTables_wrapper .dataTables_filter input { background: #f8fafc; border: 1px solid #e2e8f0 !important; border-radius: 8px !important; padding: 6px 12px !important; font-size: 0.75rem !important; }
+
+        /* Form Controls */
+        .pr-input { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px 12px; font-size: 0.8rem; font-family: var(--font-main); outline: none; transition: 0.2s; }
+        .pr-input:focus { border-color: var(--pr-primary); background: white; box-shadow: 0 0 0 3px rgba(77, 66, 134, 0.05); }
+
+        /* Section Layouts */
+        .section-content { display: none; }
+        .section-content.active { display: block; animation: fadeIn 0.4s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* UI Helpers */
+        .btn-pr { border: none; border-radius: 8px; padding: 8px 16px; font-weight: 800; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; font-size: 0.75rem; transition: 0.2s; font-family: var(--font-heading); }
+        .btn-pr-primary { background: var(--pr-primary); color: white; }
+        .btn-pr-primary:hover { background: #3b3268; transform: translateY(-1px); }
+        .btn-pr-outline { background: white; color: #334155; border: 1px solid #e2e8f0; }
+
+        .modal-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(8px); z-index: 2000; display: none; align-items: center; justify-content: center; padding: 40px; }
+        .modal-container { background: white; border-radius: 20px; width: 1000px; max-width: 100%; max-height: 90vh; overflow: hidden; display: flex; flex-direction: column; }
+        .modal-body { padding: 24px; overflow-y: auto; flex: 1; }
+
+        /* Grid Alignment */
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
+        
+        .salary-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px dotted #e2e8f0; font-size: 0.8rem; }
+        .salary-row:last-child { border-bottom: none; }
+        .salary-label { font-weight: 700; color: #64748b; }
+        .salary-value { font-weight: 800; color: #1e293b; font-family: var(--font-heading); }
+
+        .ai-insight-box { background: #1e293b; color: white; border-radius: 12px; padding: 14px; position: relative; overflow: hidden; border-left: 4px solid #fbbf24; }
+        .ai-insight-box i { position: absolute; right: 10px; top: 10px; opacity: 0.1; width: 40px; height: 40px; }
+
+    </style>
+</head>
+<body>
+    <div id="sidebar-container"></div>
+
+    <main class="main-content">
+        <div class="breadcrumb">
+            <span>Employer Dashboard</span>
+            <i data-lucide="chevron-right" style="width:10px;"></i>
+            <span id="active-breadcrumb" style="color:var(--pr-primary);">Payroll Hub</span>
+        </div>
+
+        <div class="page-header">
+            <h1 class="page-title">
+                <div style="background:var(--pr-primary); color:white; width:36px; height:36px; border-radius:10px; display:flex; align-items:center; justify-content:center;">
+                    <i data-lucide="banknote" style="width:20px;"></i>
+                </div>
+                Payroll Operations Hub
+            </h1>
+            <div style="display:flex; gap:10px;">
+                <button class="btn-pr btn-pr-outline"><i data-lucide="file-text"></i> Compliance Reports</button>
+                <button class="btn-pr btn-pr-primary" onclick="openRunPayrollModal()"><i data-lucide="play-circle"></i> EXECUTE MONTHLY RUN</button>
+            </div>
+        </div>
+
+        <!-- 1. CORE DASHBOARD OVERVIEW (Section 1) -->
+        <div class="payroll-stats">
+            <div class="stat-card">
+                <span class="stat-label">Total Monthly Payout</span>
+                <div class="stat-value" id="stat-total-payout">₹0,00,000</div>
+                <div class="stat-sub">↑ 2.4% vs prev month</div>
+            </div>
+            <div class="stat-card">
+                <span class="stat-label">Total Deductions (Statutory)</span>
+                <div class="stat-value" id="stat-deductions">₹00,000</div>
+                <div class="stat-sub" style="color:var(--pr-danger); background:#fef2f2;">Includes TDS & PF</div>
+            </div>
+            <div class="stat-card">
+                <span class="stat-label">Pending Payments</span>
+                <div class="stat-value" id="stat-pending">0 Employees</div>
+                <div class="stat-sub" style="color:var(--pr-warning); background:#fffbeb;">Batch process needed</div>
+            </div>
+            <div class="stat-card">
+                <span class="stat-label">Average Net Salary</span>
+                <div class="stat-value" id="stat-avg-net">₹00,000</div>
+                <div class="stat-sub" style="color:#6366f1; background:#f5f3ff;">Regional benchmark met</div>
+            </div>
+            <div class="stat-card" style="background: linear-gradient(135deg, #4D4286, #6366f1); border:none; color:white;">
+                <span class="stat-label" style="color:rgba(255,255,255,0.7);">Operational Status</span>
+                <div class="stat-value" style="color:white; font-size:1rem;">AUDIT-READY</div>
+                <div class="stat-sub" style="background:rgba(255,255,255,0.2); color:white;">March '26 Cycle Open</div>
+            </div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <div class="payroll-tabs">
+            <div class="payroll-tab active" data-section="overview"><i data-lucide="layout"></i> Overview</div>
+            <div class="payroll-tab" data-section="processing"><i data-lucide="cpu"></i> Run Payroll</div>
+            <div class="payroll-tab" data-section="structures"><i data-lucide="component"></i> Salary Structures</div>
+            <div class="payroll-tab" data-section="bonuses"><i data-lucide="hand-coins"></i> Bonus & Loans</div>
+            <div class="payroll-tab" data-section="compliance"><i data-lucide="shield-check"></i> Tax & Compliance</div>
+            <div class="payroll-tab" data-section="reports"><i data-lucide="bar-chart-big"></i> Analytics & Reports</div>
+        </div>
+
+        <!-- SECTION 1: OVERVIEW -->
+        <div id="section-overview" class="section-content active">
+            <div class="grid-2">
+                <div class="payroll-card">
+                    <div class="card-header">
+                        <h3>Salary Disbursal Trend</h3>
+                        <div style="font-size:0.6rem; font-weight:900; background:#eff6ff; color:#2563eb; padding:2px 8px; border-radius:10px;">EXPENSE ANALYSIS</div>
+                    </div>
+                    <div style="padding:15px; height:220px; position:relative; display:flex; align-items:center; justify-content:center;">
+                        <canvas id="disbursalTrendChart"></canvas>
+                    </div>
+                </div>
+
+                <div style="display:flex; flex-direction:column; gap:15px;">
+                    <div class="ai-insight-box">
+                        <i data-lucide="brain-circuit"></i>
+                        <h4 style="margin:0 0 8px; font-size:0.8rem; font-weight:800; color:#fbbf24;">AI COST ANALYTICS</h4>
+                        <p style="font-size:0.75rem; margin:0; line-height:1.5; color:#cbd5e1;">"March payroll detects a 15% increase in variable bonuses for the Tech Sales team. Tax compliance score remains 98%."</p>
+                    </div>
+                    <div class="payroll-card" style="flex:1;">
+                        <div class="card-header"><h3>Recent Activity</h3></div>
+                        <div style="padding:15px; display:flex; flex-direction:column; gap:12px;">
+                            <div style="display:flex; gap:10px; font-size:0.75rem;">
+                                <div style="width:8px; height:8px; border-radius:50%; background:#10b981; margin-top:5px;"></div>
+                                <div><b>Payroll Processed:</b> Engineering batch (42 employees) • 2h ago</div>
+                            </div>
+                            <div style="display:flex; gap:10px; font-size:0.75rem;">
+                                <div style="width:8px; height:8px; border-radius:50%; background:#fbbf24; margin-top:5px;"></div>
+                                <div><b>Tax Update:</b> Professional Tax rates synced for Rajasthan • 6h ago</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="payroll-card" style="margin-top:20px;">
+                <div class="card-header">
+                    <div style="display:flex; align-items:center; gap:12px;">
+                        <h3>Employee Disbursal Register</h3>
+                        <span class="total-entries-badge" style="font-size:0.6rem; font-weight:900; background:#f1f5f9; color:#475569; padding:2px 8px; border-radius:10px;">0 Total</span>
+                    </div>
+                    <div class="header-utilities" style="display:flex; align-items:center; gap:15px; flex:1; justify-content:flex-end;">
+                        <select class="pr-input duration-filter" style="font-size:0.65rem; border-radius:8px; padding:4px 8px; font-weight:800; background:#fcfdfe; width:auto; height: 32px;">
+                            <option>Duration: March 2026</option>
+                            <option>Last 30 Days</option>
+                            <option>Last 90 Days</option>
+                            <option>FY 2025-26</option>
+                        </select>
+                        <div class="table-search-box"></div> <!-- Target for search relocation -->
+                    </div>
+                </div>
+                <div style="padding:20px;">
+                    <table id="payout-register-table" class="display" style="width:100%">
+                        <thead>
+                            <tr>
+                                <th>Employee</th>
+                                <th>Department</th>
+                                <th>Gross Salary</th>
+                                <th>Total Deductions</th>
+                                <th style="color:var(--pr-primary);">Net Salary</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="payout-register-body"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECTION 2: RUN PAYROLL (MONTHLY ACTION) -->
+        <div id="section-processing" class="section-content">
+            <!-- Row 1: Setup & Highlight -->
+            <div class="grid-2" style="margin-bottom: 24px; align-items: stretch;">
+                <div class="payroll-card" style="margin-bottom: 0;">
+                    <div class="card-header"><h3>1. Select Period & Sync</h3></div>
+                    <div style="padding:20px;">
+                        <label class="stat-label">Payroll Month</label>
+                        <select class="pr-input" style="width:100%; margin-bottom:15px; font-weight:800;">
+                            <option>March 2026 (Current)</option>
+                            <option>February 2026</option>
+                        </select>
+                        <button class="btn-pr btn-pr-primary" style="width:100%; justify-content:center;" onclick="syncAttendanceData()">
+                            <i data-lucide="refresh-cw"></i> FETCH ATTENDANCE & OT
+                        </button>
+                        <p style="font-size:0.65rem; color:#64748b; margin-top:10px; line-height:1.4;">
+                            System will auto-pull attendance logs, calculated unpaid leaves, and approved OT.
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="payroll-card" style="background:#f8fafc; margin-bottom: 0; display: flex; flex-direction: column;">
+                    <div class="card-header"><h3>2. Summary Highlight</h3></div>
+                    <div style="padding:24px; text-align:center; flex: 1; display: flex; flex-direction: column; justify-content: center;">
+                        <span class="stat-label">Total Net Payable</span>
+                        <div class="stat-value" id="run-net-total" style="font-size:2.4rem; color:var(--pr-primary); margin:12px 0;">₹4,25,600</div>
+                        <div style="font-size:0.75rem; font-weight:850; color:#10b981; text-transform: uppercase; letter-spacing: 0.5px;">154 EMPLOYEES READY FOR DISBURSAL</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Row 2: Full-Width Registry -->
+            <div class="payroll-card">
+                <div class="card-header">
+                    <div style="display:flex; align-items:center; gap:12px;">
+                        <h3>3. Review & Approval Table</h3>
+                        <span class="total-runs-badge" style="font-size:0.6rem; font-weight:900; background:#f1f5f9; color:#475569; padding:2px 8px; border-radius:10px;">0 Total</span>
+                    </div>
+                    <div class="header-utilities" style="display:flex; align-items:center; gap:12px; flex:1; justify-content:flex-end;">
+                         <button class="btn-pr btn-pr-outline" style="font-size:0.6rem; padding:4px 8px; height: 32px;" onclick="lockPayroll()">
+                            <i data-lucide="lock" style="width:12px;"></i> LOCK
+                        </button>
+                        <button class="btn-pr btn-pr-primary" style="font-size:0.6rem; padding:4px 8px; height: 32px; background:#4D4286; border:none;" onclick="processBulkPayment()">
+                            <i data-lucide="credit-card" style="width:12px;"></i> PROCESS PAYMENT
+                        </button>
+                        <select class="pr-input duration-filter" style="font-size:0.6rem; border-radius:8px; padding:4px 8px; font-weight:950; background:#fcfdfe; width:auto; height: 32px;">
+                            <option>Cycle: March 2026</option>
+                            <option>Drafts Only</option>
+                        </select>
+                        <div class="table-search-box"></div>
+                    </div>
+                </div>
+                <div style="padding:20px;">
+                    <table id="run-review-table" class="display" style="width:100%">
+                        <thead>
+                            <tr>
+                                <th>Employee</th>
+                                <th>Paid Days</th>
+                                <th>Gross</th>
+                                <th>OT Pay</th>
+                                <th>Deductions</th>
+                                <th style="color:var(--pr-primary);">Net Salary</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="run-review-body"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECTION 3: SALARY STRUCTURES -->
+        <div id="section-structures" class="section-content">
+            <div class="payroll-card">
+                <div class="card-header" id="structures-header-actions">
+                    <div style="display:flex; align-items:center; gap:12px;">
+                        <h3>Employee Salary Configuration (CTC Breakdown)</h3>
+                        <span class="total-structures-badge" style="font-size:0.6rem; font-weight:900; background:#f1f5f9; color:#475569; padding:2px 8px; border-radius:10px;">0 Total</span>
+                    </div>
+                    <div class="header-utilities" style="display:flex; align-items:center; gap:12px; flex:1; justify-content:flex-end;">
+                        <button class="btn-pr btn-pr-outline" style="font-size:0.6rem; padding:4px 8px; height: 32px;">BULK UPLOAD</button>
+                        <button class="btn-pr btn-pr-primary" style="font-size:0.6rem; padding:4px 8px; height: 32px; background:#4D4286; border:none;" onclick="openAddStructureModal()">
+                            <i data-lucide="plus-circle" style="width:12px;"></i> ADD NEW
+                        </button>
+                        <select class="pr-input duration-filter" style="font-size:0.6rem; border-radius:8px; padding:4px 8px; font-weight:950; background:#fcfdfe; width:auto; height: 32px;">
+                            <option>Filter: Active</option>
+                            <option>Pending Setup</option>
+                            <option>Archived</option>
+                        </select>
+                        <div class="table-search-box"></div>
+                    </div>
+                </div>
+                <div style="padding:20px;">
+                    <table id="structures-table" class="display" style="width:100%">
+                        <thead>
+                            <tr>
+                                <th>Name / ID</th>
+                                <th>Basic Salary</th>
+                                <th>HRA</th>
+                                <th>DA / Spl Allow</th>
+                                <th>PF Deduction</th>
+                                <th>Income Tax (TDS)</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="structures-data-body"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECTION 4: BONUS & LOANS -->
+        <div id="section-bonuses" class="section-content">
+            <div class="payroll-card">
+                <div class="card-header">
+                    <div style="display:flex; align-items:center; gap:12px;">
+                        <h3>Bonus & Loans Management</h3>
+                        <span class="total-bonuses-badge" style="font-size:0.6rem; font-weight:900; background:#f1f5f9; color:#475569; padding:2px 8px; border-radius:10px;">0 Total</span>
+                    </div>
+                    <div class="header-utilities" style="display:flex; align-items:center; gap:15px; flex:1; justify-content:flex-end;">
+                        <select class="pr-input duration-filter" style="font-size:0.65rem; border-radius:8px; padding:4px 8px; font-weight:800; background:#fcfdfe; width:auto; height: 32px;">
+                            <option>Period: March 2026</option>
+                            <option>Last 30 Days</option>
+                            <option>This FY</option>
+                        </select>
+                        <div class="table-search-box"></div> <!-- Target for search relocation -->
+                    </div>
+                </div>
+                <div style="padding:20px;">
+                    <table id="loans-table" class="display" style="width:100%">
+                        <thead>
+                            <tr>
+                                <th>Employee Name</th>
+                                <th>Sanctioned Amount</th>
+                                <th>EMI (Monthly)</th>
+                                <th>Principle Remaining</th>
+                                <th>Repayment Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="loans-data-body"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECTION 5: TAX & COMPLIANCE -->
+        <div id="section-compliance" class="section-content">
+            <div class="payroll-card">
+                <div class="card-header"><h3>Statutory Deductions & Social Security</h3></div>
+                <div style="padding:20px;">
+                    <div class="grid-3">
+                        <div class="stat-card">
+                            <span class="stat-label">EPF (Provident Fund)</span>
+                            <div class="stat-value">12.0%</div>
+                            <p style="font-size:0.65rem; color:#64748b; margin-top:4px;">Auto-calculated on Basic</p>
+                        </div>
+                        <div class="stat-card">
+                            <span class="stat-label">ESI Contribution</span>
+                            <div class="stat-value">3.25%</div>
+                            <p style="font-size:0.65rem; color:#64748b; margin-top:4px;">Gross < ₹21,000</p>
+                        </div>
+                        <div class="stat-card">
+                            <span class="stat-label">PT (Professional Tax)</span>
+                            <div class="stat-value">₹250/mo</div>
+                            <p style="font-size:0.65rem; color:#64748b; margin-top:4px;">As per Dept of Revenue</p>
+                        </div>
+                    </div>
+                    <div style="margin-top:30px; border-top:1px solid #e2e8f0; padding-top:20px;">
+                        <h4 style="margin:0 0 15px; font-size:0.8rem; font-weight:800;">Tax Regime Distribution</h4>
+                        <div style="height:10px; background:#f1f5f9; border-radius:10px; display:flex; overflow:hidden;">
+                            <div style="width:65%; height:100%; background:var(--pr-primary);" title="Old Regime"></div>
+                            <div style="width:35%; height:100%; background:#10b981;" title="New Regime"></div>
+                        </div>
+                        <div style="display:flex; gap:20px; font-size:0.7rem; margin-top:10px; font-weight:700;">
+                            <span style="color:var(--pr-primary);">● OLD REGIME (65%)</span>
+                            <span style="color:#10b981;">● NEW REGIME (35%)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECTION 6: REPORTS & ANALYTICS -->
+        <div id="section-reports" class="section-content">
+            <div class="payroll-card">
+                <div class="card-header"><h3>Financial Statements & Exports</h3></div>
+                <div style="padding:20px;">
+                    <div class="grid-3">
+                        <div style="background:#f8fafc; padding:20px; border-radius:12px; border:1px solid #e2e8f0; text-align:center;">
+                            <i data-lucide="file-spreadsheet" style="width:32px; height:32px; color:#10b981; margin-bottom:12px;"></i>
+                            <h5 style="margin:0; font-size:0.8rem;">Monthly Salary Register</h5>
+                            <button class="btn-pr btn-pr-outline" style="width:100%; margin-top:15px; font-size:0.65rem;">DOWNLOAD EXCEL</button>
+                        </div>
+                        <div style="background:#f8fafc; padding:20px; border-radius:12px; border:1px solid #e2e8f0; text-align:center;">
+                            <i data-lucide="file-check" style="width:32px; height:32px; color:var(--pr-primary); margin-bottom:12px;"></i>
+                            <h5 style="margin:0; font-size:0.8rem;">Tax Summary (Form 16)</h5>
+                            <button class="btn-pr btn-pr-outline" style="width:100%; margin-top:15px; font-size:0.65rem;">GENERATE BATCH</button>
+                        </div>
+                        <div style="background:#f8fafc; padding:20px; border-radius:12px; border:1px solid #e2e8f0; text-align:center;">
+                            <i data-lucide="pie-chart" style="width:32px; height:32px; color:#6366f1; margin-bottom:12px;"></i>
+                            <h5 style="margin:0; font-size:0.8rem;">Dept-wise Cost Report</h5>
+                            <button class="btn-pr btn-pr-outline" style="width:100%; margin-top:15px; font-size:0.65rem;">VIEW ANALYTICS</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal: Add/Edit Salary Structure (Step 1) -->
+    <div class="modal-overlay" id="add-structure-modal">
+        <div class="modal-container" style="width:800px; padding:0;">
+            <div class="modal-header" style="background:#fcfdfe; padding:20px 24px; border-bottom:1px solid #e2e8f0; position:relative;">
+                <div style="display:flex; flex-direction:column; gap:4px;">
+                    <h3 style="margin:0; font-size:1rem; font-weight:900;">Salary Structure Configuration</h3>
+                    <span style="font-size:0.65rem; font-weight:800; color:#64748b; text-transform:uppercase; letter-spacing:0.5px;">Step 1: Employee One-Time Setup</span>
+                </div>
+                <button onclick="closeModal()" style="position:absolute; top:20px; right:20px; background:#f1f5f9; border:none; width:32px; height:32px; border-radius:50%; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:0.2s;">
+                    <i data-lucide="x" style="width:18px; color:#1e293b;"></i>
+                </button>
+            </div>
+            <div class="modal-body" style="padding:24px;">
+                <form id="salary-structure-form">
+                    <div class="grid-2" style="margin-bottom:24px; gap:24px;">
+                        <div class="form-group">
+                            <label class="stat-label" style="display:block; margin-bottom:8px;">Select Employee</label>
+                            <select class="pr-input" style="width:100%; height:42px; font-weight:800; background-color:#fff;">
+                                <option>Select Employee (ID or Name)...</option>
+                                <option>SLR-001 | Prakash Sharma</option>
+                                <option>SLR-002 | Alice Cooper</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="stat-label" style="display:block; margin-bottom:8px;">Salary Basis</label>
+                            <select class="pr-input" style="width:100%; height:42px; font-weight:800; background-color:#fff;">
+                                <option>CTC (Annual Package)</option>
+                                <option>Fixed (Monthly Payroll)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="grid-3" style="align-items:stretch; gap:20px;">
+                        <!-- Earnings Column -->
+                        <div style="background:#f4fcf7; padding:18px; border-radius:14px; border:1px solid #d1fae5;">
+                            <div style="display:flex; align-items:center; gap:8px; margin-bottom:15px;">
+                                <i data-lucide="wallet" style="width:14px; color:#059669;"></i>
+                                <h4 style="font-size:0.75rem; font-weight:900; color:#065f46; margin:0; text-transform:uppercase;">EARNINGS</h4>
+                            </div>
+                            <div style="display:flex; flex-direction:column; gap:12px;">
+                                <div><label class="stat-label" style="font-size:0.6rem; color:#065f46;">Basic Salary</label><input type="number" id="inp-basic" class="pr-input" style="width:100%; background:white;" placeholder="₹0"></div>
+                                <div><label class="stat-label" style="font-size:0.6rem; color:#065f46;">HRA (House Rent)</label><input type="number" id="inp-hra" class="pr-input" style="width:100%; background:white;" placeholder="₹0"></div>
+                                <div><label class="stat-label" style="font-size:0.6rem; color:#065f46;">DA & Special Allow</label><input type="number" id="inp-allow" class="pr-input" style="width:100%; background:white;" placeholder="₹0"></div>
+                                <div><label class="stat-label" style="font-size:0.6rem; color:#065f46;">Medical / Travel</label><input type="number" id="inp-med" class="pr-input" style="width:100%; background:white;" placeholder="₹0"></div>
+                            </div>
+                        </div>
+
+                        <!-- Deductions Column -->
+                        <div style="background:#fff7f7; padding:18px; border-radius:14px; border:1px solid #fee2e2;">
+                            <div style="display:flex; align-items:center; gap:8px; margin-bottom:15px;">
+                                <i data-lucide="scissors" style="width:14px; color:#dc2626;"></i>
+                                <h4 style="font-size:0.75rem; font-weight:900; color:#991b1b; margin:0; text-transform:uppercase;">DEDUCTIONS</h4>
+                            </div>
+                            <div style="display:flex; flex-direction:column; gap:12px;">
+                                <div><label class="stat-label" style="font-size:0.6rem; color:#991b1b;">PF (Provident Fund)</label><input type="number" id="inp-pf" class="pr-input" style="width:100%; background:white;" placeholder="₹0"></div>
+                                <div><label class="stat-label" style="font-size:0.6rem; color:#991b1b;">ESI Contribution</label><input type="number" id="inp-esi" class="pr-input" style="width:100%; background:white;" placeholder="₹0"></div>
+                                <div><label class="stat-label" style="font-size:0.6rem; color:#991b1b;">Professional Tax</label><input type="number" id="inp-pt" class="pr-input" style="width:100%; background:white;" placeholder="₹0"></div>
+                                <div><label class="stat-label" style="font-size:0.6rem; color:#991b1b;">Income Tax (TDS)</label><input type="number" id="inp-tds" class="pr-input" style="width:100%; background:white;" placeholder="₹0"></div>
+                            </div>
+                        </div>
+
+                        <!-- Summary & Overtime -->
+                        <div style="display:flex; flex-direction:column; gap:15px;">
+                            <div style="background:#f5f3ff; padding:18px; border-radius:14px; border:1px solid #e0e7ff;">
+                                <div style="display:flex; align-items:center; gap:8px; margin-bottom:12px;">
+                                    <i data-lucide="zap" style="width:14px; color:#4f46e5;"></i>
+                                    <h4 style="font-size:0.75rem; font-weight:900; color:#4338ca; margin:0; text-transform:uppercase;">EXTRAS</h4>
+                                </div>
+                                <div><label class="stat-label" style="font-size:0.6rem; color:#4338ca;">Overtime Rate (/hr)</label><input type="number" id="inp-ot" class="pr-input" style="width:100%; background:white;" placeholder="e.g. 450"></div>
+                            </div>
+
+                            <div style="background:#1e293b; padding:18px; border-radius:14px; flex:1; color:white; display:flex; flex-direction:column; justify-content:center; gap:8px;">
+                                <div style="display:flex; justify-content:space-between; font-size:0.65rem; font-weight:900; color:#cbd5e1; text-transform:uppercase;">Gross Pay <span>₹<span id="txt-gross">0</span></span></div>
+                                <div style="display:flex; justify-content:space-between; font-size:0.65rem; font-weight:900; color:#f87171; text-transform:uppercase;">Total Ded <span>- ₹<span id="txt-ded">0</span></span></div>
+                                <div style="margin:5px 0; border-top:1px solid rgba(255,255,255,0.1);"></div>
+                                <div style="display:flex; justify-content:space-between; font-size:0.75rem; font-weight:900; color:#fbbf24; text-transform:uppercase;">Net Salary</div>
+                                <div style="font-size:1.6rem; font-weight:950; color:#10b981; line-height:1; font-family:var(--font-heading);">₹<span id="txt-net">0</span></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="display:flex; justify-content:flex-end; gap:12px; margin-top:24px;">
+                        <button type="button" class="btn-pr btn-pr-outline" style="padding:10px 24px; border-radius:10px;" onclick="closeModal()">CANCEL</button>
+                        <button type="submit" class="btn-pr btn-pr-primary" style="padding:10px 40px; border-radius:10px; font-size:0.8rem;">SAVE & ACTIVATE STRUCTURE</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="payroll.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('#sidebar-container').load('employer-sidebar.html', function() {
+                $('.nav-item[data-page="payroll.html"]').addClass('active');
+                lucide.createIcons();
+            });
+
+            $('.payroll-tab').click(function() {
+                $('.payroll-tab').removeClass('active');
+                $(this).addClass('active');
+                const section = $(this).data('section');
+                $('.section-content').removeClass('active');
+                $(`#section-${section}`).addClass('active');
+                $('#active-breadcrumb').text($(this).text().trim());
+
+                // Responsive & Relocation Re-trigger
+                if ($.fn.dataTable) {
+                    $('.display').DataTable().columns.adjust();
+                    if (section === 'overview') { 
+                        relocateControls('#payout-register-table');
+                        initExpenseChart(); 
+                    }
+                    if (section === 'processing') relocateControls('#run-review-table');
+                    if (section === 'structures') relocateControls('#structures-table');
+                    if (section === 'bonuses') relocateControls('#loans-table');
+                }
+            });
+        });
+
+        function openAddStructureModal() { $('#add-structure-modal').css('display', 'flex'); }
+        function openRunPayrollModal() { 
+            // In the complete flow, we switch to processing tab
+            $('.payroll-tab[data-section="processing"]').click();
+        }
+        function closeModal() { $('.modal-overlay').hide(); }
+        
+        function syncAttendanceData() {
+            showToast('Fetching latest logs for March...', 'info');
+            renderRunReviewTable();
+        }
+
+        function lockPayroll() {
+            if(confirm('Are you sure you want to LOCK payroll for March 2026? This will prevent further edits and auto-generate payslips.')) {
+                showToast('Payroll locked successfully! Scrambling encryption keys for payslips...', 'success');
+            }
+        }
+
+        function processBulkPayment() {
+            alert('Initiating Bank Bulk Transfer for ₹4,25,600. Please authorize in your bank portal.');
+        }
+
+        function finalizePayroll() {
+            alert('Payroll cycle complete! Notify employees?');
+            closeModal();
+        }
+    </script>
+</body>
+</html>

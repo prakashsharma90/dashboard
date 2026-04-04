@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Complete Profile - Salarite</title>
+    <link rel="stylesheet" href="auth-style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+
+<body>
+    <div class="auth-container profile-container">
+        <div class="brand"><span>S</span> Salarite</div>
+
+        <div class="progress-container" style="max-width:300px; margin:0 auto 30px;">
+            <div class="step completed">✔</div>
+            <div class="step completed">✔</div>
+            <div class="step active">3</div>
+            <div class="step">4</div>
+        </div>
+
+        <h2 id="welcome-heading">Complete Your Profile</h2>
+        <p class="subtitle">Just a few more details before you can access your dashboard.</p>
+
+        <form id="profile-form">
+            <!-- 1. Basic Information -->
+            <h3 class="section-title" style="margin-top: 10px;">1. Basic Information</h3>
+            <div class="grid-2">
+                <div class="form-group">
+                    <label>Employee ID</label>
+                    <input type="text" id="p-emp-id" class="read-only-field" readonly placeholder="Auto Generated">
+                </div>
+                <div class="form-group">
+                    <label>Full Name</label>
+                    <input type="text" id="p-full-name" class="read-only-field" readonly placeholder="Auto Generated">
+                </div>
+            </div>
+
+            <div class="grid-2">
+                <div class="form-group">
+                    <label>Official Email</label>
+                    <input type="email" id="p-email" class="read-only-field" readonly placeholder="Auto Generated">
+                </div>
+                <div class="form-group">
+                    <label>Mobile Number</label>
+                    <input type="tel" id="p-phone" placeholder="Enter Mobile Number" required>
+                </div>
+            </div>
+
+            <div class="grid-2">
+                <div class="form-group">
+                    <label>Gender</label>
+                    <div class="radio-group" style="padding-top: 10px;">
+                        <label><input type="radio" name="gender" value="Male" required> Male</label>
+                        <label><input type="radio" name="gender" value="Female"> Female</label>
+                        <label><input type="radio" name="gender" value="Other"> Other</label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Date of Birth</label>
+                    <input type="date" id="p-dob" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Marital Status</label>
+                <select id="p-marital-status" required>
+                    <option value="">Select Marital Status</option>
+                    <option value="Single">Single</option>
+                    <option value="Married">Married</option>
+                    <option value="Divorced">Divorced</option>
+                    <option value="Widowed">Widowed</option>
+                </select>
+            </div>
+
+            <!-- 2. Address Details -->
+            <h3 class="section-title">2. Address Details</h3>
+            <div class="form-group">
+                <label><strong>Current Address</strong></label>
+                <div class="grid-2" style="margin-bottom: 10px; margin-top: 10px;">
+                    <input type="text" id="c-addr-line1" placeholder="Address Line 1" required>
+                    <input type="text" id="c-addr-line2" placeholder="Address Line 2">
+                </div>
+                <div class="grid-2">
+                    <input type="text" id="c-pincode" placeholder="Pincode" required>
+                    <input type="text" id="c-city" placeholder="City" required>
+                </div>
+                <div class="grid-2" style="margin-top: 10px;">
+                    <input type="text" id="c-state" placeholder="State" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label><strong>Permanent Address</strong></label>
+                <div class="checkbox-group" style="margin-bottom: 15px; margin-top: 10px;">
+                    <input type="checkbox" id="same-address">
+                    <label for="same-address">Same as Current Address</label>
+                </div>
+                <div class="grid-2" style="margin-bottom: 10px;">
+                    <input type="text" id="p-addr-line1" placeholder="Address Line 1" required>
+                    <input type="text" id="p-addr-line2" placeholder="Address Line 2">
+                </div>
+                <div class="grid-2">
+                    <input type="text" id="p-pincode" placeholder="Pincode" required>
+                    <input type="text" id="p-city" placeholder="City" required>
+                </div>
+                <div class="grid-2" style="margin-top: 10px;">
+                    <input type="text" id="p-state" placeholder="State" required>
+                </div>
+            </div>
+
+            <!-- 3. Employment Information -->
+            <h3 class="section-title">3. Employment Information</h3>
+            <div class="grid-2">
+                <div class="form-group">
+                    <label>Company Name</label>
+                    <input type="text" id="e-company" class="read-only-field" readonly placeholder="Auto Filled">
+                </div>
+                <div class="form-group">
+                    <label>Department *</label>
+                    <input type="text" id="e-dept" required placeholder="e.g. Engineering">
+                </div>
+            </div>
+
+            <div class="grid-2">
+                <div class="form-group">
+                    <label>Designation *</label>
+                    <input type="text" id="e-designation" required placeholder="e.g. Software Engineer">
+                </div>
+                <div class="form-group">
+                    <label>Reporting Manager</label>
+                    <input type="text" id="e-manager" placeholder="Manager Name">
+                </div>
+            </div>
+
+            <div class="grid-2">
+                <div class="form-group">
+                    <label>Employment Type *</label>
+                    <select id="e-type" required>
+                        <option value="">Select Type</option>
+                        <option value="Full Time">Full Time</option>
+                        <option value="Contract">Contract</option>
+                        <option value="Internship">Internship</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Date of Joining *</label>
+                    <input type="date" id="e-doj" class="read-only-field" readonly required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Work Location *</label>
+                <input type="text" id="e-location" required placeholder="e.g. Headquarters / Remote">
+            </div>
+
+            <!-- 4. Bank Details -->
+            <h3 class="section-title">4. Bank Details (For Payroll)</h3>
+            <div class="grid-2">
+                <div class="form-group">
+                    <label>Bank Name *</label>
+                    <input type="text" id="b-name" required placeholder="Bank Name">
+                </div>
+                <div class="form-group">
+                    <label>Account Holder Name *</label>
+                    <input type="text" id="b-holder" required placeholder="Account Holder Name">
+                </div>
+            </div>
+
+            <div class="grid-2">
+                <div class="form-group">
+                    <label>Account Number *</label>
+                    <input type="text" id="b-acc" required placeholder="Account Number">
+                </div>
+                <div class="form-group">
+                    <label>IFSC Code *</label>
+                    <input type="text" id="b-ifsc" required placeholder="IFSC Code">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Branch Name *</label>
+                <input type="text" id="b-branch" required placeholder="Branch Name">
+            </div>
+
+            <!-- 5. Emergency Contact -->
+            <h3 class="section-title">5. Emergency Contact</h3>
+            <div class="grid-2">
+                <div class="form-group">
+                    <label>Emergency Contact Name *</label>
+                    <input type="text" id="em-name" required placeholder="Contact Name">
+                </div>
+                <div class="form-group">
+                    <label>Relationship</label>
+                    <input type="text" id="em-rel" placeholder="e.g. Father, Spouse">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Contact Number *</label>
+                <input type="tel" id="em-phone" required placeholder="Emergency Phone Number">
+            </div>
+
+            <!-- 6. Document Upload Section -->
+            <h3 class="section-title">6. Document Upload Section</h3>
+
+            <!-- Aadhaar Card -->
+            <div class="upload-field">
+                <label class="file-label">Aadhaar Card * (PDF / Image)</label>
+                <label class="upload-btn">
+                    Choose File <input type="file" id="doc-aadhaar" class="file-input" accept=".pdf,image/*" required>
+                </label>
+                <div class="preview-container" id="preview-aadhaar">
+                    <div class="preview-info">
+                        <img src="" alt="preview" id="img-aadhaar" style="display:none;">
+                        <span id="name-aadhaar">filename.pdf</span>
+                    </div>
+                    <span class="replace-btn" onclick="document.getElementById('doc-aadhaar').click()">Replace</span>
+                </div>
+            </div>
+
+            <!-- PAN Card -->
+            <div class="upload-field">
+                <label class="file-label">PAN Card * (PDF / Image)</label>
+                <label class="upload-btn">
+                    Choose File <input type="file" id="doc-pan" class="file-input" accept=".pdf,image/*" required>
+                </label>
+                <div class="preview-container" id="preview-pan">
+                    <div class="preview-info">
+                        <img src="" alt="preview" id="img-pan" style="display:none;">
+                        <span id="name-pan">filename.pdf</span>
+                    </div>
+                    <span class="replace-btn" onclick="document.getElementById('doc-pan').click()">Replace</span>
+                </div>
+            </div>
+
+            <!-- Resume -->
+            <div class="upload-field">
+                <label class="file-label">Resume</label>
+                <label class="upload-btn">
+                    Choose File <input type="file" id="doc-resume" class="file-input" accept=".pdf,.doc,.docx">
+                </label>
+                <div class="preview-container" id="preview-resume">
+                    <div class="preview-info">
+                        <span id="name-resume">filename.pdf</span>
+                    </div>
+                    <span class="replace-btn" onclick="document.getElementById('doc-resume').click()">Replace</span>
+                </div>
+            </div>
+
+            <!-- Passport Size Photo -->
+            <div class="upload-field">
+                <label class="file-label">Passport Size Photo</label>
+                <label class="upload-btn">
+                    Choose File <input type="file" id="doc-photo" class="file-input" accept="image/*">
+                </label>
+                <div class="preview-container" id="preview-photo">
+                    <div class="preview-info">
+                        <img src="" alt="preview" id="img-photo" style="display:none;">
+                        <span id="name-photo">photo.jpg</span>
+                    </div>
+                    <span class="replace-btn" onclick="document.getElementById('doc-photo').click()">Replace</span>
+                </div>
+            </div>
+
+            <!-- Educational Certificates -->
+            <div class="upload-field">
+                <label class="file-label">Educational Certificates (Marksheets & Degrees) * <br><small>10th, 12th
+                        (mandatory), Grad, Post Grad (optional) - Max 5</small></label>
+                <label class="upload-btn">
+                    Choose Files <input type="file" id="doc-education" class="file-input" accept=".pdf,image/*" multiple
+                        required>
+                </label>
+                <div class="preview-container" id="preview-education"
+                    style="flex-direction: column; align-items: stretch; gap: 8px;">
+                    <!-- Previews generated by JS -->
+                </div>
+            </div>
+
+            <!-- Previous Employment -->
+            <div class="upload-field">
+                <label class="file-label">Previous Employment Documents (Optional) <br><small>Offer letter, salary
+                        slips, reliving letter, etc.</small></label>
+                <label class="upload-btn">
+                    Choose Files <input type="file" id="doc-employment" class="file-input"
+                        accept=".pdf,.doc,.docx,image/*" multiple>
+                </label>
+                <div class="preview-container" id="preview-employment"
+                    style="flex-direction: column; align-items: stretch; gap: 8px;">
+                    <!-- Previews generated by JS -->
+                </div>
+            </div>
+
+            <!-- Offer Letter -->
+            <div class="upload-field">
+                <label class="file-label">Offer Letter (Optional if provided by company)</label>
+                <label class="upload-btn">
+                    Choose File <input type="file" id="doc-offer" class="file-input" accept=".pdf,image/*">
+                </label>
+                <div class="preview-container" id="preview-offer">
+                    <div class="preview-info">
+                        <span id="name-offer">filename.pdf</span>
+                    </div>
+                    <span class="replace-btn" onclick="document.getElementById('doc-offer').click()">Replace</span>
+                </div>
+            </div>
+
+            <!-- 7. Declaration -->
+            <h3 class="section-title">7. Declaration</h3>
+            <div class="checkbox-group">
+                <input type="checkbox" id="declaration" required>
+                <label for="declaration">I confirm that the information provided is accurate and the uploaded documents
+                    are valid.</label>
+            </div>
+
+            <!-- 8. Submit Buttons -->
+            <div class="submit-actions">
+                <button type="button" class="btn-secondary" id="btn-save-draft">Save Draft</button>
+                <button type="submit" class="btn-primary" id="btn-submit-profile">Submit Profile</button>
+            </div>
+
+        </form>
+    </div>
+
+    <div class="toaster" id="toaster"></div>
+    <script src="auth.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Address Sync Logic
+            const sameAddrCheckbox = document.getElementById('same-address');
+            const cFields = ['addr-line1', 'addr-line2', 'pincode', 'city', 'state'].map(f => ({
+                c: document.getElementById('c-' + f),
+                p: document.getElementById('p-' + f)
+            }));
+
+            sameAddrCheckbox.addEventListener('change', (e) => {
+                const isChecked = e.target.checked;
+                cFields.forEach(f => {
+                    if (f.c && f.p) {
+                        if (isChecked) {
+                            f.p.value = f.c.value;
+                            f.p.readOnly = true;
+                            f.p.classList.add('read-only-field');
+                        } else {
+                            f.p.value = '';
+                            f.p.readOnly = false;
+                            f.p.classList.remove('read-only-field');
+                        }
+                    }
+                });
+            });
+
+            // Update permanent address if current address changes while checked
+            cFields.forEach(f => {
+                if (f.c && f.p) {
+                    f.c.addEventListener('input', () => {
+                        if (sameAddrCheckbox.checked) {
+                            f.p.value = f.c.value;
+                        }
+                    });
+                }
+            });
+
+            // Single File Previews
+            const setupSinglePreview = (inputId, previewId, imgId, nameId) => {
+                const input = document.getElementById(inputId);
+                const preview = document.getElementById(previewId);
+                const img = document.getElementById(imgId);
+                const name = document.getElementById(nameId);
+
+                if (!input) return;
+
+                input.addEventListener('change', function (e) {
+                    const file = e.target.files[0];
+                    if (file) {
+                        preview.style.display = 'flex';
+                        name.textContent = file.name;
+
+                        if (img && file.type.startsWith('image/')) {
+                            img.src = URL.createObjectURL(file);
+                            img.style.display = 'block';
+                        } else if (img) {
+                            img.style.display = 'none';
+                        }
+                    } else {
+                        preview.style.display = 'none';
+                    }
+                });
+            };
+
+            setupSinglePreview('doc-aadhaar', 'preview-aadhaar', 'img-aadhaar', 'name-aadhaar');
+            setupSinglePreview('doc-pan', 'preview-pan', 'img-pan', 'name-pan');
+            setupSinglePreview('doc-resume', 'preview-resume', null, 'name-resume');
+            setupSinglePreview('doc-photo', 'preview-photo', 'img-photo', 'name-photo');
+            setupSinglePreview('doc-offer', 'preview-offer', null, 'name-offer');
+
+            // Multiple File Previews Setup
+            const setupMultiplePreview = (inputId, previewId, maxFiles = Infinity) => {
+                const input = document.getElementById(inputId);
+                const previewContainer = document.getElementById(previewId);
+
+                if (!input) return;
+
+                input.addEventListener('change', function (e) {
+                    const files = Array.from(e.target.files);
+                    previewContainer.innerHTML = '';
+
+                    if (files.length > maxFiles) {
+                        window.showToaster && window.showToaster(`Maximum ${maxFiles} files allowed.`, 'error');
+                        // Reset input 
+                        const dt = new DataTransfer();
+                        files.slice(0, maxFiles).forEach(f => dt.items.add(f));
+                        input.files = dt.files;
+                    }
+
+                    const selectedFiles = Array.from(input.files);
+                    if (selectedFiles.length > 0) {
+                        previewContainer.style.display = 'flex';
+                    } else {
+                        previewContainer.style.display = 'none';
+                    }
+
+                    selectedFiles.forEach((file, index) => {
+                        const item = document.createElement('div');
+                        item.className = 'preview-info';
+                        item.style.justifyContent = 'space-between';
+                        item.style.padding = '8px';
+                        item.style.border = '1px solid #e5e7eb';
+                        item.style.borderRadius = '4px';
+                        item.style.marginBottom = '4px';
+
+                        let mediaHtml = '';
+                        if (file.type.startsWith('image/')) {
+                            const url = URL.createObjectURL(file);
+                            mediaHtml = `<img src="${url}" alt="preview">`;
+                        }
+
+                        item.innerHTML = `
+                            <div style="display:flex; align-items:center; gap:10px; overflow:hidden;">
+                                ${mediaHtml}
+                                <span style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${file.name}</span>
+                            </div>
+                            <span class="replace-btn" style="color:red;" onclick="removeMultipleFile('${inputId}', ${index})">Remove</span>
+                        `;
+                        previewContainer.appendChild(item);
+                    });
+                });
+            };
+
+            setupMultiplePreview('doc-education', 'preview-education', 5);
+            setupMultiplePreview('doc-employment', 'preview-employment');
+
+            window.removeMultipleFile = (inputId, index) => {
+                const input = document.getElementById(inputId);
+                if (!input) return;
+                const dt = new DataTransfer();
+                const files = Array.from(input.files);
+                files.splice(index, 1);
+                files.forEach(f => dt.items.add(f));
+                input.files = dt.files;
+                // Dispatch change event to update preview
+                const event = new Event('change');
+                input.dispatchEvent(event);
+            };
+
+            // Handling Draft vs Submit Flow
+            const form = document.getElementById('profile-form');
+            const saveDraftBtn = document.getElementById('btn-save-draft');
+
+            saveDraftBtn.addEventListener('click', () => {
+                // If the user clicks Save Draft, bypass required validation temporarily?
+                // Just mock logic
+                if (window.showToaster) window.showToaster('Draft saved successfully', 'success');
+            });
+
+            // Handle Verification States (Pending, Active, Revision, Rejected)
+            const urlParams = new URLSearchParams(window.location.search);
+            const pStatus = urlParams.get('status');
+
+            setTimeout(async () => {
+                if (typeof supabaseClient !== 'undefined') {
+                    const { data: { session } } = await supabaseClient.auth.getSession();
+                    if (session) {
+                        const { data: empData, error } = await supabaseClient.from('employees')
+                            .select('verification_status, verification_notes, is_profile_locked')
+                            .eq('user_id', session.user.id)
+                            .single();
+
+                        if (error) return;
+
+                        const currentStatus = empData.verification_status || 'Missing';
+                        const isLocked = empData.is_profile_locked || (currentStatus === 'Pending' || currentStatus === 'Active');
+
+                        // 1. Lock UI if Pending or Active
+                        if (isLocked && pStatus !== 'revision') {
+                            const form = document.getElementById('profile-form');
+                            const inputs = form.querySelectorAll('input, select, textarea, button');
+                            inputs.forEach(el => {
+                                if (el.id !== 'btn-save-draft') el.disabled = true;
+                            });
+
+                            // Visual cue for locked state
+                            const submitBtn = document.getElementById('btn-submit-profile');
+                            if (submitBtn) {
+                                submitBtn.innerHTML = '<i data-lucide="lock" style="width:16px; vertical-align:middle; margin-right:6px;"></i> Verification in Progress';
+                                submitBtn.style.opacity = '0.7';
+                                submitBtn.style.cursor = 'not-allowed';
+                                submitBtn.style.background = '#64748b';
+                            }
+                        }
+
+                        // 2. Display Status Banners
+                        let bannerHtml = '';
+                        if (currentStatus === 'Revision Required' || pStatus === 'revision') {
+                            bannerHtml = `
+                                <div style="background:#fffbeb; border-left:4px solid #f59e0b; padding:15px; margin-bottom:20px; border-radius:12px; animation: slideInUp 0.4s ease-out;">
+                                    <div style="display:flex; align-items:center; gap:8px; margin-bottom:5px;">
+                                        <div style="width:24px; height:24px; background:#f59e0b; border-radius:50%; display:flex; align-items:center; justify-content:center; color:white;"><i data-lucide="rotate-cw" style="width:14px;"></i></div>
+                                        <b style="color:#b45309; font-size:1rem;">🔁 Revision Requested by HR</b>
+                                    </div>
+                                    <p style="color:#92400e; margin:0; font-size:0.92rem; line-height:1.5;">Please update the fields as per HR comments:<br><strong>"${empData?.verification_notes || 'Please review your info.'}"</strong></p>
+                                </div>
+                            `;
+                        } else if (currentStatus === 'Rejected' || pStatus === 'rejected') {
+                            bannerHtml = `
+                                <div style="background:#fef2f2; border-left:4px solid #ef4444; padding:15px; margin-bottom:20px; border-radius:12px; animation: slideInUp 0.4s ease-out;">
+                                    <div style="display:flex; align-items:center; gap:8px; margin-bottom:5px;">
+                                        <div style="width:24px; height:24px; background:#ef4444; border-radius:50%; display:flex; align-items:center; justify-content:center; color:white;"><i data-lucide="x" style="width:14px;"></i></div>
+                                        <b style="color:#b91c1c; font-size:1rem;">❌ Profile Rejected</b>
+                                    </div>
+                                    <p style="color:#991b1b; margin:0; font-size:0.92rem; line-height:1.5;">Reason for rejection:<br><strong>"${empData?.verification_notes || 'Please contact your HR administrator.'}"</strong></p>
+                                    <p style="color:#991b1b; margin-top:10px; font-size:0.85rem; font-style:italic;">Note: You must re-submit corrected information and valid documents.</p>
+                                </div>
+                            `;
+                        } else if (currentStatus === 'Pending') {
+                            bannerHtml = `
+                                <div style="background:#eef2ff; border-left:4px solid #4D4286; padding:15px; margin-bottom:20px; border-radius:12px;">
+                                    <div style="display:flex; align-items:center; gap:8px; margin-bottom:5px;">
+                                        <div style="width:24px; height:24px; background:#4D4286; border-radius:50%; display:flex; align-items:center; justify-content:center; color:white;"><i data-lucide="clock" style="width:14px;"></i></div>
+                                        <b style="color:#4D4286; font-size:1rem;">⏳ Verification Pending</b>
+                                    </div>
+                                    <p style="color:#1e293b; margin:0; font-size:0.92rem;">Your profile is locked and under HR verification. You will be notified once it's approved.</p>
+                                </div>
+                            `;
+                        }
+
+                        const welcomeHeading = document.getElementById('welcome-heading');
+                        if (welcomeHeading && bannerHtml) {
+                            welcomeHeading.insertAdjacentHTML('afterend', bannerHtml);
+                            if (typeof lucide !== 'undefined') lucide.createIcons();
+                        }
+                    }
+                }
+            }, 600);
+
+        });
+    </script>
+</body>
+
+</html>

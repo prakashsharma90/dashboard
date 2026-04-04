@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HR Setup & Policies | Salarite Employer</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Icons & Stylings -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="dashboard-style.css">
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+    <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
+
+    <style>
+        :root {
+            --brand-purple: #4D4286;
+            --brand-purple-soft: rgba(77, 66, 134, 0.05);
+            --brand-purple-dark: #3b3268;
+            --text-dark: #1e293b;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+            --success: #10b981;
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            height: 100vh;
+        }
+
+        .main-content {
+            padding: 2.5rem;
+            width: 100%;
+            height: 100vh;
+            overflow-y: auto;
+            background: #f8fafc;
+        }
+
+        /* Tabs Navigation */
+        .setup-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 2rem;
+            background: white;
+            padding: 8px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .tab-btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: 0.2s;
+            border: none;
+            background: transparent;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tab-btn i { width: 16px; }
+
+        .tab-btn:hover {
+            color: var(--brand-purple);
+            background: var(--brand-purple-soft);
+        }
+
+        .tab-btn.active {
+            color: white;
+            background: var(--brand-purple);
+        }
+
+        /* Settings Panels */
+        .settings-panel {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .settings-panel.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            border: 1px solid var(--border-color);
+            margin-bottom: 24px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .card-title {
+            font-size: 1.1rem;
+            font-weight: 800;
+            color: var(--text-dark);
+            margin: 0;
+        }
+
+        /* Forms */
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-group label {
+            font-size: 0.75rem;
+            font-weight: 800;
+            color: var(--text-dark);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .form-group input, .form-group select, .form-group textarea {
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            font-family: inherit;
+            font-size: 0.9rem;
+            outline: none;
+            transition: 0.2s;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            border-color: var(--brand-purple);
+            box-shadow: 0 0 0 3px var(--brand-purple-soft);
+        }
+
+        /* Buttons */
+        .btn-save {
+            background: var(--brand-purple);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 10px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: 0.2s;
+        }
+
+        .btn-save:hover {
+            background: var(--brand-purple-dark);
+            box-shadow: 0 4px 12px rgba(77, 66, 134, 0.2);
+        }
+
+        /* Table */
+        .policy-list {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .policy-list th {
+            text-align: left;
+            padding: 12px;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            border-bottom: 2px solid #f1f5f9;
+        }
+
+        .policy-list td {
+            padding: 15px 12px;
+            border-bottom: 1px solid #f1f5f9;
+            font-size: 0.9rem;
+        }
+
+        .badge-type {
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        /* Quill height */
+        #editor { height: 200px; border-radius: 10px; }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <div id="sidebar-placeholder"></div>
+        <script src="employer-sidebar.js"></script>
+
+        <main class="main-content">
+            <header style="margin-bottom: 2rem;">
+                <h2 style="font-size: 1.75rem; font-weight: 800; color: #1e293b; margin: 0;">HR Setup & Policies</h2>
+                <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 5px;">Configure your workforce rules, leaves, and compliance standards.</p>
+            </header>
+
+            <!-- Navigation Tabs -->
+            <div class="setup-tabs">
+                <button class="tab-btn active" data-tab="policies"><i data-lucide="file-text"></i> HR Policies</button>
+                <button class="tab-btn" data-tab="leaves"><i data-lucide="calendar"></i> Leave Management</button>
+                <button class="tab-btn" data-tab="attendance"><i data-lucide="clock"></i> Attendance Rules</button>
+                <button class="tab-btn" data-tab="settings"><i data-lucide="settings"></i> General HR</button>
+                <button class="tab-btn" data-tab="documents"><i data-lucide="folder-lock"></i> Compliance</button>
+            </div>
+
+            <!-- Tab 1: HR Policies -->
+            <div class="settings-panel active" id="tab-policies">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Define New Policy</h3>
+                    </div>
+                    <form id="policy-form">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>Policy Name</label>
+                                <input type="text" placeholder="e.g. Remote Work Guidelines" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Policy Type</label>
+                                <select>
+                                    <option>Leave Policy</option>
+                                    <option>Attendance</option>
+                                    <option>Code of Conduct</option>
+                                    <option>Remote Work</option>
+                                    <option>Sexual Harassment (POSH)</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Effective Date</label>
+                                <input type="date" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Attachment (PDF/DOC)</label>
+                                <input type="file">
+                            </div>
+                        </div>
+                        <div class="form-group" style="margin-top: 20px;">
+                            <label>Description</label>
+                            <div id="editor"></div>
+                        </div>
+                        <div style="margin-top: 24px; display: flex; justify-content: flex-end;">
+                            <button class="btn-save" type="submit"><i data-lucide="upload-cloud"></i> Publish Policy</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="card">
+                    <h3 class="card-title" style="margin-bottom: 20px;">Active Company Policies</h3>
+                    <table class="policy-list">
+                        <thead>
+                            <tr>
+                                <th>Policy Name</th>
+                                <th>Type</th>
+                                <th>Effective Date</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><b>Company Code of Conduct</b></td>
+                                <td><span class="badge-type" style="background: #f1f5f9; color: #1e293b;">Conduct</span></td>
+                                <td>01 Jan 2026</td>
+                                <td><span style="color: var(--success); font-weight: 700;">● Active</span></td>
+                                <td><button class="btn-save" style="padding: 6px 12px; font-size: 0.75rem;"><i data-lucide="eye" style="width:14px;"></i> View</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Tab 2: Leave Management -->
+            <div class="settings-panel" id="tab-leaves">
+                <div class="card">
+                    <h3 class="card-title">Leave Entitlements</h3>
+                    <div class="form-grid" style="margin-top: 20px;">
+                        <div class="card" style="border-style: dashed; background: #fafafa;">
+                            <h4 style="font-size: 0.9rem; margin-bottom: 15px;">Casual Leave (CL)</h4>
+                            <div class="form-group">
+                                <label>Leaves Per Year</label>
+                                <input type="number" value="12">
+                            </div>
+                            <div style="margin-top: 15px; display: flex; gap: 10px; align-items: center;">
+                                <input type="checkbox" checked> <span style="font-size: 0.8rem; font-weight: 600;">Approval Required</span>
+                            </div>
+                        </div>
+                        <div class="card" style="border-style: dashed; background: #fafafa;">
+                            <h4 style="font-size: 0.9rem; margin-bottom: 15px;">Sick Leave (SL)</h4>
+                            <div class="form-group">
+                                <label>Leaves Per Year</label>
+                                <input type="number" value="10">
+                            </div>
+                            <div style="margin-top: 15px; display: flex; gap: 10px; align-items: center;">
+                                <input type="checkbox" checked> <span style="font-size: 0.8rem; font-weight: 600;">Approval Required</span>
+                            </div>
+                        </div>
+                        <div class="card" style="border-style: dashed; background: #fafafa;">
+                            <h4 style="font-size: 0.9rem; margin-bottom: 15px;">Earned Leave (EL)</h4>
+                            <div class="form-group">
+                                <label>Carry Forward Limit</label>
+                                <input type="number" value="30">
+                            </div>
+                            <div style="margin-top: 15px; display: flex; gap: 10px; align-items: center;">
+                                <input type="checkbox" checked> <span style="font-size: 0.8rem; font-weight: 600;">Carry Forward Allowed</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab 3: Attendance Rules -->
+            <div class="settings-panel" id="tab-attendance">
+                <div class="card" style="max-width: 800px;">
+                    <h3 class="card-title">Company Working Hours</h3>
+                    <div class="form-grid" style="margin-top:20px;">
+                        <div class="form-group">
+                            <label>Shift Start Time</label>
+                            <input type="time" value="09:30">
+                        </div>
+                        <div class="form-group">
+                            <label>Shift End Time</label>
+                            <input type="time" value="18:30">
+                        </div>
+                        <div class="form-group">
+                            <label>Break Duration (Mins)</label>
+                            <input type="number" value="60">
+                        </div>
+                        <div class="form-group">
+                            <label>Late Mark Threshold (Mins)</label>
+                            <input type="number" value="15">
+                        </div>
+                    </div>
+                    <div style="margin-top: 20px; padding: 15px; background: #fff7ed; border-radius: 12px; border: 1px solid #ffedd5;">
+                        <span style="font-size: 0.8rem; color: #9a3412; font-weight: 700;"><i data-lucide="info" style="width: 14px; vertical-align: middle;"></i> Late Mark Rule:</span>
+                        <p style="font-size: 0.75rem; color: #c2410c; margin-top: 4px;">If an employee checks in after 09:45 AM, it will be automatically flagged as a late arrival.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab 4: General HR -->
+            <div class="settings-panel" id="tab-settings">
+                <div class="card">
+                    <h3 class="card-title">General Settings</h3>
+                    <div class="form-grid" style="margin-top: 20px;">
+                        <div class="form-group">
+                            <label>Work Mode</label>
+                            <select>
+                                <option>Onsite (Office)</option>
+                                <option>Remote (Work from Home)</option>
+                                <option>Hybrid</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Probation Period (Months)</label>
+                            <input type="number" value="6">
+                        </div>
+                        <div class="form-group">
+                            <label>Notice Period (Days)</label>
+                            <input type="number" value="90">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab 5: Documents -->
+            <div class="settings-panel" id="tab-documents">
+                <div class="card">
+                    <h3 class="card-title">Agreement Templates</h3>
+                    <div class="form-grid" style="margin-top: 20px;">
+                        <div style="background: white; border: 2px dashed #e2e8f0; border-radius: 12px; padding: 30px; text-align: center; cursor: pointer;">
+                            <i data-lucide="file-plus" style="width: 32px; color: var(--brand-purple); margin-bottom: 10px;"></i>
+                            <div style="font-weight: 700; font-size: 0.9rem;">Upload Offer Letter Template</div>
+                            <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 5px;">Supports {name}, {salary}, {date} variables</p>
+                        </div>
+                        <div style="background: white; border: 2px dashed #e2e8f0; border-radius: 12px; padding: 30px; text-align: center; cursor: pointer;">
+                            <i data-lucide="file-plus" style="width: 32px; color: var(--brand-purple); margin-bottom: 10px;"></i>
+                            <div style="font-weight: 700; font-size: 0.9rem;">Upload NDA Template</div>
+                            <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 5px;">Standard Non-Disclosure Agreement</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="position: fixed; bottom: 30px; right: 30px;">
+                <button class="btn-save" style="padding: 15px 30px; border-radius: 50px; font-size: 1rem; box-shadow: 0 10px 25px rgba(77, 66, 134, 0.3);">
+                    Save All Changes <i data-lucide="save"></i>
+                </button>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        lucide.createIcons();
+        
+        // Hydrate Company Name
+        const companyName = localStorage.getItem('salarite_company_name');
+        if (companyName && document.getElementById('company-brand-sidebar')) {
+            document.getElementById('company-brand-sidebar').innerText = companyName;
+        }
+
+        // Initialize Quill Editor
+        var quill = new Quill('#editor', {
+            theme: 'snow',
+            placeholder: 'Type policy details here...'
+        });
+
+        // Tab Switching Logic
+        $('.tab-btn').on('click', function() {
+            const tabId = $(this).data('tab');
+            
+            // UI Update
+            $('.tab-btn').removeClass('active');
+            $(this).addClass('active');
+            
+            // Content Update
+            $('.settings-panel').removeClass('active');
+            $(`#tab-${tabId}`).addClass('active');
+            
+            // Header Update
+            const tabName = $(this).text();
+            $('header p').text(`Configure your company's ${tabName.toLowerCase().trim()} settings.`);
+        });
+
+        // Save Success Simulation
+        $('.btn-save').on('click', function(e) {
+            if($(this).closest('form').length > 0) e.preventDefault();
+            
+            const btn = $(this);
+            const originalHtml = btn.html();
+            
+            btn.prop('disabled', true).html('<i data-lucide="loader" class="spin"></i> Saving...');
+            lucide.createIcons();
+            
+            setTimeout(() => {
+                btn.prop('disabled', false).html('<i data-lucide="check"></i> Saved successfully!');
+                lucide.createIcons();
+                
+                setTimeout(() => {
+                    btn.html(originalHtml);
+                    lucide.createIcons();
+                }, 2000);
+            }, 1000);
+        });
+    </script>
+</body>
+</html>

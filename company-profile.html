@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Company Profile | Salarite Employer</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="dashboard-style.css">
+    
+    <!-- External Libs -->
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
+    
+    <style>
+        :root {
+            --brand-green: #4D4286;
+            --brand-green-dark: #3b3268;
+            --bg-light-grey: #f8fafc; /* Changed to cleaner light grey */
+            --text-dark: #1e293b;
+            --text-muted: #64748b;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-light-grey);
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            height: 100vh;
+            max-width: 100vw;
+        }
+
+        /* Full Height Scrollable Main Area */
+        .content-area {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 3rem;
+            height: 100vh;
+            background-color: var(--bg-light-grey);
+            box-sizing: border-box;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2.5rem;
+        }
+
+        .page-title {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 1.75rem;
+            font-weight: 800;
+            color: var(--text-dark);
+            margin: 0;
+        }
+
+        .panel-card {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+            border: 1px solid #e2e8f0;
+            margin-bottom: 2rem;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 0.75rem;
+            font-weight: 800;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 10px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            font-family: inherit;
+            font-size: 1rem;
+            transition: 0.2s;
+            box-sizing: border-box;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--brand-green);
+            box-shadow: 0 0 0 4px rgba(77, 66, 134, 0.08);
+        }
+
+        .btn-save {
+            background: var(--brand-green);
+            color: white;
+            border: none;
+            padding: 14px 28px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: 0.2s;
+            box-shadow: 0 4px 12px rgba(77, 66, 134, 0.2);
+        }
+
+        .btn-save:hover {
+            background: var(--brand-green-dark);
+            transform: translateY(-1px);
+        }
+
+        /* Section Headings */
+        .section-h {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 800;
+            color: var(--text-dark);
+            border-bottom: 2px solid #f8fafc;
+            padding-bottom: 12px;
+            margin: 0 0 25px 0;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <!-- UNIVERSAL SIDEBAR -->
+        <div id="sidebar-placeholder"></div>
+        <script src="employer-sidebar.js"></script>
+
+        <!-- MAIN SCROLLABLE CONTENT -->
+        <main class="content-area">
+            <div class="page-header">
+                <div>
+                    <h1 class="page-title">Company Profile</h1>
+                    <p style="color: var(--text-muted); font-size: 0.9rem; margin: 4px 0 0;">View and manage your organization's identity.</p>
+                </div>
+                <!-- Action Buttons: Contextual based on state -->
+                <div id="action-buttons">
+                    <button class="btn-save" id="btn-edit-mode" style="background: white; color: var(--brand-green); border: 1px solid var(--brand-green); box-shadow: none;">
+                        <i data-lucide="pencil" style="width: 18px;"></i> 
+                        Edit Details
+                    </button>
+                    <button class="btn-save" id="btn-save-company-details" style="display: none;">
+                        <i data-lucide="save" style="width: 20px;"></i> 
+                        Publish Changes
+                    </button>
+                    <button class="btn-save" id="btn-cancel-edit" style="display: none; background: white; color: #ef4444; border: 1px solid #ef4444; box-shadow: none; margin-left: 10px;">
+                        Cancel
+                    </button>
+                </div>
+            </div>
+
+            <div class="panel-card">
+                <!-- VIEW MODE -->
+                <div id="view-mode-container" style="display: grid; grid-template-columns: 280px 1fr; gap: 60px;">
+                    <div>
+                        <label class="form-label">Brand Identity</label>
+                        <div style="width: 100%; aspect-ratio: 1; border-radius: 24px; display: flex; align-items: center; justify-content: center; background: white; border: 1px solid #e2e8f0; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
+                            <img id="view-logo" src="https://ui-avatars.com/api/?name=Salarite&background=4D4286&color=fff&size=256" style="width:100%; height:100%; object-fit:cover;">
+                        </div>
+                        <div style="margin-top: 16px; text-align: center;">
+                            <div style="font-size: 0.95rem; font-style: italic; color: var(--text-muted);" id="view-tagline">"Empowering Modern HR"</div>
+                        </div>
+                    </div>
+                    
+                    <div style="display: flex; flex-direction: column; gap: 40px;">
+                        
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+                            <h4 class="section-h" style="grid-column: span 2;"><i data-lucide="info" style="width: 20px; color: var(--brand-green);"></i> Company Details</h4>
+                            <div style="grid-column: span 2;">
+                                <label class="form-label">Company Name</label>
+                                <div style="font-size: 1.25rem; font-weight: 700; color: var(--text-dark);" id="view-name">Salarite HRMS Solutions</div>
+                            </div>
+                            <div>
+                                <label class="form-label">Industry</label>
+                                <div style="font-size: 1rem; color: var(--text-dark);" id="view-industry">IT & Software</div>
+                            </div>
+                            <div>
+                                <label class="form-label">Company Size</label>
+                                <div style="font-size: 1rem; color: var(--text-dark);" id="view-size">50-200</div>
+                            </div>
+                            <div>
+                                <label class="form-label">Founded Year</label>
+                                <div style="font-size: 1rem; color: var(--text-dark);" id="view-founded">2023</div>
+                            </div>
+                            <div>
+                                <label class="form-label">Company Type</label>
+                                <div style="font-size: 1rem; color: var(--text-dark);" id="view-type">Private</div>
+                            </div>
+                            <div style="grid-column: span 2;">
+                                <label class="form-label">Website URL</label>
+                                <div style="font-size: 1rem;"><a href="#" id="view-website" target="_blank" style="color: #3b82f6; text-decoration: none;">https://salarite.com</a></div>
+                            </div>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+                            <h4 class="section-h" style="grid-column: span 2;"><i data-lucide="phone" style="width: 20px; color: var(--brand-green);"></i> Contact Information</h4>
+                            <div style="grid-column: span 2;">
+                                <label class="form-label">Official Email</label>
+                                <div style="font-size: 1rem; color: var(--text-dark);" id="view-email">contact@salarite.com</div>
+                            </div>
+                            <div>
+                                <label class="form-label">Phone Number</label>
+                                <div style="font-size: 1rem; color: var(--text-dark);" id="view-phone">+91 9876543210</div>
+                            </div>
+                            <div>
+                                <label class="form-label">Alternate Contact</label>
+                                <div style="font-size: 1rem; color: var(--text-dark);" id="view-alt-phone">-</div>
+                            </div>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+                            <h4 class="section-h" style="grid-column: span 2;"><i data-lucide="map-pin" style="width: 20px; color: var(--brand-green);"></i> Address Details</h4>
+                            <div style="grid-column: span 2;">
+                                <label class="form-label">Address Line 1</label>
+                                <div style="font-size: 1rem; color: var(--text-dark);" id="view-address-1">123 Tech Park, Innovator Street</div>
+                            </div>
+                            <div style="grid-column: span 2;">
+                                <label class="form-label">Address Line 2</label>
+                                <div style="font-size: 1rem; color: var(--text-dark);" id="view-address-2">-</div>
+                            </div>
+                            <div>
+                                <label class="form-label">City</label>
+                                <div style="font-size: 1rem; color: var(--text-dark);" id="view-city">Jaipur</div>
+                            </div>
+                            <div>
+                                <label class="form-label">State</label>
+                                <div style="font-size: 1rem; color: var(--text-dark);" id="view-state">Rajasthan</div>
+                            </div>
+                            <div>
+                                <label class="form-label">Pincode</label>
+                                <div style="font-size: 1rem; color: var(--text-dark);" id="view-pincode">302001</div>
+                            </div>
+                            <div>
+                                <label class="form-label">Country</label>
+                                <div style="font-size: 1rem; color: var(--text-dark);" id="view-country">India</div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h4 class="section-h"><i data-lucide="align-left" style="width: 20px; color: var(--brand-green);"></i> About Company</h4>
+                            <div style="font-size: 0.95rem; line-height: 1.7; color: var(--text-dark); background: #f8fafc; padding: 20px; border-radius: 12px; border: 1px solid #e2e8f0;" id="view-about">
+                                We are Salarite, building the next generation of modern HR modules to simplify employee management and payroll securely.
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <h4 class="section-h"><i data-lucide="share-2" style="width: 20px; color: var(--brand-green);"></i> Social Media Links</h4>
+                            <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+                                <a href="#" id="view-linkedin" target="_blank" style="color: #0ea5e9; text-decoration: none; display: flex; align-items: center; gap: 6px;"><i data-lucide="linkedin" style="width: 18px;"></i> LinkedIn</a>
+                                <a href="#" id="view-facebook" target="_blank" style="color: #3b82f6; text-decoration: none; display: flex; align-items: center; gap: 6px;"><i data-lucide="facebook" style="width: 18px;"></i> Facebook</a>
+                                <a href="#" id="view-twitter" target="_blank" style="color: #1e293b; text-decoration: none; display: flex; align-items: center; gap: 6px;"><i data-lucide="twitter" style="width: 18px;"></i> X (Twitter)</a>
+                                <a href="#" id="view-instagram" target="_blank" style="color: #ec4899; text-decoration: none; display: flex; align-items: center; gap: 6px;"><i data-lucide="instagram" style="width: 18px;"></i> Instagram</a>
+                            </div>
+                        </div>
+                        
+                        <div style="display: grid; grid-template-columns: 1fr; gap: 24px;">
+                            <h4 class="section-h"><i data-lucide="file-text" style="width: 20px; color: var(--brand-green);"></i> Company Documents</h4>
+                            <div id="view-doc-list" style="display: flex; flex-direction: column; gap: 12px;">
+                                <!-- Populated dynamically -->
+                                <div style="font-size: 0.9rem; color: var(--text-muted); font-style: italic;">No documents uploaded.</div>
+                            </div>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+                            <h4 class="section-h" style="grid-column: span 2;"><i data-lucide="settings" style="width: 20px; color: var(--brand-green);"></i> Settings</h4>
+                            <div style="display: flex; gap: 40px; grid-column: span 2;">
+                                <div>
+                                    <label class="form-label">Profile Visibility</label>
+                                    <div style="font-size: 1rem; font-weight: 600; color: #10b981; display: flex; align-items: center; gap: 6px;" id="view-visibility"><i data-lucide="globe" style="width: 16px;"></i> Public</div>
+                                </div>
+                                <div>
+                                    <label class="form-label">Candidates can view profile</label>
+                                    <div style="font-size: 1rem; font-weight: 600; color: #10b981; display: flex; align-items: center; gap: 6px;" id="view-candidates-view"><i data-lucide="check-circle" style="width: 16px;"></i> Allowed</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- EDIT MODE -->
+                <div id="edit-mode-container" style="display: none; grid-template-columns: 280px 1fr; gap: 60px;">
+                    <!-- Left: Upload -->
+                    <div>
+                        <label class="form-label">Brand Identity</label>
+                        <div style="width: 100%; aspect-ratio: 1; border: 3px dashed #e2e8f0; border-radius: 24px; display: flex; align-items: center; justify-content: center; background: #f8fafc; cursor: pointer; position: relative;" onclick="document.getElementById('logo-up').click()">
+                            <input type="file" id="logo-up" style="display:none;" accept="image/*" onclick="event.stopPropagation()">
+                            <div id="up-placeholder" style="text-align: center; color: var(--text-muted);">
+                                <i data-lucide="upload-cloud" style="width: 40px; margin-bottom: 12px; color: var(--brand-green);"></i>
+                                <div style="font-weight: 700; font-size: 0.85rem;">Upload Company Logo</div>
+                                <div style="font-size: 0.7rem; margin-top: 4px;">Square format recommended</div>
+                            </div>
+                            <img id="logo-preview-img" style="display:none; width:100%; height:100%; object-fit:contain; padding: 20px;">
+                        </div>
+                        <div style="margin-top: 20px;">
+                            <label class="form-label">Tagline / Short Description</label>
+                            <input type="text" id="edit-tagline" class="form-input" placeholder="e.g. Empowering Modern HR">
+                        </div>
+                    </div>
+
+                    <!-- Right: Form -->
+                    <div style="display: flex; flex-direction: column; gap: 40px;">
+                        
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+                            <h4 class="section-h" style="grid-column: span 2;"><i data-lucide="info" style="width: 20px; color: var(--brand-green);"></i> Company Details</h4>
+                            <div style="grid-column: span 2;">
+                                <label class="form-label">Company Name *</label>
+                                <input type="text" id="edit-name" class="form-input" placeholder="e.g. Salarite HRMS Solutions">
+                            </div>
+                            <div>
+                                <label class="form-label">Industry</label>
+                                <select id="edit-industry" class="form-input" style="background: white;">
+                                    <option>IT & Software</option>
+                                    <option>Finance</option>
+                                    <option>Healthcare</option>
+                                    <option>Real Estate</option>
+                                    <option>Retail</option>
+                                    <option>Manufacturing</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="form-label">Company Size</label>
+                                <select id="edit-size" class="form-input" style="background: white;">
+                                    <option>1-10</option>
+                                    <option>10-50</option>
+                                    <option>50-200</option>
+                                    <option>200-500</option>
+                                    <option>500+</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="form-label">Founded Year</label>
+                                <input type="number" id="edit-founded" class="form-input" placeholder="YYYY">
+                            </div>
+                            <div>
+                                <label class="form-label">Company Type</label>
+                                <select id="edit-type" class="form-input" style="background: white;">
+                                    <option>Private</option>
+                                    <option>Public</option>
+                                    <option>Startup</option>
+                                    <option>MNC</option>
+                                    <option>NGO</option>
+                                </select>
+                            </div>
+                            <div style="grid-column: span 2;">
+                                <label class="form-label">Website URL</label>
+                                <input type="url" id="edit-website" class="form-input" placeholder="https://example.com">
+                            </div>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+                            <h4 class="section-h" style="grid-column: span 2;"><i data-lucide="phone" style="width: 20px; color: var(--brand-green);"></i> Contact Information</h4>
+                            <div style="grid-column: span 2;">
+                                <label class="form-label">Official Email</label>
+                                <input type="email" id="edit-email" class="form-input" placeholder="contact@company.com">
+                            </div>
+                            <div>
+                                <label class="form-label">Phone Number</label>
+                                <input type="text" id="edit-phone" class="form-input" placeholder="+1 234 567 8900">
+                            </div>
+                            <div>
+                                <label class="form-label">Alternate Contact</label>
+                                <input type="text" id="edit-alt-phone" class="form-input" placeholder="+1 098 765 4321">
+                            </div>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+                            <h4 class="section-h" style="grid-column: span 2;"><i data-lucide="map-pin" style="width: 20px; color: var(--brand-green);"></i> Address Details</h4>
+                            <div style="grid-column: span 2;">
+                                <label class="form-label">Address Line 1</label>
+                                <input type="text" id="edit-address-1" class="form-input" placeholder="Street, Building, Floor">
+                            </div>
+                            <div style="grid-column: span 2;">
+                                <label class="form-label">Address Line 2</label>
+                                <input type="text" id="edit-address-2" class="form-input" placeholder="Landmark, Area, etc.">
+                            </div>
+                            <div>
+                                <label class="form-label">City</label>
+                                <input type="text" id="edit-city" class="form-input" placeholder="e.g. Jaipur">
+                            </div>
+                            <div>
+                                <label class="form-label">State</label>
+                                <input type="text" id="edit-state" class="form-input" placeholder="e.g. Rajasthan">
+                            </div>
+                            <div>
+                                <label class="form-label">Pincode</label>
+                                <input type="text" id="edit-pincode" class="form-input" placeholder="e.g. 302001">
+                            </div>
+                            <div>
+                                <label class="form-label">Country</label>
+                                <input type="text" id="edit-country" class="form-input" placeholder="e.g. India">
+                            </div>
+                        </div>
+
+                        <div>
+                            <h4 class="section-h"><i data-lucide="align-left" style="width: 20px; color: var(--brand-green);"></i> About Company</h4>
+                            <div id="quill-company-editor" style="height: 250px; background: white; border-bottom-left-radius: 12px; border-bottom-right-radius: 12px;"></div>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+                            <h4 class="section-h" style="grid-column: span 2;"><i data-lucide="share-2" style="width: 20px; color: var(--brand-green);"></i> Social Media Links</h4>
+                            <div>
+                                <label class="form-label">LinkedIn</label>
+                                <input type="url" id="edit-linkedin" class="form-input" placeholder="https://linkedin.com/company/...">
+                            </div>
+                            <div>
+                                <label class="form-label">Facebook</label>
+                                <input type="url" id="edit-facebook" class="form-input" placeholder="https://facebook.com/...">
+                            </div>
+                            <div>
+                                <label class="form-label">Twitter / X</label>
+                                <input type="url" id="edit-twitter" class="form-input" placeholder="https://twitter.com/...">
+                            </div>
+                            <div>
+                                <label class="form-label">Instagram</label>
+                                <input type="url" id="edit-instagram" class="form-input" placeholder="https://instagram.com/...">
+                            </div>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+                            <h4 class="section-h" style="grid-column: span 2;"><i data-lucide="file-text" style="width: 20px; color: var(--brand-green);"></i> Company Documents</h4>
+                            <div style="grid-column: span 2; display: flex; gap: 16px; align-items: flex-end; background: #f8fafc; padding: 20px; border-radius: 12px; border: 1px dashed #cbd5e1;">
+                                <div style="flex: 2;">
+                                    <label class="form-label">Upload File (PDF/Img)</label>
+                                    <input type="file" id="new-doc-file" class="form-input" style="padding: 9px;" accept="image/*,.pdf">
+                                </div>
+                                <div style="flex: 2;">
+                                    <label class="form-label">Document Title</label>
+                                    <input type="text" id="new-doc-name" class="form-input" placeholder="e.g. Employee Handbook">
+                                </div>
+                                <div style="flex: 2;">
+                                    <label class="form-label">Visibility</label>
+                                    <select id="new-doc-vis" class="form-input" style="background: white;">
+                                        <option value="All Employees">All Employees</option>
+                                        <option value="Admin/HR Only">Admin/HR Only</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <button type="button" class="btn-save" id="btn-add-doc" style="padding: 12px 20px;"><i data-lucide="plus" style="width:16px;"></i> Add</button>
+                                </div>
+                            </div>
+                            <div id="edit-doc-list" style="grid-column: span 2; display: flex; flex-direction: column; gap: 12px;"></div>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+                            <h4 class="section-h" style="grid-column: span 2;"><i data-lucide="settings" style="width: 20px; color: var(--brand-green);"></i> Settings</h4>
+                            <div>
+                                <label class="form-label">Profile Visibility</label>
+                                <div style="display: flex; gap: 16px; margin-top: 8px;">
+                                    <label style="display: flex; align-items: center; gap: 6px; font-size: 0.95rem; cursor: pointer;">
+                                        <input type="radio" name="profile_vis" value="Public" checked> Public
+                                    </label>
+                                    <label style="display: flex; align-items: center; gap: 6px; font-size: 0.95rem; cursor: pointer;">
+                                        <input type="radio" name="profile_vis" value="Private"> Private
+                                    </label>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="form-label" style="display: flex; justify-content: space-between;">
+                                    Allow Candidates to View Profile
+                                    <input type="checkbox" id="edit-candidates-view" checked style="width: 18px; height: 18px;">
+                                </label>
+                                <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px;">If toggled off, candidates cannot see this page during recruitment.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Start Lucide
+        lucide.createIcons();
+
+        // Start Quill
+        const quill = new Quill('#quill-company-editor', {
+            theme: 'snow',
+            placeholder: 'Tell potential employees about your company mission and culture...',
+            modules: { toolbar: [['bold', 'italic', 'underline'], [{ 'list': 'ordered'}, { 'list': 'bullet' }], ['link', 'clean']] }
+        });
+
+        // Current temporary docs state for edit mode
+        let currentDocs = [];
+
+        function renderDocs(listId, docs, isEditMode) {
+            const container = $(listId);
+            container.empty();
+            if(!docs || docs.length === 0) {
+                container.html('<div style="font-size: 0.9rem; color: var(--text-muted); font-style: italic;">No documents uploaded.</div>');
+                return;
+            }
+            docs.forEach((doc, i) => {
+                let visBadge = doc.visibility === 'All Employees' 
+                    ? '<span style="background:#dcfce7; color:#166534; padding:2px 8px; border-radius:12px; font-size:0.7rem; font-weight:700;">All Employees</span>'
+                    : '<span style="background:#fee2e2; color:#991b1b; padding:2px 8px; border-radius:12px; font-size:0.7rem; font-weight:700;">Admin/HR Only</span>';
+
+                let action = isEditMode 
+                    ? `<button type="button" class="del-doc-btn" data-idx="${i}" style="color:#ef4444; background:none; border:none; cursor:pointer;" title="Remove Document"><i data-lucide="trash-2" style="width:16px;"></i></button>`
+                    : `<a href="#" style="color:var(--brand-green); text-decoration:none;" title="Download"><i data-lucide="downloadCloud" style="width:16px;"></i></a>`;
+
+                container.append(`
+                    <div style="display:flex; justify-content:space-between; align-items:center; background:white; border:1px solid #e2e8f0; padding:12px 16px; border-radius:10px;">
+                        <div style="display:flex; align-items:center; gap:12px;">
+                            <i data-lucide="file" style="color:#94a3b8; width:20px;"></i>
+                            <div>
+                                <div style="font-size:0.95rem; font-weight:600; color:var(--text-dark);">${doc.name}</div>
+                                <div style="margin-top:4px;">${visBadge}</div>
+                            </div>
+                        </div>
+                        <div>${action}</div>
+                    </div>
+                `);
+            });
+            lucide.createIcons();
+        }
+
+        // Initialize State
+        function loadCompanyProfile() {
+            const dataStr = localStorage.getItem('salarite_company_profile');
+            let data = {};
+            if (dataStr) {
+                data = JSON.parse(dataStr);
+            }
+            
+            $('#view-name').text(data.name || 'Salarite HRMS Solutions');
+            $('#view-tagline').text(data.tagline || '"Empowering Modern HR"');
+            $('#view-industry').text(data.industry || 'IT & Software');
+            $('#view-size').text(data.size || '50-200');
+            $('#view-founded').text(data.founded || '2023');
+            $('#view-type').text(data.type || 'Private');
+            
+            if (data.website) { $('#view-website').attr('href', data.website).text(data.website); }
+            
+            $('#view-email').text(data.email || 'contact@salarite.com');
+            $('#view-phone').text(data.phone || '+91 9876543210');
+            $('#view-alt-phone').text(data.alt_phone || '-');
+            
+            $('#view-address-1').text(data.address_1 || '123 Tech Park, Innovator Street');
+            $('#view-address-2').text(data.address_2 || '-');
+            $('#view-city').text(data.city || 'Jaipur');
+            $('#view-state').text(data.state || 'Rajasthan');
+            $('#view-pincode').text(data.pincode || '302001');
+            $('#view-country').text(data.country || 'India');
+            
+            $('#view-about').html(data.about || 'We are Salarite, building the next generation of modern HR modules to simplify employee management and payroll securely.');
+            
+            if (data.linkedin) { $('#view-linkedin').attr('href', data.linkedin).show(); } else { $('#view-linkedin').hide(); }
+            if (data.facebook) { $('#view-facebook').attr('href', data.facebook).show(); } else { $('#view-facebook').hide(); }
+            if (data.twitter) { $('#view-twitter').attr('href', data.twitter).show(); } else { $('#view-twitter').hide(); }
+            if (data.instagram) { $('#view-instagram').attr('href', data.instagram).show(); } else { $('#view-instagram').hide(); }
+
+            if (data.visibility === 'Private') {
+                $('#view-visibility').html('<i data-lucide="lock" style="width: 16px;"></i> Private').css('color', '#ef4444');
+            } else {
+                $('#view-visibility').html('<i data-lucide="globe" style="width: 16px;"></i> Public').css('color', '#10b981');
+            }
+
+            if (data.allow_candidates === false) {
+                $('#view-candidates-view').html('<i data-lucide="x-circle" style="width: 16px;"></i> Blocked').css('color', '#ef4444');
+            } else {
+                $('#view-candidates-view').html('<i data-lucide="check-circle" style="width: 16px;"></i> Allowed').css('color', '#10b981');
+            }
+
+            if (data.logo) {
+                $('#view-logo').attr('src', data.logo);
+                $('#logo-preview-img').attr('src', data.logo).show();
+                $('#up-placeholder').hide();
+            }
+
+            // Render view docs
+            currentDocs = data.documents || [];
+            renderDocs('#view-doc-list', currentDocs, false);
+            
+            lucide.createIcons();
+        }
+        
+        loadCompanyProfile();
+
+        // Toggle Modes
+        $('#btn-edit-mode').click(function() {
+            // Populate form
+            const dataStr = localStorage.getItem('salarite_company_profile');
+            let data = {};
+            if (dataStr) data = JSON.parse(dataStr);
+
+            $('#edit-name').val(data.name || $('#view-name').text());
+            $('#edit-tagline').val(data.tagline || '');
+            $('#edit-industry').val(data.industry || 'IT & Software');
+            $('#edit-size').val(data.size || '50-200');
+            $('#edit-founded').val(data.founded || '');
+            $('#edit-type').val(data.type || 'Private');
+            $('#edit-website').val(data.website || '');
+            $('#edit-email').val(data.email || '');
+            $('#edit-phone').val(data.phone || '');
+            $('#edit-alt-phone').val(data.alt_phone || '');
+            $('#edit-address-1').val(data.address_1 || '');
+            $('#edit-address-2').val(data.address_2 || '');
+            $('#edit-city').val(data.city || 'Jaipur');
+            $('#edit-state').val(data.state || '');
+            $('#edit-pincode').val(data.pincode || '');
+            $('#edit-country').val(data.country || 'India');
+            quill.root.innerHTML = data.about || $('#view-about').html();
+            
+            $('#edit-linkedin').val(data.linkedin || '');
+            $('#edit-facebook').val(data.facebook || '');
+            $('#edit-twitter').val(data.twitter || '');
+            $('#edit-instagram').val(data.instagram || '');
+
+            if (data.visibility === 'Private') {
+                $('input[name="profile_vis"][value="Private"]').prop('checked', true);
+            } else {
+                $('input[name="profile_vis"][value="Public"]').prop('checked', true);
+            }
+
+            $('#edit-candidates-view').prop('checked', data.allow_candidates !== false);
+
+            currentDocs = data.documents || [];
+            renderDocs('#edit-doc-list', currentDocs, true);
+
+            $('#view-mode-container').hide();
+            $('#edit-mode-container').css('display', 'grid');
+            
+            $(this).hide();
+            $('#btn-save-company-details').show();
+            $('#btn-cancel-edit').show();
+            $('#action-buttons').css('display', 'flex');
+        });
+
+        $('#btn-cancel-edit').click(function() {
+            $('#edit-mode-container').hide();
+            $('#view-mode-container').css('display', 'grid');
+            
+            $('#btn-save-company-details, #btn-cancel-edit').hide();
+            $('#btn-edit-mode').show();
+        });
+
+        // Document Add/Remove
+        $('#btn-add-doc').click(function() {
+            const docName = $('#new-doc-name').val().trim();
+            if(!docName) {
+                alert('Please enter a document name.');
+                return;
+            }
+            const vis = $('#new-doc-vis').val();
+            currentDocs.push({ name: docName, visibility: vis });
+            renderDocs('#edit-doc-list', currentDocs, true);
+            $('#new-doc-name').val(''); // clear input
+        });
+
+        $(document).on('click', '.del-doc-btn', function() {
+            const idx = $(this).data('idx');
+            currentDocs.splice(idx, 1);
+            renderDocs('#edit-doc-list', currentDocs, true);
+        });
+
+        // Logo Upload
+        $('#logo-up').on('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(r) {
+                    $('#logo-preview-img').attr('src', r.target.result).show();
+                    $('#up-placeholder').hide();
+                }
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Save Functionality
+        $('#btn-save-company-details').on('click', function() {
+            const btn = $(this);
+            btn.prop('disabled', true).html('<i data-lucide="loader-2" class="spin"></i> Saving...');
+            
+            // Collect Data
+            const data = {
+                name: $('#edit-name').val(),
+                tagline: $('#edit-tagline').val(),
+                industry: $('#edit-industry').val(),
+                size: $('#edit-size').val(),
+                founded: $('#edit-founded').val(),
+                type: $('#edit-type').val(),
+                website: $('#edit-website').val(),
+                
+                email: $('#edit-email').val(),
+                phone: $('#edit-phone').val(),
+                alt_phone: $('#edit-alt-phone').val(),
+                
+                address_1: $('#edit-address-1').val(),
+                address_2: $('#edit-address-2').val(),
+                city: $('#edit-city').val(),
+                state: $('#edit-state').val(),
+                pincode: $('#edit-pincode').val(),
+                country: $('#edit-country').val(),
+                
+                about: quill.root.innerHTML,
+                
+                linkedin: $('#edit-linkedin').val(),
+                facebook: $('#edit-facebook').val(),
+                twitter: $('#edit-twitter').val(),
+                instagram: $('#edit-instagram').val(),
+                
+                visibility: $('input[name="profile_vis"]:checked').val(),
+                allow_candidates: $('#edit-candidates-view').is(':checked'),
+                documents: currentDocs,
+                
+                logo: $('#logo-preview-img').attr('src')
+            };
+
+            // Save to internal storage
+            localStorage.setItem('salarite_company_profile', JSON.stringify(data));
+
+            setTimeout(() => {
+                loadCompanyProfile(); // Refresh view mode
+                
+                $('#edit-mode-container').hide();
+                $('#view-mode-container').css('display', 'grid');
+                
+                btn.prop('disabled', false).html('<i data-lucide="save"></i> Publish Changes');
+                $('#btn-save-company-details, #btn-cancel-edit').hide();
+                $('#btn-edit-mode').show();
+            }, 800);
+        });
+    </script>
+</body>
+</html>

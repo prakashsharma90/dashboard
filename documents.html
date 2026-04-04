@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Salarite — Employer Document Center</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        :root {
+            --pr-primary: #4D4286;
+            --pr-accent: #818cf8;
+            --bg-body: #f8fafc;
+            --card-white: #ffffff;
+            --border-color: #f1f5f9;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: var(--bg-body);
+            color: var(--text-main);
+            margin: 0;
+            padding: 0;
+        }
+
+        .dashboard-container {
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            height: 100vh;
+        }
+
+        .main-content {
+            padding: 30px;
+            overflow-y: auto;
+        }
+
+        /* Module Top Navigation */
+        .module-nav {
+            display: flex;
+            align-items: center;
+            gap: 30px;
+            margin-bottom: 25px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 15px;
+        }
+
+        .nav-link {
+            text-decoration: none;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            font-weight: 850;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 0;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .nav-link.active {
+            color: var(--pr-primary);
+        }
+
+        .nav-link.active::after {
+            content: '';
+            position: absolute;
+            bottom: -16px;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: var(--pr-primary);
+            border-radius: 10px;
+        }
+
+        /* Institutional Cards */
+        .doc-card {
+            background: var(--card-white);
+            border-radius: 20px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.02);
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .card-header {
+            padding: 20px 25px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-header h3 {
+            font-size: 1rem;
+            font-weight: 850;
+            margin: 0;
+            letter-spacing: -0.3px;
+        }
+
+        /* High-Density Tables */
+        .dataTables_wrapper {
+            padding: 0;
+        }
+
+        table.display {
+            border-collapse: collapse !important;
+            border: none !important;
+        }
+
+        table.display thead th {
+            background: #fcfdfe !important;
+            font-size: 0.65rem !important;
+            font-weight: 900 !important;
+            color: var(--text-muted) !important;
+            text-transform: uppercase !important;
+            letter-spacing: 0.8px !important;
+            padding: 15px 20px !important;
+            border-bottom: 1px solid var(--border-color) !important;
+        }
+
+        table.display tbody td {
+            font-size: 0.8rem !important;
+            padding: 15px 20px !important;
+            border-bottom: 1px solid var(--border-color) !important;
+            font-weight: 500;
+        }
+
+        /* Functional Badges */
+        .status-badge {
+            font-size: 0.65rem;
+            font-weight: 900;
+            padding: 4px 10px;
+            border-radius: 50px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status-active { background: #d1fae5; color: #10b981; }
+        .status-expired { background: #ffe4e6; color: #f43f5e; }
+        .status-pending { background: #fef3c7; color: #d97706; }
+
+        /* Integrated Header Controls */
+        .header-utilities {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .btn-doc {
+            border-radius: 10px;
+            font-weight: 850;
+            font-size: 0.7rem;
+            padding: 8px 15px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border: 1px solid var(--border-color);
+            background: white;
+            color: var(--text-main);
+        }
+
+        .btn-doc-primary {
+            background: var(--pr-primary);
+            color: white;
+            border: none;
+        }
+
+        .btn-doc-primary:hover { opacity: 0.9; }
+
+        /* Document Grid View */
+        .grid-folders {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .folder-item {
+            background: white;
+            padding: 20px;
+            border-radius: 18px;
+            border: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .folder-item:hover { transform: translateY(-4px); }
+
+        .folder-icon {
+            width: 44px;
+            height: 44px;
+            background: #eff6ff;
+            color: #3b82f6;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .section-content { display: none; }
+        .active-section { display: block; }
+    </style>
+</head>
+<body>
+
+    <div class="dashboard-container">
+        <!-- Sidebar placeholder -->
+        <div id="sidebar-placeholder"></div>
+        <script src="employer-sidebar.js"></script>
+
+        <main class="main-content">
+            <!-- 1. Module Top Navigation -->
+            <nav class="module-nav">
+                <div class="nav-link active" data-target="section-overview">
+                    <i data-lucide="layout-grid" style="width:16px;"></i> Overview
+                </div>
+                <div class="nav-link" data-target="section-management">
+                    <i data-lucide="folder" style="width:16px;"></i> Manage Documents
+                </div>
+                <div class="nav-link" data-target="section-records">
+                    <i data-lucide="users" style="width:16px;"></i> Employee Records
+                </div>
+                <div class="nav-link" data-target="section-templates">
+                    <i data-lucide="file-text" style="width:16px;"></i> Templates
+                </div>
+                <div class="nav-link" data-target="section-settings">
+                    <i data-lucide="shield-check" style="width:16px;"></i> Access Logs
+                </div>
+            </nav>
+
+            <!-- 2. Overview Section -->
+            <div id="section-overview" class="section-content active-section">
+                <!-- Stats Bar -->
+                <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:20px; margin-bottom:25px;">
+                    <div class="doc-card" style="padding:20px; display:flex; align-items:center; gap:15px; margin:0;">
+                        <div class="folder-icon" style="background:#eff6ff; color:#3b82f6;"><i data-lucide="files"></i></div>
+                        <div>
+                            <div style="font-size:0.65rem; font-weight:900; color:var(--text-muted); text-transform:uppercase;">Stored</div>
+                            <div style="font-size:1.4rem; font-weight:950;">1,248</div>
+                        </div>
+                    </div>
+                    <div class="doc-card" style="padding:20px; display:flex; align-items:center; gap:15px; margin:0;">
+                        <div class="folder-icon" style="background:#fff1f2; color:#f43f5e;"><i data-lucide="alert-triangle"></i></div>
+                        <div>
+                            <div style="font-size:0.65rem; font-weight:900; color:var(--text-muted); text-transform:uppercase;">Expiring</div>
+                            <div style="font-size:1.4rem; font-weight:950;">12</div>
+                        </div>
+                    </div>
+                    <div class="doc-card" style="padding:20px; display:flex; align-items:center; gap:15px; margin:0;">
+                        <div class="folder-icon" style="background:#f0fdf4; color:#10b981;"><i data-lucide="check-circle"></i></div>
+                        <div>
+                            <div style="font-size:0.65rem; font-weight:900; color:var(--text-muted); text-transform:uppercase;">Verified</div>
+                            <div style="font-size:1.4rem; font-weight:950;">94%</div>
+                        </div>
+                    </div>
+                    <div class="doc-card" style="padding:20px; display:flex; align-items:center; gap:15px; margin:0;">
+                        <div class="folder-icon" style="background:#f5f3ff; color:#8b5cf6;"><i data-lucide="clock"></i></div>
+                        <div>
+                            <div style="font-size:0.65rem; font-weight:900; color:var(--text-muted); text-transform:uppercase;">Pending</div>
+                            <div style="font-size:1.4rem; font-weight:950;">28</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Folder Grid -->
+                <div class="grid-folders">
+                    <div class="folder-item">
+                        <div class="folder-icon"><i data-lucide="folder"></i></div>
+                        <div style="font-weight:900; font-size:0.9rem;">Company Policies</div>
+                        <div style="font-size:0.7rem; color:var(--text-muted); font-weight:700;">12 Files</div>
+                    </div>
+                    <div class="folder-item">
+                        <div class="folder-icon" style="background:#fefce8; color:#eab308;"><i data-lucide="briefcase"></i></div>
+                        <div style="font-weight:900; font-size:0.9rem;">Offer Letters</div>
+                        <div style="font-size:0.7rem; color:var(--text-muted); font-weight:700;">450 Files</div>
+                    </div>
+                    <div class="folder-item">
+                        <div class="folder-icon" style="background:#f0fdf4; color:#22c55e;"><i data-lucide="user"></i></div>
+                        <div style="font-weight:900; font-size:0.9rem;">Employee IDs</div>
+                        <div style="font-size:0.7rem; color:var(--text-muted); font-weight:700;">890 Files</div>
+                    </div>
+                    <div class="folder-item">
+                        <div class="folder-icon" style="background:#f5f3ff; color:#8b5cf6;"><i data-lucide="file-signature"></i></div>
+                        <div style="font-weight:900; font-size:0.9rem;">Contracts</div>
+                        <div style="font-size:0.7rem; color:var(--text-muted); font-weight:700;">115 Files</div>
+                    </div>
+                </div>
+
+                <!-- Recent Activity Table -->
+                <div class="doc-card">
+                    <div class="card-header">
+                        <div style="display:flex; align-items:center; gap:12px;">
+                            <h3>Institutional Document Ledger</h3>
+                            <span style="font-size:0.6rem; font-weight:900; background:#f1f5f9; color:#475569; padding:2px 8px; border-radius:10px;">RECENT UPDATES</span>
+                        </div>
+                        <div class="header-utilities">
+                            <button class="btn-doc btn-doc-primary" onclick="alert('Upload Modal Open')">
+                                <i data-lucide="upload" style="width:14px;"></i> UPLOAD DOCUMENT
+                            </button>
+                            <div class="table-search-box" id="overview-search"></div>
+                        </div>
+                    </div>
+                    <div style="padding:15px;">
+                        <table id="recent-docs-table" class="display" style="width:100%">
+                            <thead>
+                                <tr>
+                                    <th>Document Name</th>
+                                    <th>Type</th>
+                                    <th>Employee</th>
+                                    <th>Uploader</th>
+                                    <th>Date</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="recent-docs-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Management Section -->
+            <div id="section-management" class="section-content">
+                <!-- Similar high-density cards for document management -->
+                <div class="doc-card">
+                    <div class="card-header">
+                        <h3>Master Document Directory</h3>
+                        <div class="header-utilities">
+                            <div class="table-search-box" id="master-search"></div>
+                        </div>
+                    </div>
+                    <div style="padding:15px;">
+                        <table id="master-docs-table" class="display" style="width:100%">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Category</th>
+                                    <th>Expiry</th>
+                                    <th>Compliance</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="master-docs-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Templates Section -->
+            <div id="section-templates" class="section-content">
+                 <div class="doc-card">
+                    <div class="card-header">
+                        <h3>Institutional Templates Engine</h3>
+                        <button class="btn-doc btn-doc-primary">CREATE NEW TEMPLATE</button>
+                    </div>
+                    <div style="padding:25px; border-bottom: 1px solid #f8fafc;">
+                        <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:20px;">
+                            <div style="border: 1px solid #f1f5f9; padding:20px; border-radius:15px;">
+                                <div style="font-size:0.7rem; font-weight:900; color:#4D4286; margin-bottom:5px;">HR MODULE</div>
+                                <h4 style="margin:0 0 10px; font-size:1rem;">Standard Offer Letter</h4>
+                                <p style="font-size:0.75rem; color:var(--text-muted);">Dynamic variables for salary, designation & joining date.</p>
+                                <button class="btn-doc" style="margin-top:15px; width:100%; justify-content:center;">EDIT TEMPLATE</button>
+                            </div>
+                            <div style="border: 1px solid #f1f5f9; padding:20px; border-radius:15px;">
+                                <div style="font-size:0.7rem; font-weight:900; color:#4D4286; margin-bottom:5px;">COMPLIANCE</div>
+                                <h4 style="margin:0 0 10px; font-size:1rem;">Confidentiality (NDA)</h4>
+                                <p style="font-size:0.75rem; color:var(--text-muted);">Legal grade non-disclosure agreement for tech hires.</p>
+                                <button class="btn-doc" style="margin-top:15px; width:100%; justify-content:center;">EDIT TEMPLATE</button>
+                            </div>
+                            <div style="border: 1px solid #f1f5f9; padding:20px; border-radius:15px;">
+                                <div style="font-size:0.7rem; font-weight:900; color:#4D4286; margin-bottom:5px;">OPERATIONS</div>
+                                <h4 style="margin:0 0 10px; font-size:1rem;">Relieving Letter</h4>
+                                <p style="font-size:0.75rem; color:var(--text-muted);">Automated generation for exit clearance cycles.</p>
+                                <button class="btn-doc" style="margin-top:15px; width:100%; justify-content:center;">EDIT TEMPLATE</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="documents.js"></script>
+    <script>
+        // Module Tab Logic
+        $('.nav-link').on('click', function() {
+            $('.nav-link').removeClass('active');
+            $(this).addClass('active');
+            const target = $(this).data('target');
+            $('.section-content').removeClass('active-section');
+            $('#' + target).addClass('active-section');
+        });
+        lucide.createIcons();
+    </script>
+</body>
+</html>

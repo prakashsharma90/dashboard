@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recruitment & ATS | Salarite Employer</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- Dependencies -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css">
+    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+    
+    <link rel="stylesheet" href="dashboard-style.css">
+    <style>
+        :root {
+            --ats-primary: #4D4286;
+            --ats-secondary: #6366f1;
+            --ats-bg: #f8fafc;
+            --ats-card: #ffffff;
+            --ats-border: #e2e8f0;
+            --ats-text: #1e293b;
+            --ats-text-muted: #64748b;
+        }
+
+        .main-content { padding: 1rem 1.5rem; max-width: 1600px; margin: 0 auto; width: 100%; height: 100vh; overflow-y: auto; background: var(--ats-bg); }
+        .breadcrumb { font-size: 0.6rem; font-weight: 850; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 4px; display: flex; align-items: center; gap: 4px; }
+        .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+        .page-title { font-size: 1.2rem; font-weight: 950; color: var(--ats-text); margin: 0; display: flex; align-items: center; gap: 10px; letter-spacing: -0.5px; }
+        
+        /* ATS Tabs */
+        .ats-tabs { display: flex; gap: 16px; border-bottom: 1px solid var(--ats-border); margin-bottom: 1.25rem; }
+        .ats-tab { padding: 8px 2px; font-weight: 850; font-size: 0.75rem; color: var(--ats-text-muted); cursor: pointer; border-bottom: 3px solid transparent; transition: all 0.2s; white-space: nowrap; display: flex; align-items: center; gap: 6px; position: relative; }
+        .ats-tab:hover { color: var(--ats-primary); }
+        .ats-tab.active { color: var(--ats-primary); border-bottom-color: var(--ats-primary); }
+        .ats-tab.active::after { content: ''; position: absolute; bottom: -3px; left: 0; right: 0; height: 3px; background: var(--ats-primary); border-radius: 3px 3px 0 0; }
+ 
+        /* Dashboard Stats (Hierarchical) */
+        .ats-stats { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 12px; margin-bottom: 1.25rem; }
+        .stat-card { background: white; padding: 12px; border-radius: 14px; border: 1px solid var(--ats-border); display: flex; flex-direction: column; gap: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.01); transition: all 0.3s; position: relative; overflow: hidden; }
+        .stat-card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,0.04); border-color: var(--ats-primary); }
+        .stat-card.highlight { background: linear-gradient(135deg, #4D4286, #6366f1); color: white; border: none; }
+        .stat-card.highlight .value, .stat-card.highlight .stat-info h4 { color: white; }
+        .stat-card.highlight .stat-icon { background: rgba(255,255,255,0.2); color: white; }
+        .stat-card .stat-top { display: flex; align-items: center; justify-content: space-between; }
+        .stat-icon { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 0.9rem; }
+        .stat-icon.blue { background: #eff6ff; color: #2563eb; }
+        .stat-icon.green { background: #ecfdf5; color: #10b981; }
+        .stat-icon.orange { background: #fffbeb; color: #d97706; }
+        .stat-info h4 { margin: 0; font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.6px; color: var(--ats-text-muted); font-weight: 900; }
+        .stat-info .value { font-size: 1.25rem; font-weight: 950; color: var(--ats-text); margin-top: 2px; line-height: 1.1; }
+        .stat-trend { font-size: 0.6rem; font-weight: 900; display: flex; align-items: center; gap: 3px; padding: 2px 8px; border-radius: 30px; background: #f1f5f9; width: fit-content; }
+        .stat-trend.up { background: #d1fae5; color: #065f46; }
+        .stat-card.highlight .stat-trend.up { background: rgba(255,255,255,0.2); color: white; }
+        .stat-cta { font-size: 0.6rem; font-weight: 900; color: var(--ats-primary); text-decoration: none; display: flex; align-items: center; gap: 4px; margin-top: 2px; opacity: 0.8; transition: 0.2s; cursor: pointer; }
+        .stat-card.highlight .stat-cta { color: white; font-weight: 600; opacity: 1; }
+        .stat-cta:hover { opacity: 1; text-decoration: underline; }
+
+        /* Kanban Board */
+        .kanban-board { display: flex; gap: 20px; overflow-x: auto; padding-bottom: 20px; min-height: 75vh; }
+        .kanban-col { background: #f8fafc; border-radius: 20px; width: 320px; min-width: 320px; display: flex; flex-direction: column; overflow: hidden; border: 1px solid #e2e8f0; transition: background 0.2s; }
+        .kanban-col:hover { background: #f1f5f9; }
+        .kanban-header { padding: 18px 20px; display: flex; justify-content: space-between; align-items: center; background: white; border-bottom: 1px solid #e2e8f0; }
+        .kanban-title-box { display: flex; flex-direction: column; gap: 4px; }
+        .kanban-header h3 { font-size: 0.8rem; font-weight: 850; text-transform: uppercase; letter-spacing: 0.6px; margin: 0; color: var(--ats-text); }
+        .kanban-conversion { font-size: 0.65rem; font-weight: 700; color: #94a3b8; }
+        .kanban-count { background: #f1f5f9; color: #64748b; font-size: 0.7rem; font-weight: 800; padding: 4px 10px; border-radius: 10px; }
+        
+        .kanban-list { flex: 1; padding: 8px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; min-height: 100px; }
+        .kanban-empty { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; text-align: center; color: #94a3b8; padding: 30px 15px; }
+        .kanban-empty i { width: 32px; height: 32px; margin-bottom: 10px; opacity: 0.5; }
+        .kanban-empty p { font-size: 0.75rem; font-weight: 600; margin-top: 0; }
+        .kanban-empty .cta { font-size: 0.7rem; color: var(--ats-primary); font-weight: 800; cursor: pointer; margin-top: 6px; }
+
+        /* Candidate Card (Ultra-Compact) */
+        .candidate-card { background: white; border-radius: 12px; padding: 12px; border: 1px solid #e2e8f0; cursor: grab; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 2px 4px rgba(0,0,0,0.01); }
+        .candidate-card:active { cursor: grabbing; transform: scale(0.98); }
+        .candidate-card:hover { box-shadow: 0 10px 20px rgba(0,0,0,0.06); border-color: var(--ats-primary); transform: translateY(-2px); }
+        .candidate-card-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+        .candidate-info { display: flex; align-items: center; gap: 10px; }
+        .candidate-avatar { width: 34px; height: 34px; border-radius: 8px; object-fit: cover; background: #f1f5f9; display: flex; align-items: center; justify-content: center; font-weight: 950; color: #4D4286; font-size: 0.85rem; border: 1px solid #e2e8f0; flex-shrink: 0; }
+        .candidate-details h4 { font-size: 0.8rem; font-weight: 900; color: var(--ats-text); margin: 0; letter-spacing: -0.2px; line-height: 1.1; }
+        .candidate-details p { font-size: 0.65rem; color: var(--ats-text-muted); margin: 2px 0 0; font-weight: 700; }
+        
+        .card-tag { font-size: 0.55rem; font-weight: 900; padding: 1px 6px; border-radius: 4px; background: #f1f5f9; color: #64748b; letter-spacing: 0.3px; }
+        .card-tag.hot { background: #fef2f2; color: #ef4444; }
+        .card-tag.referred { background: #f0f9ff; color: #0369a1; }
+ 
+        .candidate-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 10px 0; padding: 8px 0; border-top: 1px dotted #f1f5f9; border-bottom: 1px dotted #f1f5f9; }
+        .c-stat-box { display: flex; flex-direction: column; gap: 1px; }
+        .c-stat-box span { font-size: 0.55rem; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.2px; }
+        .c-stat-box b { font-size: 0.7rem; font-weight: 900; color: var(--ats-text); }
+ 
+        .skill-chips { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 10px; }
+        .skill-chip { font-size: 0.6rem; font-weight: 800; padding: 2px 8px; border-radius: 6px; background: #f8fafc; color: #4D4286; border: 1px solid #e2e8f0; }
+ 
+        .candidate-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 8px; }
+        .preview-btn { font-size: 0.65rem; font-weight: 900; color: var(--ats-primary); background: var(--ats-soft); padding: 4px 10px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 4px; transition: 0.2s; border: 1px solid transparent; }
+        .preview-btn:hover { background: var(--ats-primary); color: white; }
+        .time-ago { font-size: 0.6rem; color: #94a3b8; font-weight: 700; display: flex; align-items: center; gap: 3px; }
+
+        /* UI Helpers */
+        .ai-match-badge { height: 32px; background: linear-gradient(135deg, #7c3aed, #4f46e5); color: white; font-size: 0.65rem; font-weight: 900; padding: 0 12px; border-radius: 8px; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 4px 10px rgba(124, 58, 237, 0.2); }
+        .btn-ats { border: none; border-radius: 8px; padding: 6px 14px; font-weight: 850; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; font-size: 0.75rem; transition: 0.2s; }
+        .btn-ats-primary { background: var(--ats-primary); color: white; box-shadow: 0 4px 12px rgba(77, 66, 134, 0.2); }
+        .btn-ats-primary:hover { background: #3b3268; transform: translateY(-1px); }
+        
+        /* Sections */
+        .section-content { display: none; }
+        .section-content.active { display: block; animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+ 
+        /* Job Card */
+        .job-card { background: white; border-radius: 16px; border: 1px solid var(--ats-border); padding: 16px 20px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; transition: 0.2s; }
+        .job-card:hover { border-color: var(--ats-primary); box-shadow: 0 8px 16px rgba(0,0,0,0.02); }
+        .job-main { display: flex; align-items: center; gap: 16px; }
+        .job-icon { width: 44px; height: 44px; background: #f5f3ff; color: #4D4286; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; }
+        .job-title-group h3 { font-size: 0.95rem; font-weight: 850; color: var(--ats-text); margin: 0; }
+        .job-title-group p { font-size: 0.75rem; color: var(--ats-text-muted); margin: 2px 0 8px; font-weight: 600; }
+        .job-tags { display: flex; gap: 8px; }
+        .job-stats { display: flex; gap: 32px; text-align: right; }
+        .job-stat-box h5 { font-size: 1.1rem; font-weight: 900; color: var(--ats-text); margin: 0; }
+        .job-stat-box p { font-size: 0.65rem; color: var(--ats-text-muted); text-transform: uppercase; margin: 2px 0 0; font-weight: 800; letter-spacing: 0.4px; }
+ 
+        /* Advanced Filtering Bar */
+        .ats-filter-bar { background: white; border-radius: 14px; padding: 10px 16px; margin-bottom: 1.5rem; border: 1px solid var(--ats-border); display: flex; align-items: center; gap: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.01); min-height: 60px; }
+        .search-input { width: 320px; position: relative; display: flex; align-items: center; }
+        .search-input i { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #94a3b8; width: 16px; height: 16px; pointer-events: none; stroke-width: 2.5px; z-index: 5; }
+        .search-input input { width: 100%; height: 38px; padding: 0 14px 0 42px; border: 1px solid #e2e8f0; border-radius: 10px; font-family: inherit; font-size: 0.8rem; outline: none; transition: 0.2s; background: #f8fafc; line-height: 38px; }
+        .search-input input:focus { border-color: var(--ats-primary); background: white; box-shadow: 0 0 0 4px rgba(77, 66, 134, 0.05); }
+        .filter-select { height: 38px; padding: 0 12px; border: 1px solid #e2e8f0; border-radius: 10px; font-family: inherit; font-size: 0.8rem; color: #475569; outline: none; background: white; cursor: pointer; transition: 0.2s; }
+        .filter-select:hover { border-color: #cbd5e1; background: #f8fafc; }
+
+        /* Modal Layout */
+        .modal-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(8px); z-index: 2000; display: none; align-items: center; justify-content: center; padding: 40px; }
+        .modal-container { background: white; border-radius: 24px; width: 900px; max-width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); }
+        .modal-header { padding: 24px 32px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; background: white; z-index: 10; }
+        .modal-body { padding: 32px; }
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+        .form-full { grid-column: span 2; }
+    </style>
+</head>
+<body>
+    <div class="dashboard-wrapper">
+        <div id="sidebar-placeholder"></div>
+        <script src="employer-sidebar.js"></script>
+
+        <main class="main-content">
+            <!-- Priority Alert Banner -->
+            <div id="priority-alert" style="background: #fff7ed; border: 1px solid #ffedd5; border-radius: 12px; padding: 6px 12px; margin-bottom: 14px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 4px 12px rgba(0,0,0,0.01);">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <div style="width: 24px; height: 24px; background: #fbbf24; color: white; border-radius: 6px; display: flex; align-items: center; justify-content: center; animation: pulse 2s infinite;">
+                        <i data-lucide="bell" style="width: 12px;"></i>
+                    </div>
+                    <div>
+                        <b style="font-size: 0.7rem; color: #92400e; font-weight: 900;">Priority Action Required</b>
+                        <p style="font-size: 0.6rem; color: #b45309; margin: 0; font-weight: 700;">Interview with <b>Sarah Wilson</b> in 30 minutes.</p>
+                    </div>
+                </div>
+                <div style="display: flex; gap: 6px;">
+                    <button class="btn-ats-primary" style="padding: 4px 10px; font-size: 0.65rem; border-radius: 6px;">Join Zoom</button>
+                    <button onclick="$('#priority-alert').fadeOut()" style="background: transparent; border: none; color: #92400e; cursor: pointer;"><i data-lucide="x" style="width: 12px;"></i></button>
+                </div>
+            </div>
+
+            <div class="breadcrumb">Recruitment Hub <i data-lucide="chevron-right" style="width:10px;"></i> <span id="active-breadcrumb">Hiring Pipeline</span></div>
+            <div class="page-header">
+                <div class="page-title">
+                    <div style="background: var(--ats-primary); color: white; padding: 10px; border-radius: 12px; display: flex; box-shadow: 0 4px 12px rgba(77, 66, 134, 0.2);">
+                        <i data-lucide="briefcase" style="width: 20px; height: 20px;"></i>
+                    </div>
+                    Recruitment Hub
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <button class="btn-ats btn-ats-primary" onclick="openJobModal()">
+                        <i data-lucide="plus-circle" style="width: 14px;"></i> Create New Opening
+                    </button>
+                    <button class="btn-ats" style="background: white; border: 1px solid #e2e8f0;">
+                        <i data-lucide="file-text" style="width: 14px;"></i> Detailed Insights
+                    </button>
+                </div>
+            </div>
+
+            <div class="ats-stats">
+                <div class="stat-card highlight">
+                    <div class="stat-top">
+                        <div class="stat-icon"><i data-lucide="award"></i></div>
+                        <div class="stat-trend up"><i data-lucide="arrow-up-right"></i> +12%</div>
+                    </div>
+                    <div class="stat-info">
+                        <h4>Hired This Month</h4>
+                        <div class="value" id="stat-hired">24</div>
+                        <p class="stat-cta">View All Hires <i data-lucide="chevron-right"></i></p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-top">
+                        <div class="stat-icon blue"><i data-lucide="database"></i></div>
+                    </div>
+                    <div class="stat-info">
+                        <h4>Open Positions</h4>
+                        <div class="value" id="stat-open-jobs">12</div>
+                        <p class="stat-cta" onclick="switchSection('jobs')">Manage Openings <i data-lucide="chevron-right"></i></p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-top">
+                        <div class="stat-icon purple"><i data-lucide="users"></i></div>
+                    </div>
+                    <div class="stat-info">
+                        <h4>Total Applicants</h4>
+                        <div class="value" id="stat-applicants">438</div>
+                        <p class="stat-cta" onclick="switchSection('candidates')">Review Database <i data-lucide="chevron-right"></i></p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-top">
+                        <div class="stat-icon orange"><i data-lucide="calendar"></i></div>
+                    </div>
+                    <div class="stat-info">
+                        <h4>Scheduled Today</h4>
+                        <div class="value" id="stat-interviews">8</div>
+                        <p class="stat-cta" onclick="switchSection('interviews')">View Schedule <i data-lucide="chevron-right"></i></p>
+                    </div>
+                </div>
+            </div>
+
+            <nav class="ats-tabs">
+                <div class="ats-tab active" data-section="pipeline"><i data-lucide="layout"></i> Hiring Pipeline</div>
+                <div class="ats-tab" data-section="jobs"><i data-lucide="briefcase"></i> Job Management</div>
+                <div class="ats-tab" data-section="candidates"><i data-lucide="user-search"></i> Talent Pool</div>
+                <div class="ats-tab" data-section="interviews"><i data-lucide="video"></i> Interviews</div>
+                <div class="ats-tab" data-section="analytics"><i data-lucide="bar-chart-3"></i> Reports & AI Insights</div>
+            </nav>
+
+            <!-- SECTION: PIPELINE -->
+            <div id="section-pipeline" class="section-content active">
+                <div class="ats-filter-bar">
+                    <div class="search-input">
+                        <i data-lucide="search"></i>
+                        <input type="text" placeholder="Search candidates...">
+                    </div>
+                    <div style="display: flex; gap: 10px; align-items: center;">
+                        <button class="btn-ats" style="background: white; border: 1px solid #e2e8f0; padding: 0 18px; height: 46px; border-radius: 12px;">
+                            <i data-lucide="sliders-horizontal" style="width: 18px;"></i> Filters
+                        </button>
+                        <select class="filter-select">
+                            <option value="">All Job Openings</option>
+                            <option>Senior React Developer</option>
+                            <option>HR Manager</option>
+                            <option>Product Designer</option>
+                        </select>
+                    </div>
+                    <div class="ai-match-badge" style="margin-left: auto; height: 46px; cursor: help;" title="AI Algorithm ranks candidates based on Skills (80%), Experience (70%), and Location (90%) relative to the Job Description.">
+                        <i data-lucide="zap"></i> AI Skill Match: On
+                    </div>
+                </div>
+
+                <div class="kanban-board" id="kanban-board">
+                    <!-- Applied -->
+                    <div class="kanban-col">
+                        <div class="kanban-header">
+                            <div class="kanban-title-box">
+                                <h3>Applied</h3>
+                                <div class="kanban-conversion">100% Volume</div>
+                            </div>
+                            <span class="kanban-count">24</span>
+                        </div>
+                        <div class="kanban-list" id="stage-applied">
+                        </div>
+                    </div>
+                    <!-- Screening -->
+                    <div class="kanban-col">
+                        <div class="kanban-header">
+                            <div class="kanban-title-box">
+                                <h3>Screening</h3>
+                                <div class="kanban-conversion">62% Match Rate</div>
+                            </div>
+                            <span class="kanban-count">12</span>
+                        </div>
+                        <div class="kanban-list" id="stage-screening"></div>
+                    </div>
+                    <!-- Shortlisted -->
+                    <div class="kanban-col">
+                        <div class="kanban-header">
+                            <div class="kanban-title-box">
+                                <h3>Shortlisted</h3>
+                                <div class="kanban-conversion">24% Quality Rate</div>
+                            </div>
+                            <span class="kanban-count">8</span>
+                        </div>
+                        <div class="kanban-list" id="stage-shortlisted"></div>
+                    </div>
+                    <!-- Interview Scheduled -->
+                    <div class="kanban-col">
+                        <div class="kanban-header">
+                            <div class="kanban-title-box">
+                                <h3>Interviews</h3>
+                                <div class="kanban-conversion">15% Engagement</div>
+                            </div>
+                            <span class="kanban-count">5</span>
+                        </div>
+                        <div class="kanban-list" id="stage-interview-scheduled"></div>
+                    </div>
+                    <!-- Selected -->
+                    <div class="kanban-col">
+                        <div class="kanban-header">
+                            <div class="kanban-title-box">
+                                <h3>Selected / Offering</h3>
+                                <div class="kanban-conversion">8% Conversion</div>
+                            </div>
+                            <span class="kanban-count">3</span>
+                        </div>
+                        <div class="kanban-list" id="stage-selected">
+                             <div class="kanban-empty">
+                                <i data-lucide="user-check"></i>
+                                <p>No candidates selected yet</p>
+                                <span class="cta">Review Interviewed</span>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Hired -->
+                    <div class="kanban-col">
+                        <div class="kanban-header" style="border-bottom-color: #10b981;">
+                            <div class="kanban-title-box">
+                                <h3 style="color: #10b981;">Hired</h3>
+                                <div class="kanban-conversion" style="color: #10b981;">3% Total Success</div>
+                            </div>
+                            <span class="kanban-count" style="background: #ecfdf5; color: #10b981;">1</span>
+                        </div>
+                        <div class="kanban-list" id="stage-hired"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECTION: JOBS -->
+            <div id="section-jobs" class="section-content">
+                <div class="ats-filter-bar">
+                    <div class="search-input">
+                        <i data-lucide="search"></i>
+                        <input type="text" placeholder="Search job titles...">
+                    </div>
+                    <select class="filter-select">
+                        <option>Status: All</option>
+                        <option>Status: Open</option>
+                        <option>Status: Closed</option>
+                        <option>Status: Draft</option>
+                    </select>
+                </div>
+                <div id="job-list-container">
+                    <!-- Jobs will be populated here -->
+                </div>
+            </div>
+
+            <!-- SECTION: CANDIDATES -->
+            <div id="section-candidates" class="section-content">
+                 <div class="panel" style="background: white; border-radius: 20px; padding: 24px; border: 1px solid var(--ats-border);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                        <h3 style="margin: 0;">Talent Pool Database</h3>
+                        <div style="display: flex; gap: 12px;">
+                            <button class="btn-ats" style="background: #f1f5f9; color: #475569; padding: 8px 16px; font-size: 0.8rem;">
+                                <i data-lucide="mail"></i> Bulk Email
+                            </button>
+                            <button class="btn-ats" style="background: #f1f5f9; color: #475569; padding: 8px 16px; font-size: 0.8rem;">
+                                <i data-lucide="download"></i> Export Pool
+                            </button>
+                        </div>
+                    </div>
+                    <table id="candidates-table" class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Candidate</th>
+                                <th>Applied For</th>
+                                <th>Experience</th>
+                                <th>Skills</th>
+                                <th>AI Score</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="candidates-table-body">
+                            <!-- Populated by JS -->
+                        </tbody>
+                    </table>
+                 </div>
+            </div>
+
+            <!-- SECTION: INTERVIEWS -->
+            <div id="section-interviews" class="section-content">
+                <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 24px;">
+                    <div class="panel" style="background: white; border-radius: 20px; padding: 24px; border: 1px solid var(--ats-border);">
+                        <h3 style="margin-bottom: 2rem;">Today's Interviews</h3>
+                        <div id="interviews-container" style="display: flex; flex-direction: column; gap: 16px;"></div>
+                    </div>
+                    <div class="panel" style="background: white; border-radius: 20px; padding: 24px; border: 1px solid var(--ats-border);">
+                        <h3>Calendar Sync</h3>
+                        <p style="color: var(--ats-text-muted); font-size: 0.85rem; margin-top: 12px;">Google Calendar & Outlook Integrated</p>
+                        <div style="width: 100%; height: 300px; background: #f8fafc; border-radius: 12px; margin-top: 20px; display: flex; align-items: center; justify-content: center; color: #94a3b8; flex-direction: column; gap: 10px;">
+                            <i data-lucide="calendar" style="width: 48px; height: 48px;"></i>
+                            <span>Mini Calendar View</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECTION: ANALYTICS -->
+            <div id="section-analytics" class="section-content">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+                     <div class="panel" style="background: white; border-radius: 20px; padding: 32px; border: 1px solid var(--ats-border);">
+                         <h3 style="margin-bottom: 24px;">Hiring Velocity</h3>
+                         <div style="height: 300px; background: #f8fafc; border-radius: 16px; display: flex; align-items: flex-end; padding: 20px; gap: 20px;">
+                            <div style="flex: 1; height: 30%; background: #2563eb; border-radius: 8px;"></div>
+                            <div style="flex: 1; height: 50%; background: #2563eb; border-radius: 8px;"></div>
+                            <div style="flex: 1; height: 80%; background: #2563eb; border-radius: 8px;"></div>
+                            <div style="flex: 1; height: 60%; background: #2563eb; border-radius: 8px;"></div>
+                            <div style="flex: 1; height: 90%; background: #2563eb; border-radius: 8px;"></div>
+                         </div>
+                     </div>
+                     <div class="panel" style="background: #4D4286; border-radius: 24px; padding: 32px; color: white;">
+                         <h3 style="color: white; margin-bottom: 12px; display: flex; align-items: center; gap: 12px;">
+                            <i data-lucide="zap"></i> Salarite AI Recruiter
+                         </h3>
+                         <p style="color: rgba(255,255,255,0.8); font-size: 0.9rem; margin-bottom: 24px;">Based on your current pipeline, John Doe is 94% match for the Senior React Role. Recommended to prioritize interview.</p>
+                         <div style="background: rgba(255,255,255,0.1); border-radius: 16px; padding: 20px;">
+                             <h4 style="font-size: 0.85rem; margin-bottom: 12px; color: rgba(255,255,255,0.7);">AI Insights Today:</h4>
+                             <ul style="list-style: none; padding: 0; display: flex; flex-direction: column; gap: 10px;">
+                                 <li style="font-size: 0.8rem; display: flex; align-items: center; gap: 10px;"><i data-lucide="check" style="width: 14px;"></i> 12 Resumes parsed automatically.</li>
+                                 <li style="font-size: 0.8rem; display: flex; align-items: center; gap: 10px;"><i data-lucide="check" style="width: 14px;"></i> 5 Candidates flagged for "Skills Drift".</li>
+                                 <li style="font-size: 0.8rem; display: flex; align-items: center; gap: 10px;"><i data-lucide="check" style="width: 14px;"></i> Prediction: Average Time-to-Hire is 12 days.</li>
+                             </ul>
+                         </div>
+                     </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Floating AI Chatbot -->
+    <div style="position: fixed; bottom: 30px; right: 30px; z-index: 3000;">
+        <button id="ai-assistant-btn" style="width: 64px; height: 64px; border-radius: 20px; background: linear-gradient(135deg, #4D4286, #6366f1); border: none; color: white; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 10px 25px rgba(77, 66, 134, 0.4); transition: transform 0.2s;">
+            <i data-lucide="sparkles" style="width: 32px; height: 32px;"></i>
+        </button>
+        <div id="ai-chat-bubble" style="display: none; position: absolute; bottom: 85px; right: 0; width: 350px; background: white; border-radius: 24px; box-shadow: 0 20px 40px rgba(0,0,0,0.2); border: 1px solid #e2e8f0; overflow: hidden; flex-direction: column;">
+            <div style="background: var(--ats-primary); padding: 20px; color: white; display: flex; justify-content: space-between; align-items: center;">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <i data-lucide="zap" style="width: 20px;"></i>
+                    <h4 style="margin: 0;">Salarite AI Assistant</h4>
+                </div>
+                <button onclick="$('#ai-chat-bubble').hide()" style="background: transparent; border: none; color: white; cursor: pointer;"><i data-lucide="x" style="width: 16px;"></i></button>
+            </div>
+            <div style="padding: 20px; height: 300px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px;" id="ai-chat-messages">
+                <div style="background: #f1f5f9; padding: 12px 16px; border-radius: 16px 16px 16px 4px; font-size: 0.85rem; max-width: 85%; align-self: flex-start; color: #1e293b;">
+                    Hello! I'm your AI recruiter. Ask me anything about your current pipeline or candidates.
+                </div>
+                <div style="background: #f1f5f9; padding: 12px 16px; border-radius: 16px 16px 16px 4px; font-size: 0.85rem; max-width: 85%; align-self: flex-start; color: #1e293b;">
+                    Try: "Summarize top candidates for Senior React Developer"
+                </div>
+            </div>
+            <div style="padding: 16px; border-top: 1px solid #e2e8f0; display: flex; gap: 10px;">
+                <input type="text" placeholder="Ask AI..." style="flex: 1; padding: 10px 14px; border: 1px solid #e2e8f0; border-radius: 12px; font-family: inherit; font-size: 0.85rem; outline: none;">
+                <button style="background: var(--ats-primary); color: white; border: none; padding: 8px; border-radius: 10px; cursor: pointer;"><i data-lucide="send" style="width: 18px;"></i></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: CREATE JOB -->
+    <div class="modal-overlay" id="job-modal">
+        <div class="modal-container">
+            <div class="modal-header">
+                <div>
+                    <h2 id="job-modal-title">Create New Job Opening</h2>
+                    <p style="color: #64748b; font-size: 0.85rem; margin-top: 4px;">Fill in the details to publish your job posting.</p>
+                </div>
+                <button onclick="closeJobModal()" style="background: none; border: none; cursor: pointer;"><i data-lucide="x"></i></button>
+            </div>
+            <div class="modal-body">
+                <form id="job-form">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label style="display: block; font-size: 0.8rem; font-weight: 700; color: #64748b; margin-bottom: 8px;">Job Title</label>
+                            <input type="text" id="job-title" class="form-input" required placeholder="e.g. Senior Software Engineer">
+                        </div>
+                        <div class="form-group">
+                            <label style="display: block; font-size: 0.8rem; font-weight: 700; color: #64748b; margin-bottom: 8px;">Department</label>
+                            <select id="job-dept" class="form-input">
+                                <option>Engineering</option>
+                                <option>Product</option>
+                                <option>Design</option>
+                                <option>Marketing</option>
+                                <option>Sales</option>
+                                <option>HR</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label style="display: block; font-size: 0.8rem; font-weight: 700; color: #64748b; margin-bottom: 8px;">Location</label>
+                            <select id="job-location" class="form-input">
+                                <option>Remote</option>
+                                <option>Onsite</option>
+                                <option>Hybrid</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label style="display: block; font-size: 0.8rem; font-weight: 700; color: #64748b; margin-bottom: 8px;">Employment Type</label>
+                            <select id="job-type" class="form-input">
+                                <option>Full-time</option>
+                                <option>Part-time</option>
+                                <option>Internship</option>
+                                <option>Contract</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label style="display: block; font-size: 0.8rem; font-weight: 700; color: #64748b; margin-bottom: 8px;">Experience Required</label>
+                            <input type="text" id="job-exp" class="form-input" placeholder="e.g. 3-5 Years">
+                        </div>
+                        <div class="form-group">
+                            <label style="display: block; font-size: 0.8rem; font-weight: 700; color: #64748b; margin-bottom: 8px;">Salary Range</label>
+                            <input type="text" id="job-salary" class="form-input" placeholder="e.g. $80k - $120k">
+                        </div>
+                        <div class="form-group form-full">
+                            <label style="display: block; font-size: 0.8rem; font-weight: 700; color: #64748b; margin-bottom: 8px;">Job Description & Required Skills</label>
+                            <textarea id="job-desc" class="form-input" style="height: 120px;" placeholder="Describe the role, responsibilities and skills required..."></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label style="display: block; font-size: 0.8rem; font-weight: 700; color: #64748b; margin-bottom: 8px;">Number of Openings</label>
+                            <input type="number" id="job-openings" class="form-input" value="1">
+                        </div>
+                        <div class="form-group">
+                            <label style="display: block; font-size: 0.8rem; font-weight: 700; color: #64748b; margin-bottom: 8px;">Application Deadline</label>
+                            <input type="date" id="job-deadline" class="form-input">
+                        </div>
+                    </div>
+                    <div style="margin-top: 32px; display: flex; justify-content: flex-end; gap: 16px;">
+                        <button type="button" class="btn-ats" onclick="closeJobModal()" style="background: white; border: 1px solid #e2e8f0;">Cancel</button>
+                        <button type="submit" class="btn-ats btn-ats-primary">Publish Job Opening</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: CANDIDATE DETAILS -->
+    <div class="modal-overlay" id="candidate-modal">
+        <div class="modal-container" style="width: 700px;">
+            <div class="modal-header">
+                <h2 id="candidate-modal-title">Candidate Details</h2>
+                <button onclick="closeCandidateModal()" style="background: none; border: none; cursor: pointer;"><i data-lucide="x"></i></button>
+            </div>
+            <div class="modal-body" id="candidate-modal-content">
+                <!-- Dynamically filled -->
+            </div>
+            <div class="modal-footer" style="padding: 24px 32px; border-top: 1px solid #e2e8f0; display: flex; justify-content: flex-end; gap: 12px;">
+                <button class="btn-ats" style="background: #fee2e2; color: #ef4444;" onclick="updateCandidateStatus('Rejected')">Reject</button>
+                <button class="btn-ats" style="background: #ecfdf5; color: #10b981;" onclick="updateCandidateStatus('Shortlisted')">Shortlist</button>
+                <button class="btn-ats btn-ats-primary" onclick="openScheduleModal()">Schedule Interview</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="recruitment.js"></script>
+    <script>
+        $(document).ready(function() {
+            lucide.createIcons();
+            
+            // Tab Switcher
+            $('.ats-tab').click(function() {
+                const section = $(this).data('section');
+                $('.ats-tab').removeClass('active');
+                $(this).addClass('active');
+                $('.section-content').removeClass('active');
+                $(`#section-${section}`).addClass('active');
+                
+                // Re-init icons for the new section
+                lucide.createIcons();
+            });
+        });
+
+        function openJobModal() {
+            $('#job-modal').css('display', 'flex');
+        }
+        function closeJobModal() {
+            $('#job-modal').hide();
+        }
+    </script>
+</body>
+</html>

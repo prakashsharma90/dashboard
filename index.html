@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Salarite — HR & Payroll Management Platform</title>
+    <meta name="description" content="Salarite is a next-generation HR, Payroll, and Employee Engagement platform for growing businesses. Access Employee, Employer, and Virtual HR dashboards.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="/" class="nav-brand">
+                <span class="brand-icon">S</span>
+                <span class="brand-text">Salarite</span>
+            </a>
+            <div class="nav-links">
+                <a href="#dashboards">Products</a>
+                <a href="#features">Features</a>
+                <a href="#" class="nav-cta">Get Started</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="hero-container">
+            <div class="hero-badge">🚀 Now Available — Employee Self-Service Portal</div>
+            <h1>Modern HR & Payroll<br>for Growing Teams.</h1>
+            <p class="hero-subtitle">Streamline attendance, payroll, leave management, and employee engagement — all in one intelligent platform built for India's SMEs.</p>
+            <div class="hero-actions">
+                <a href="login.html" class="btn-primary">Open Employee Portal →</a>
+                <a href="#dashboards" class="btn-ghost">Explore Modules</a>
+            </div>
+            <div class="hero-stats">
+                <div class="stat"><span class="stat-value">2,500+</span><span class="stat-label">Employees Managed</span></div>
+                <div class="stat-divider"></div>
+                <div class="stat"><span class="stat-value">99.9%</span><span class="stat-label">Uptime SLA</span></div>
+                <div class="stat-divider"></div>
+                <div class="stat"><span class="stat-value">₹0</span><span class="stat-label">Setup Fee</span></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Dashboards -->
+    <section id="dashboards" class="dashboards-section">
+        <div class="section-container">
+            <div class="section-header">
+                <span class="section-tag">Dashboards</span>
+                <h2>Three Portals. One Platform.</h2>
+                <p>Role-based access for employees, employers, and your virtual HR assistant.</p>
+            </div>
+            <div class="dashboard-grid">
+                <a href="login.html" class="dash-card active-card" id="btn-employee">
+                    <div class="dash-icon" style="background: linear-gradient(135deg, #4D4286, #6b5fad);">
+                        <svg width="28" height="28" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                    </div>
+                    <h3>Employee Dashboard</h3>
+                    <p>Self-service portal: Profile, Attendance, Payslips, Leave, Tasks, Documents, and Help Desk.</p>
+                    <ul class="dash-features">
+                        <li>✓ Real-time Clock In/Out</li>
+                        <li>✓ Download Payslips</li>
+                        <li>✓ Apply Leave in 1 Click</li>
+                    </ul>
+                    <span class="dash-cta">Launch Dashboard →</span>
+                </a>
+
+                <a href="employer-dashboard.html" class="dash-card active-card" id="btn-employer" style="text-decoration: none;">
+                    <div class="dash-icon" style="background: linear-gradient(135deg, #f59e0b, #f97316);">
+                        <svg width="28" height="28" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+                    </div>
+                    <h3 style="color:var(--text-main);">Employer Dashboard</h3>
+                    <p style="color:var(--text-muted);">Full management suite: Team tracking, Payroll approval, Policy settings & Analytics.</p>
+                    <ul class="dash-features" style="color:var(--text-muted);">
+                        <li>✓ Payroll Processing</li>
+                        <li>✓ Team Analytics</li>
+                        <li>✓ Policy Management</li>
+                    </ul>
+                    <span class="dash-cta">Launch Dashboard →</span>
+                </a>
+
+                <div class="dash-card disabled-card" id="btn-virtual-hr">
+                    <div class="dash-icon" style="background: linear-gradient(135deg, #10b981, #06b6d4);">
+                        <svg width="28" height="28" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
+                    </div>
+                    <h3>Virtual HR</h3>
+                    <p>AI-powered assistant: Policy chatbot, Automated reviews, Dispute resolution & Onboarding.</p>
+                    <ul class="dash-features">
+                        <li>◈ AI HR Chatbot</li>
+                        <li>◈ Auto Reviews</li>
+                        <li>◈ Smart Onboarding</li>
+                    </ul>
+                    <span class="dash-status">In Development</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="features-section">
+        <div class="section-container">
+            <div class="section-header">
+                <span class="section-tag">Features</span>
+                <h2>Everything Your HR Team Needs.</h2>
+            </div>
+            <div class="features-grid">
+                <div class="feature-item"><div class="fi-icon">⏱️</div><h4>Attendance Tracking</h4><p>GPS & IP-based check-in with real-time shift monitoring.</p></div>
+                <div class="feature-item"><div class="fi-icon">📅</div><h4>Leave Management</h4><p>1-click leave application with auto balance computation.</p></div>
+                <div class="feature-item"><div class="fi-icon">💰</div><h4>Payroll & Payslips</h4><p>Auto salary computation, TDS, PF deductions & PDF payslips.</p></div>
+                <div class="feature-item"><div class="fi-icon">📊</div><h4>Performance Reviews</h4><p>KRA-based appraisals with 360° feedback & rating history.</p></div>
+                <div class="feature-item"><div class="fi-icon">📁</div><h4>Document Vault</h4><p>Secure storage for offer letters, ID proofs & contracts.</p></div>
+                <div class="feature-item"><div class="fi-icon">🎫</div><h4>Help Desk</h4><p>Ticketing system for HR, IT, and payroll queries.</p></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+        <div class="section-container">
+            <div class="footer-inner">
+                <div class="footer-brand">
+                    <span class="brand-icon">S</span>
+                    <span>Salarite</span>
+                </div>
+                <p>&copy; 2026 Salarite Solutions Pvt. Ltd. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="main.js"></script>
+</body>
+</html>
