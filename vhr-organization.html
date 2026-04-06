@@ -1,0 +1,329 @@
+<div id="company-profile" class="sub-view">
+    <style>
+        .vhr-organization-profile {
+            background-color: transparent;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .panel-card {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+            border: 1px solid #e2e8f0;
+            margin-bottom: 2rem;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 0.75rem;
+            font-weight: 800;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 10px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            font-family: inherit;
+            font-size: 0.95rem;
+            transition: 0.2s;
+            box-sizing: border-box;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #554994;
+            box-shadow: 0 0 0 4px rgba(85, 73, 148, 0.08);
+        }
+
+        .btn-save {
+            background: #554994;
+            color: white;
+            border: none;
+            padding: 14px 28px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: 0.2s;
+            box-shadow: 0 4px 12px rgba(85, 73, 148, 0.2);
+        }
+
+        .btn-save:hover {
+            background: #3b3268;
+            transform: translateY(-1px);
+        }
+
+        .section-h {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 800;
+            color: #1e293b;
+            border-bottom: 2px solid #f8fafc;
+            padding-bottom: 12px;
+            margin: 0 0 25px 0;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        @media (max-width: 768px) {
+            .panel-card {
+                padding: 16px;
+                border-radius: 14px;
+            }
+            #view-mode-container, #edit-mode-container {
+                grid-template-columns: 1fr !important;
+                gap: 24px !important;
+            }
+        }
+    </style>
+
+    <div class="vhr-organization-profile">
+        <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:2rem;">
+            <div>
+                <h2 style="font-size:1.75rem; font-weight:800; color:#1e293b; letter-spacing:-1px; margin:0;">Organization Directory</h2>
+                <p style="color:#94a3b8; font-weight:600; font-size:0.75rem; margin-top:2px;">Core corporate identities and operational settings</p>
+            </div>
+            
+            <div id="action-buttons" style="display:flex; gap:10px;">
+                <button class="btn-save" id="btn-edit-mode" style="background: white; color: #554994; border: 1px solid #554994; box-shadow: none;">
+                    <i data-lucide="pencil" style="width: 18px;"></i> 
+                    Edit Profile
+                </button>
+                <button class="btn-save" id="btn-save-company-details" style="display: none;">
+                    <i data-lucide="save" style="width: 20px;"></i> 
+                    Publish Changes
+                </button>
+                <button class="btn-save" id="btn-cancel-edit" style="display: none; background: white; color: #ef4444; border: 1px solid #ef4444; box-shadow: none;">
+                    Cancel
+                </button>
+            </div>
+        </div>
+
+        <div class="panel-card">
+            <!-- VIEW MODE -->
+            <div id="view-mode-container" style="display: grid; grid-template-columns: 280px 1fr; gap: 60px;">
+                <div>
+                    <label class="form-label">Brand Identity</label>
+                    <div style="width: 100%; aspect-ratio: 1; border-radius: 24px; display: flex; align-items: center; justify-content: center; background: white; border: 1px solid #e2e8f0; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
+                        <img id="view-logo" src="https://ui-avatars.com/api/?name=Salarite&background=4D4286&color=fff&size=256" style="width:100%; height:100%; object-fit:cover;">
+                    </div>
+                    <div style="margin-top: 16px; text-align: center;">
+                        <div style="font-size: 0.95rem; font-style: italic; color: #64748b;" id="view-tagline">"Empowering Modern HR"</div>
+                    </div>
+                </div>
+                
+                <div style="display: flex; flex-direction: column; gap: 40px;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+                        <h4 class="section-h" style="grid-column: span 2;"><i data-lucide="info" style="width: 20px; color: #554994;"></i> Company Details</h4>
+                        <div style="grid-column: span 2;">
+                            <label class="form-label">Company Name</label>
+                            <div style="font-size: 1.25rem; font-weight: 700; color: #1e293b;" id="view-name">Salarite HRMS Solutions</div>
+                        </div>
+                        <div>
+                            <label class="form-label">Industry</label>
+                            <div style="font-size: 1rem; color: #1e293b;" id="view-industry">IT & Software</div>
+                        </div>
+                        <div>
+                            <label class="form-label">Company Size</label>
+                            <div style="font-size: 1rem; color: #1e293b;" id="view-size">50-200</div>
+                        </div>
+                        <div>
+                            <label class="form-label">Founded Year</label>
+                            <div style="font-size: 1rem; color: #1e293b;" id="view-founded">2023</div>
+                        </div>
+                        <div>
+                            <label class="form-label">Company Type</label>
+                            <div style="font-size: 1rem; color: #1e293b;" id="view-type">Private</div>
+                        </div>
+                        <div style="grid-column: span 2;">
+                            <label class="form-label">Website URL</label>
+                            <div style="font-size: 1rem;"><a href="#" id="view-website" target="_blank" style="color: #3b82f6; text-decoration: none;">https://salarite.com</a></div>
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+                        <h4 class="section-h" style="grid-column: span 2;"><i data-lucide="phone" style="width: 20px; color: #554994;"></i> Contact Information</h4>
+                        <div style="grid-column: span 2;">
+                            <label class="form-label">Official Email</label>
+                            <div style="font-size: 1rem; color: #1e293b;" id="view-email">contact@salarite.com</div>
+                        </div>
+                        <div>
+                            <label class="form-label">Phone Number</label>
+                            <div style="font-size: 1rem; color: #1e293b;" id="view-phone">+91 9876543210</div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h4 class="section-h"><i data-lucide="align-left" style="width: 20px; color: #554994;"></i> About Company</h4>
+                        <div style="font-size: 0.95rem; line-height: 1.7; color: #1e293b; background: #f8fafc; padding: 20px; border-radius: 12px; border: 1px solid #e2e8f0;" id="view-about">
+                            We are Salarite, building the next generation of modern HR modules to simplify employee management and payroll securely.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- EDIT MODE -->
+            <div id="edit-mode-container" style="display: none; grid-template-columns: 280px 1fr; gap: 60px;">
+                <div>
+                    <label class="form-label">Brand Identity</label>
+                    <div style="width: 100%; aspect-ratio: 1; border: 3px dashed #e2e8f0; border-radius: 24px; display: flex; align-items: center; justify-content: center; background: #f8fafc; cursor: pointer; position: relative;" onclick="document.getElementById('logo-up').click()">
+                        <input type="file" id="logo-up" style="display:none;" accept="image/*" onclick="event.stopPropagation()">
+                        <div id="up-placeholder" style="text-align: center; color: #64748b;">
+                            <i data-lucide="upload-cloud" style="width: 40px; margin-bottom: 12px; color: #554994;"></i>
+                            <div style="font-weight: 700; font-size: 0.85rem;">Upload Company Logo</div>
+                        </div>
+                        <img id="logo-preview-img" style="display:none; width:100%; height:100%; object-fit:contain; padding: 20px;">
+                    </div>
+                    <div style="margin-top: 20px;">
+                        <label class="form-label">Tagline / Short Description</label>
+                        <input type="text" id="edit-tagline" class="form-input" placeholder="e.g. Empowering Modern HR">
+                    </div>
+                </div>
+
+                <div style="display: flex; flex-direction: column; gap: 40px;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+                        <h4 class="section-h" style="grid-column: span 2;"><i data-lucide="info" style="width: 20px; color: #554994;"></i> Company Details</h4>
+                        <div style="grid-column: span 2;">
+                            <label class="form-label">Company Name *</label>
+                            <input type="text" id="edit-name" class="form-input">
+                        </div>
+                        <div>
+                            <label class="form-label">Industry</label>
+                            <select id="edit-industry" class="form-input" style="background: white;">
+                                <option>IT & Software</option>
+                                <option>Finance</option>
+                                <option>Healthcare</option>
+                                <option>Manufacturing</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="form-label">Company Size</label>
+                            <select id="edit-size" class="form-input" style="background: white;">
+                                <option>1-10</option>
+                                <option>10-50</option>
+                                <option>50-200</option>
+                                <option>500+</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="form-label">Website URL</label>
+                            <input type="url" id="edit-website" class="form-input">
+                        </div>
+                    </div>
+
+                    <div>
+                        <h4 class="section-h"><i data-lucide="align-left" style="width: 20px; color: #554994;"></i> About Company</h4>
+                        <div id="quill-vhr-org-editor" style="height: 250px; background: white; border: 1px solid #e2e8f0; border-radius: 12px;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            lucide.createIcons();
+            
+            const quill = new Quill('#quill-vhr-org-editor', {
+                theme: 'snow',
+                placeholder: 'Tell potential employees about your company mission and culture...',
+                modules: { toolbar: [['bold', 'italic'], [{ 'list': 'bullet' }], ['link', 'clean']] }
+            });
+
+            function loadVHRProfile() {
+                const dataStr = localStorage.getItem('salarite_company_profile');
+                if (!dataStr) return;
+                const data = JSON.parse(dataStr);
+                
+                $('#view-name').text(data.name || 'Salarite HRMS Solutions');
+                $('#view-tagline').text(data.tagline || '"Empowering Modern HR"');
+                $('#view-industry').text(data.industry || 'IT & Software');
+                $('#view-size').text(data.size || '50-200');
+                $('#view-founded').text(data.founded || '2023');
+                $('#view-type').text(data.type || 'Private');
+                if (data.website) $('#view-website').attr('href', data.website).text(data.website);
+                $('#view-email').text(data.email || 'contact@salarite.com');
+                $('#view-phone').text(data.phone || '+91 9876543210');
+                $('#view-about').html(data.about || 'Corporate overview data not defined.');
+                if (data.logo) {
+                    $('#view-logo').attr('src', data.logo);
+                    $('#logo-preview-img').attr('src', data.logo).show();
+                    $('#up-placeholder').hide();
+                }
+            }
+
+            loadVHRProfile();
+
+            $('#btn-edit-mode').off('click').on('click', function() {
+                const dataStr = localStorage.getItem('salarite_company_profile');
+                const data = dataStr ? JSON.parse(dataStr) : {};
+                
+                $('#edit-name').val(data.name || $('#view-name').text());
+                $('#edit-tagline').val(data.tagline || '');
+                $('#edit-industry').val(data.industry || 'IT & Software');
+                $('#edit-size').val(data.size || '50-200');
+                $('#edit-website').val(data.website || '');
+                quill.root.innerHTML = data.about || $('#view-about').html();
+                
+                $('#view-mode-container').hide();
+                $('#edit-mode-container').css('display', 'grid');
+                $(this).hide();
+                $('#btn-save-company-details, #btn-cancel-edit').show();
+            });
+
+            $('#btn-cancel-edit').off('click').on('click', function() {
+                $('#edit-mode-container').hide();
+                $('#view-mode-container').css('display', 'grid');
+                $('#btn-save-company-details, #btn-cancel-edit').hide();
+                $('#btn-edit-mode').show();
+            });
+
+            $('#logo-up').off('change').on('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(r) {
+                        $('#logo-preview-img').attr('src', r.target.result).show();
+                        $('#up-placeholder').hide();
+                    }
+                    reader.readAsDataURL(file);
+                }
+            });
+
+            $('#btn-save-company-details').off('click').on('click', function() {
+                const btn = $(this);
+                btn.prop('disabled', true).text('Saving...');
+                
+                const data = JSON.parse(localStorage.getItem('salarite_company_profile') || '{}');
+                data.name = $('#edit-name').val();
+                data.tagline = $('#edit-tagline').val();
+                data.industry = $('#edit-industry').val();
+                data.size = $('#edit-size').val();
+                data.website = $('#edit-website').val();
+                data.about = quill.root.innerHTML;
+                data.logo = $('#logo-preview-img').attr('src');
+
+                localStorage.setItem('salarite_company_profile', JSON.stringify(data));
+
+                setTimeout(() => {
+                    loadVHRProfile();
+                    $('#edit-mode-container').hide();
+                    $('#view-mode-container').css('display', 'grid');
+                    btn.prop('disabled', false).html('<i data-lucide="save" style="width: 20px;"></i> Publish Changes').hide();
+                    $('#btn-cancel-edit').hide();
+                    $('#btn-edit-mode').show();
+                }, 800);
+            });
+        })();
+    </script>
+</div>

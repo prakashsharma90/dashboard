@@ -1,0 +1,1055 @@
+<style>
+    :root {
+        --vhr-accent: #554994;
+        --vhr-accent-light: rgba(85, 73, 148, 0.08);
+        --vhr-accent-hover: #463b7a;
+        --vhr-success: #10b981;
+        --vhr-success-light: #d1fae5;
+        --vhr-warning: #f59e0b;
+        --vhr-warning-light: #fef3c7;
+        --vhr-danger: #ef4444;
+        --vhr-danger-light: #fee2e2;
+        --vhr-info: #3b82f6;
+        --vhr-info-light: #dbeafe;
+        --text-dark: #1e293b;
+        --text-body: #475569;
+        --text-muted: #64748b;
+        --border-color: #e2e8f0;
+        --bg-page: #f8fafc;
+        --bg-card: #ffffff;
+    }
+
+    .meetings-module-container {
+        padding: 0;
+        margin-top: -24px;
+        background: var(--bg-page);
+        min-height: 100vh;
+        font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+
+    .module-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        padding-bottom: 2rem;
+    }
+
+    .module-title-box h1 {
+        font-size: 1.35rem;
+        font-weight: 800;
+        color: var(--text-dark);
+        letter-spacing: -0.8px;
+        margin: 0;
+    }
+
+    .module-title-box p {
+        color: var(--text-muted);
+        font-weight: 600;
+        font-size: 0.75rem;
+        margin-top: 2px;
+    }
+
+    .quick-actions {
+        display: flex;
+        gap: 12px;
+    }
+
+    .btn-action {
+        padding: 8px 16px;
+        border-radius: 10px;
+        font-weight: 700;
+        font-size: 0.75rem;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        cursor: pointer;
+        transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        border: none;
+    }
+
+    .btn-schedule {
+        background: var(--vhr-accent);
+        color: white;
+        box-shadow: 0 4px 12px rgba(85, 73, 148, 0.2);
+    }
+
+    .btn-schedule:hover {
+        background: var(--vhr-accent-hover);
+        transform: translateY(-2px);
+    }
+
+    .btn-call {
+        background: white;
+        color: var(--vhr-accent);
+        border: 1px solid var(--border-color);
+    }
+
+    .btn-call:hover {
+        background: var(--bg-page);
+        border-color: var(--vhr-accent);
+    }
+
+    /* HERO: UPCOMING MEETINGS */
+    .upcoming-meetings-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .meeting-card {
+        background: white;
+        border: 1px solid var(--border-color);
+        border-radius: 16px;
+        padding: 1.15rem;
+        position: relative;
+        overflow: hidden;
+        transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .meeting-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 30px rgba(0,0,0,0.04);
+        border-color: var(--vhr-accent);
+    }
+
+    .meeting-card.active {
+        border-color: var(--vhr-accent);
+        background: linear-gradient(to bottom right, #ffffff, #f5f3ff);
+    }
+
+    .meeting-badge {
+        position: absolute;
+        top: 1.25rem;
+        right: 1.25rem;
+        padding: 4px 10px;
+        border-radius: 8px;
+        font-size: 0.7rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .badge-interview { background: var(--vhr-info-light); color: var(--vhr-info); }
+    .badge-internal { background: var(--vhr-accent-light); color: var(--vhr-accent); }
+    .badge-client { background: var(--vhr-warning-light); color: var(--vhr-warning); }
+
+    .meeting-time-box {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .time-icon {
+        width: 32px;
+        height: 32px;
+        background: #f1f5f9;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--vhr-accent);
+    }
+
+    .time-details .time {
+        font-size: 0.85rem;
+        font-weight: 800;
+        color: var(--text-dark);
+        display: block;
+    }
+
+    .time-details .countdown {
+        font-size: 0.65rem;
+        color: var(--vhr-success);
+        font-weight: 700;
+    }
+
+    .meeting-info h3 {
+        font-size: 0.95rem;
+        font-weight: 800;
+        color: var(--text-dark);
+        margin: 0;
+    }
+
+    .meeting-info p {
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        margin-top: 2px;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .meeting-footer {
+        display: flex;
+        gap: 10px;
+        margin-top: 0.5rem;
+    }
+
+    .btn-join {
+        flex: 1;
+        padding: 8px;
+        background: var(--vhr-accent);
+        color: white;
+        border-radius: 8px;
+        font-weight: 700;
+        font-size: 0.75rem;
+        text-align: center;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+
+    .btn-join:hover {
+        background: var(--vhr-accent-hover);
+        box-shadow: 0 4px 10px rgba(85, 73, 148, 0.3);
+    }
+
+    .btn-reschedule {
+        padding: 8px;
+        background: #f1f5f9;
+        color: var(--text-body);
+        border-radius: 8px;
+        font-weight: 700;
+        font-size: 0.75rem;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+
+    .btn-reschedule:hover {
+        background: #e2e8f0;
+    }
+
+    /* MAIN LAYOUT: TIMELINE & CALLS */
+    .meetings-content-grid {
+        display: grid;
+        grid-template-columns: 1.8fr 1.2fr;
+        gap: 2rem;
+    }
+
+    @media (max-width: 1024px) {
+        .meetings-content-grid { grid-template-columns: 1fr; }
+    }
+
+    /* CALENDAR / TIMELINE VIEW */
+    .calendar-container {
+        background: white;
+        border-radius: 20px;
+        border: 1px solid var(--border-color);
+        padding: 1.25rem;
+    }
+
+    .calendar-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+    }
+
+    .calendar-title {
+        font-size: 1rem;
+        font-weight: 800;
+        color: var(--text-dark);
+        margin: 0;
+    }
+
+    .week-navigator {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        background: #f8fafc;
+        padding: 4px 10px;
+        border-radius: 10px;
+        border: 1px solid var(--border-color);
+    }
+
+    .nav-arrow {
+        cursor: pointer;
+        color: var(--text-muted);
+        transition: 0.2s;
+    }
+
+    .nav-arrow:hover { color: var(--vhr-accent); }
+
+    .current-range {
+        font-size: 0.8rem;
+        font-weight: 700;
+        color: var(--text-dark);
+    }
+
+    .timeline-week {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 12px;
+    }
+
+    .day-col {
+        border-radius: 12px;
+        background: #fcfcfd;
+        min-height: 400px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        padding: 10px;
+        border: 1px dashed var(--border-color);
+    }
+
+    .day-header {
+        text-align: center;
+        padding-bottom: 8px;
+        border-bottom: 1px solid #f1f5f9;
+        margin-bottom: 6px;
+    }
+
+    .day-name {
+        font-size: 0.6rem;
+        font-weight: 800;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        display: block;
+    }
+
+    .day-num {
+        font-size: 0.95rem;
+        font-weight: 900;
+        color: var(--text-dark);
+    }
+
+    .day-col.today {
+        background: white;
+        border-style: solid;
+        border-color: var(--vhr-accent-light);
+        box-shadow: 0 4px 15px rgba(85, 73, 148, 0.05);
+    }
+
+    .day-col.today .day-num { color: var(--vhr-accent); }
+
+    .timeline-event {
+        padding: 10px;
+        border-radius: 10px;
+        font-size: 0.75rem;
+        border-left: 3px solid transparent;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+
+    .timeline-event:hover { transform: scale(1.02); }
+
+    .event-interview { background: #eff6ff; border-left-color: var(--vhr-info); color: #1e40af; }
+    .event-internal { background: #f5f3ff; border-left-color: var(--vhr-accent); color: #4c1d95; }
+    .event-client { background: #fffbeb; border-left-color: var(--vhr-warning); color: #92400e; }
+
+    .event-time { font-weight: 800; display: block; margin-bottom: 2px; }
+    .event-label { font-weight: 600; }
+
+    /* CALL PANEL */
+    .call-panel {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    .active-call-card {
+        background: linear-gradient(135deg, #1e293b, #0f172a);
+        border-radius: 20px;
+        padding: 1.25rem;
+        color: white;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .call-glow {
+        position: absolute;
+        top: -50px;
+        right: -50px;
+        width: 150px;
+        height: 150px;
+        background: radial-gradient(circle, rgba(85, 73, 148, 0.4) 0%, transparent 70%);
+        pointer-events: none;
+    }
+
+    .call-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 1.5rem;
+    }
+
+    .pulse-dot {
+        width: 8px;
+        height: 8px;
+        background: var(--vhr-danger);
+        border-radius: 50%;
+        animation: pulseCall 1.5s infinite;
+    }
+
+    @keyframes pulseCall {
+        0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+        70% { transform: scale(1.2); box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+        100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+    }
+
+    .call-status {
+        font-size: 0.7rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .caller-info {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .caller-avatar {
+        width: 48px;
+        height: 48px;
+        background: rgba(255,255,255,0.1);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.1rem;
+        font-weight: 800;
+        margin-bottom: 0.75rem;
+        border: 2px solid rgba(255,255,255,0.05);
+    }
+
+    .caller-name {
+        font-size: 1.1rem;
+        font-weight: 800;
+        margin-bottom: 2px;
+    }
+
+    .caller-meta {
+        font-size: 0.7rem;
+        color: #94a3b8;
+        font-weight: 600;
+    }
+
+    .call-timer {
+        font-family: 'DM Mono', monospace;
+        font-size: 1.25rem;
+        margin-bottom: 1.5rem;
+        text-align: center;
+    }
+
+    .call-controls {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+    }
+
+    .control-btn {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: 0.2s;
+        border: none;
+    }
+
+    .btn-mute { background: rgba(255,255,255,0.1); color: white; }
+    .btn-mute:hover { background: rgba(255,255,255,0.2); }
+    .btn-end { background: var(--vhr-danger); color: white; box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4); }
+    .btn-end:hover { background: #dc2626; transform: scale(1.1); }
+    .btn-video { background: rgba(255,255,255,0.1); color: white; }
+    .btn-video:hover { background: rgba(255,255,255,0.2); }
+
+    /* RECENT CALLS */
+    .recent-calls-card {
+        background: white;
+        border-radius: 20px;
+        border: 1px solid var(--border-color);
+        padding: 1.25rem;
+    }
+
+    .recent-title {
+        font-size: 0.9rem;
+        font-weight: 800;
+        color: var(--text-dark);
+        margin-bottom: 1.25rem;
+    }
+
+    .call-history-list {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .history-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 12px;
+        border-radius: 14px;
+        background: #f8fafc;
+        transition: 0.2s;
+    }
+
+    .history-item:hover { background: #f1f5f9; }
+
+    .history-info {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .history-avatar {
+        width: 32px;
+        height: 32px;
+        background: #e2e8f0;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.75rem;
+        font-weight: 800;
+        color: var(--text-body);
+    }
+
+    .history-name {
+        font-size: 0.85rem;
+        font-weight: 700;
+        color: var(--text-dark);
+        display: block;
+    }
+
+    .history-meta {
+        font-size: 0.7rem;
+        color: var(--text-muted);
+        font-weight: 600;
+    }
+
+    .history-right {
+        text-align: right;
+    }
+
+    .history-duration {
+        font-size: 0.75rem;
+        font-weight: 800;
+        color: var(--text-dark);
+        display: block;
+    }
+
+    .history-time {
+        font-size: 0.65rem;
+        color: var(--text-muted);
+        font-weight: 600;
+    }
+
+    /* ANALYTICS MODULE */
+    .meetings-analytics {
+        margin-top: 2rem;
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1.5rem;
+    }
+
+    @media (max-width: 768px) {
+        .meetings-analytics { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    .stat-pill-card {
+        background: white;
+        border: 1px solid var(--border-color);
+        border-radius: 16px;
+        padding: 1rem;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    .pill-label {
+        font-size: 0.65rem;
+        font-weight: 700;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .pill-value {
+        font-size: 1.25rem;
+        font-weight: 900;
+        color: var(--text-dark);
+    }
+
+    .pill-trend {
+        font-size: 0.7rem;
+        font-weight: 750;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .trend-up { color: var(--vhr-success); }
+    .trend-down { color: var(--vhr-danger); }
+
+    /* MODAL STYLES (Mock) */
+    .modal-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.5);
+        backdrop-filter: blur(8px);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 2000;
+    }
+
+    .modal-box {
+        background: white;
+        border-radius: 24px;
+        width: 100%;
+        max-width: 500px;
+        padding: 2.5rem;
+        box-shadow: 0 25px 50px rgba(0,0,0,0.1);
+    }
+
+    .modal-header h2 {
+        font-size: 1.5rem;
+        font-weight: 800;
+        margin: 0;
+        letter-spacing: -0.5px;
+    }
+
+    .form-group {
+        margin-top: 1.5rem;
+    }
+
+    .form-label {
+        display: block;
+        font-size: 0.85rem;
+        font-weight: 800;
+        color: var(--text-dark);
+        margin-bottom: 8px;
+    }
+
+    .form-input {
+        width: 100%;
+        padding: 12px 16px;
+        border-radius: 12px;
+        border: 1px solid var(--border-color);
+        font-family: inherit;
+        font-weight: 600;
+        font-size: 0.9rem;
+        outline: none;
+        transition: 0.2s;
+    }
+
+    .form-input:focus {
+        border-color: var(--vhr-accent);
+        box-shadow: 0 0 0 4px var(--vhr-accent-light);
+    }
+
+    .modal-footer {
+        margin-top: 2rem;
+        display: flex;
+        gap: 12px;
+    }
+
+    .btn-secondary { background: #f1f5f9; color: var(--text-body); }
+    .btn-secondary:hover { background: #e2e8f0; }
+
+</style>
+
+<div id="personal-meetings" class="meetings-module-container sub-view active">
+    <div class="module-header">
+        <div class="module-title-box">
+            <h1>Meetings & Calls Hub</h1>
+            <p>Institutional communication center for interviews and coordination</p>
+        </div>
+        <div class="quick-actions">
+            <button class="btn-action btn-schedule" onclick="openScheduleModal()">
+                <i data-lucide="calendar-plus"></i> Schedule Meeting
+            </button>
+            <button class="btn-action btn-call" onclick="startInAppCall('Rahul Sharma', 'Marketing Executive')">
+                <i data-lucide="phone"></i> Start Instant Call
+            </button>
+        </div>
+    </div>
+
+    <!-- UPCOMING HERO -->
+    <div class="upcoming-meetings-grid">
+        <div class="meeting-card active" id="current-meeting">
+            <span class="meeting-badge badge-interview">Interview</span>
+            <div class="meeting-time-box">
+                <div class="time-icon"><i data-lucide="video"></i></div>
+                <div class="time-details">
+                    <span class="time">Today, 2:00 PM</span>
+                    <span class="countdown" id="meeting-countdown">Starts in 22 mins</span>
+                </div>
+            </div>
+            <div class="meeting-info">
+                <h3>Technical Lead Interview</h3>
+                <p><i data-lucide="user"></i> Rahul Sharma · <i data-lucide="map-pin"></i> Virtual (Zoom)</p>
+            </div>
+            <div class="meeting-footer">
+                <button class="btn-join" onclick="joinMeeting(this)">Join Now</button>
+                <button class="btn-reschedule">Reschedule</button>
+            </div>
+        </div>
+
+        <div class="meeting-card">
+            <span class="meeting-badge badge-internal">Internal</span>
+            <div class="meeting-time-box">
+                <div class="time-icon"><i data-lucide="users"></i></div>
+                <div class="time-details">
+                    <span class="time">Today, 4:30 PM</span>
+                    <span class="countdown" style="color: var(--text-muted);">In 3 hours</span>
+                </div>
+            </div>
+            <div class="meeting-info">
+                <h3>Weekly Team Sync</h3>
+                <p><i data-lucide="user"></i> HR Operations Team · <i data-lucide="map-pin"></i> Conference Room A</p>
+            </div>
+            <div class="meeting-footer">
+                <button class="btn-reschedule" style="flex: 1;">View Details</button>
+                <button class="btn-reschedule">Edit</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="meetings-content-grid">
+        <!-- LEFT: CALENDAR -->
+        <div class="calendar-container">
+            <div class="calendar-header">
+                <h2 class="calendar-title">Weekly Timeline View</h2>
+                <div class="week-navigator">
+                    <i data-lucide="chevron-left" class="nav-arrow"></i>
+                    <span class="current-range">06 Apr – 10 Apr 2026</span>
+                    <i data-lucide="chevron-right" class="nav-arrow"></i>
+                </div>
+            </div>
+
+            <div class="timeline-week">
+                <div class="day-col today">
+                    <div class="day-header">
+                        <span class="day-name">Mon</span>
+                        <span class="day-num">06</span>
+                    </div>
+                    <div class="timeline-event event-interview">
+                        <span class="event-time">10:00 AM</span>
+                        <span class="event-label">Ankit Sharma (QA)</span>
+                    </div>
+                    <div class="timeline-event event-interview" style="background:#dcfce7; border-left-color:#10b981; color:#166534;">
+                        <span class="event-time">11:30 AM</span>
+                        <span class="event-label">Priya Rai (Dev)</span>
+                    </div>
+                    <div class="timeline-event event-interview" style="opacity: 0.5;">
+                        <span class="event-time">2:00 PM</span>
+                        <span class="event-label">Rahul Sharma</span>
+                    </div>
+                </div>
+
+                <div class="day-col">
+                    <div class="day-header">
+                        <span class="day-name">Tue</span>
+                        <span class="day-num">07</span>
+                    </div>
+                    <div class="timeline-event event-internal">
+                        <span class="event-time">09:00 AM</span>
+                        <span class="event-label">Global HR Sync</span>
+                    </div>
+                </div>
+
+                <div class="day-col">
+                    <div class="day-header">
+                        <span class="day-name">Wed</span>
+                        <span class="day-num">08</span>
+                    </div>
+                    <div class="timeline-event event-client">
+                        <span class="event-time">1:30 PM</span>
+                        <span class="event-label">Client Feedback</span>
+                    </div>
+                </div>
+
+                <div class="day-col">
+                    <div class="day-header">
+                        <span class="day-name">Thu</span>
+                        <span class="day-num">09</span>
+                    </div>
+                </div>
+
+                <div class="day-col">
+                    <div class="day-header">
+                        <span class="day-name">Fri</span>
+                        <span class="day-num">10</span>
+                    </div>
+                    <div class="timeline-event event-interview">
+                        <span class="event-time">11:00 AM</span>
+                        <span class="event-label">Final Board Meet</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT: CALL PANEL -->
+        <div class="call-panel">
+            <div class="active-call-card" id="active-call-view" style="display: none;">
+                <div class="call-glow"></div>
+                <div class="call-header">
+                    <div class="pulse-dot"></div>
+                    <span class="call-status">Active Call</span>
+                </div>
+                <div class="caller-info">
+                    <div class="caller-avatar" id="call-avatar">RS</div>
+                    <h2 class="caller-name" id="call-name">Rahul Sharma</h2>
+                    <span class="caller-meta" id="call-meta">Marketing Executive</span>
+                </div>
+                <div class="call-timer" id="call-duration">00:00</div>
+                <div class="call-controls">
+                    <button class="control-btn btn-mute"><i data-lucide="mic-off"></i></button>
+                    <button class="control-btn btn-video"><i data-lucide="video-off"></i></button>
+                    <button class="control-btn btn-end" onclick="endInAppCall()"><i data-lucide="phone-off"></i></button>
+                </div>
+            </div>
+
+            <div class="recent-calls-card">
+                <h2 class="recent-title">Call History</h2>
+                <div class="call-history-list">
+                    <div class="history-item">
+                        <div class="history-info">
+                            <div class="history-avatar">AM</div>
+                            <div>
+                                <span class="history-name">Ananya Mehta</span>
+                                <span class="history-meta">Incoming · Voice</span>
+                            </div>
+                        </div>
+                        <div class="history-right">
+                            <span class="history-duration">12m 45s</span>
+                            <span class="history-time">1h ago</span>
+                        </div>
+                    </div>
+
+                    <div class="history-item">
+                        <div class="history-info">
+                            <div class="history-avatar" style="background:#fee2e2; color:#ef4444;">VK</div>
+                            <div>
+                                <span class="history-name">Vikram Kohli</span>
+                                <span class="history-meta">Missed Call</span>
+                            </div>
+                        </div>
+                        <div class="history-right">
+                            <span class="history-duration" style="color:#ef4444;">Missing</span>
+                            <span class="history-time">3h ago</span>
+                        </div>
+                    </div>
+
+                    <div class="history-item">
+                        <div class="history-info">
+                            <div class="history-avatar">PS</div>
+                            <div>
+                                <span class="history-name">Pooja Singh</span>
+                                <span class="history-meta">Outgoing · Video</span>
+                            </div>
+                        </div>
+                        <div class="history-right">
+                            <span class="history-duration">08m 12s</span>
+                            <span class="history-time">Yesterday</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="calendar-container" style="padding: 1.5rem; background: #fdf2f8; border-color: #fce7f3;">
+                <h3 style="font-size: 0.9rem; font-weight: 850; color: #db2777; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 8px;">
+                    <i data-lucide="zap" style="width: 16px;"></i> AI Call Insight
+                </h3>
+                <p style="font-size: 0.8rem; color: #86198f; font-weight: 600; line-height: 1.5; margin: 0;">
+                    You have spent <b>24% more time</b> on recruitment calls this week. Consider batching feedback sessions to optimize your performance score.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ANALYTICS -->
+    <div class="meetings-analytics">
+        <div class="stat-pill-card">
+            <span class="pill-label">Completed</span>
+            <span class="pill-value">24</span>
+            <span class="pill-trend trend-up"><i data-lucide="trending-up" style="width:12px;"></i> +12%</span>
+        </div>
+        <div class="stat-pill-card">
+            <span class="pill-label">No-Shows</span>
+            <span class="pill-value">3</span>
+            <span class="pill-trend trend-down"><i data-lucide="trending-down" style="width:12px;"></i> -2%</span>
+        </div>
+        <div class="stat-pill-card">
+            <span class="pill-label">Avg Duration</span>
+            <span class="pill-value">18m</span>
+            <span class="pill-trend trend-up"><i data-lucide="clock" style="width:12px;"></i> Stable</span>
+        </div>
+        <div class="stat-pill-card">
+            <span class="pill-label">Conversion</span>
+            <span class="pill-value">68%</span>
+            <span class="pill-trend trend-up"><i data-lucide="target" style="width:12px;"></i> +5%</span>
+        </div>
+    </div>
+
+    <!-- MODALS -->
+    <div id="schedule-modal" class="modal-overlay">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h2>Schedule New Meeting</h2>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Participant Name</label>
+                <input type="text" class="form-input" placeholder="Enter candidate or employee name">
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem;">
+                <div>
+                    <label class="form-label">Date</label>
+                    <input type="date" class="form-input">
+                </div>
+                <div>
+                    <label class="form-label">Time</label>
+                    <input type="time" class="form-input">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Meeting Type</label>
+                <select class="form-input">
+                    <option>Interview</option>
+                    <option>Internal Team Sync</option>
+                    <option>Client Meeting</option>
+                </select>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-action btn-secondary" style="flex: 1;" onclick="closeScheduleModal()">Cancel</button>
+                <button class="btn-action btn-schedule" style="flex: 1;" onclick="handleScheduleSubmit()">Create Meeting</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- FEEDBACK MODAL -->
+    <div id="feedback-modal" class="modal-overlay">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h2>Meeting Summary & Feedback</h2>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Candidate/Employee Rating</label>
+                <div style="display: flex; gap: 8px; color: #fbbf24; font-size: 1.5rem; cursor: pointer;">
+                    <i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star" style="color: #e2e8f0;"></i>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Key Discussion Points</label>
+                <textarea class="form-input" style="height: 100px; resize: none;" placeholder="Add notes here..."></textarea>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Next Step</label>
+                <select class="form-input">
+                    <option>Move to Next Round</option>
+                    <option>Put on Hold</option>
+                    <option>Reject Candidate</option>
+                    <option>Schedule Follow-up</option>
+                </select>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-action btn-schedule" style="width: 100%;" onclick="closeFeedbackModal()">Submit Feedback</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Initialize Icons
+    if (window.lucide) {
+        lucide.createIcons();
+    }
+
+    // Modal Handling
+    function openScheduleModal() {
+        document.getElementById('schedule-modal').style.display = 'flex';
+    }
+
+    function closeScheduleModal() {
+        document.getElementById('schedule-modal').style.display = 'none';
+    }
+
+    function handleScheduleSubmit() {
+        alert("Meeting scheduled successfully! Calendar invite sent.");
+        closeScheduleModal();
+    }
+
+    // Join Meeting
+    function joinMeeting(btn) {
+        btn.innerText = "Connecting...";
+        btn.style.background = "#059669";
+        
+        setTimeout(() => {
+            alert("Redirecting to Virtual Meeting Room...");
+            // window.open('https://zoom.us/mock-meeting');
+            btn.innerText = "Join Now";
+            btn.style.background = "";
+            openFeedbackModal(); // Open feedback after meeting
+        }, 1500);
+    }
+
+    function openFeedbackModal() {
+        document.getElementById('feedback-modal').style.display = 'flex';
+        if (window.lucide) lucide.createIcons();
+    }
+
+    function closeFeedbackModal() {
+        document.getElementById('feedback-modal').style.display = 'none';
+    }
+
+    // Call Simulator
+    let callInterval;
+    let callSeconds = 0;
+
+    function startInAppCall(name, meta) {
+        document.getElementById('call-name').innerText = name;
+        document.getElementById('call-meta').innerText = meta;
+        document.getElementById('call-avatar').innerText = name.split(' ').map(n => n[0]).join('');
+        document.getElementById('active-call-view').style.display = 'block';
+        
+        callSeconds = 0;
+        updateCallTimer();
+        
+        callInterval = setInterval(() => {
+            callSeconds++;
+            updateCallTimer();
+        }, 1000);
+        
+        if (window.lucide) lucide.createIcons();
+    }
+
+    function updateCallTimer() {
+        const mins = Math.floor(callSeconds / 60);
+        const secs = callSeconds % 60;
+        document.getElementById('call-duration').innerText = 
+            `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    }
+
+    function endInAppCall() {
+        clearInterval(callInterval);
+        document.getElementById('active-call-view').style.display = 'none';
+        alert(`Call ended. Duration: ${document.getElementById('call-duration').innerText}`);
+        openFeedbackModal();
+    }
+
+    // Countdown Timer Mock
+    let countdownMins = 22;
+    setInterval(() => {
+        if (countdownMins > 0) {
+            countdownMins--;
+            const countdownEl = document.getElementById('meeting-countdown');
+            if (countdownEl) countdownEl.innerText = `Starts in ${countdownMins} mins`;
+        }
+    }, 60000);
+
+</script>

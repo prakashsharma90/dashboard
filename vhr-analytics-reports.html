@@ -1,0 +1,365 @@
+<div id="ana-reports" class="sub-view">
+    <style>
+        .vhr-analytics {
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .ana-header-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .ana-header-bar h2 {
+            font-size: 1.75rem;
+            font-weight: 800;
+            color: #1e293b;
+            margin: 0;
+            letter-spacing: -1px;
+        }
+        .ana-header-bar p {
+            color: #94a3b8; 
+            font-weight: 600; 
+            font-size: 0.75rem; 
+            margin-top: 4px;
+        }
+
+        .ana-filter-bar {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .ana-filter-item select, .ana-filter-item input {
+            padding: 8px 12px;
+            height: 38px;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            font-size: 0.85rem;
+            font-family: 'Inter', sans-serif;
+            color: #1e293b;
+            outline: none;
+            cursor: pointer;
+            background: white;
+            font-weight: 700;
+        }
+
+        .ana-btn-primary {
+            height: 38px;
+            padding: 0 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: #554994;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 800;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .ana-btn-primary:hover { opacity: 0.9; }
+
+        /* KPI Grid */
+        .ana-kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        @media (max-width: 1024px) {
+            .ana-kpi-grid { grid-template-columns: repeat(2, 1fr); }
+            .ana-charts-grid { grid-template-columns: 1fr !important; }
+        }
+
+        .ana-kpi-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 16px;
+            border: 1px solid #e2e8f0;
+            transition: transform 0.2s;
+        }
+
+        .ana-kpi-card:hover { transform: translateY(-4px); box-shadow:0 10px 25px rgba(0,0,0,0.06); border-color:#554994; }
+
+        .ana-kpi-card label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #94a3b8;
+            font-weight: 800;
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .ana-kpi-card .value { font-size: 1.8rem; font-weight: 900; color: #1e293b; margin-bottom: 4px; }
+        .ana-kpi-card .trend { font-size: 0.8rem; font-weight: 700; display: flex; align-items: center; gap: 4px; }
+        .ana-trend-up { color: #10b981; }
+        .ana-trend-down { color: #ef4444; }
+
+        /* AI Insights Panel */
+        .ana-insights-panel {
+            background: linear-gradient(135deg, #554994, #6366f1);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 20px;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            box-shadow: 0 10px 25px rgba(85, 73, 148, 0.2);
+        }
+
+        .ana-insight-icon {
+            width: 50px;
+            height: 50px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .ana-insight-content h4 { font-size: 1.1rem; margin:0 0 4px 0; font-weight: 800; }
+        .ana-insight-content p { font-size: 0.9rem; opacity: 0.9; margin: 0; }
+
+        /* Charts Framework */
+        .ana-charts-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .ana-chart-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 20px;
+            border: 1px solid #e2e8f0;
+            min-height: 380px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .ana-chart-card.full-width { grid-column: span 2; }
+
+        .ana-chart-card h3 {
+            font-size: 1.05rem;
+            font-weight: 800;
+            margin: 0 0 1.5rem 0;
+            color: #1e293b;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Mock Bars for Charts (If Chart.js fails inside fragment) */
+        .ana-mock-chart-container { height: 260px; display: flex; align-items: flex-end; gap: 15px; padding-bottom: 20px; border-bottom: 1px solid #f1f5f9; flex:1; }
+        .ana-mock-bar { flex: 1; background: #554994; border-radius: 6px; position:relative; overflow:hidden;}
+        .ana-mock-bar::after { content:''; position:absolute; top:0; left:0; right:0; bottom:0; background:linear-gradient(to bottom, rgba(255,255,255,0.2), transparent); }
+        .ana-mock-labels { display: flex; justify-content: space-between; margin-top: 10px; font-size: 0.65rem; color: #94a3b8; font-weight: 800; text-transform: uppercase; }
+
+        /* Custom Table */
+        .ana-list-card {
+            background: white;
+            border-radius: 20px;
+            border: 1px solid #e2e8f0;
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+        .ana-list-header {
+            padding: 1.25rem 1.5rem;
+            background: #f8fafc;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .ana-list-header h4 { font-size: 1.1rem; font-weight: 800; margin: 0; display: flex; align-items: center; gap: 10px; }
+        .ana-table { width: 100%; border-collapse: collapse; }
+        .ana-table th { text-align: left; padding: 14px 20px; background: #f8fafc; font-size: 0.75rem; font-weight: 800; color: #64748b; text-transform: uppercase; border-bottom:1px solid #e2e8f0; }
+        .ana-table td { padding: 16px 20px; border-bottom: 1px solid #f1f5f9; font-size: 0.9rem; font-weight:600; color:#1e293b; }
+        .ana-table tr:hover td { background: #fcfcfd; }
+    </style>
+
+    <div class="vhr-analytics">
+        <div class="ana-header-bar">
+            <div>
+                <h2>Enterprise Analytics & Reports</h2>
+                <p>Data-driven insights for strategic HR workforce decision making.</p>
+            </div>
+            <div class="ana-filter-bar">
+                <div class="ana-filter-item">
+                    <select id="vhr-time-filter">
+                        <option value="month" selected>This Month</option>
+                        <option value="quarter">Q1 2026</option>
+                        <option value="year">FY 2025</option>
+                    </select>
+                </div>
+                <div class="ana-filter-item">
+                    <select id="vhr-dept-filter">
+                        <option value="all">All Departments</option>
+                        <option value="hr">Human Resources</option>
+                        <option value="it">Engineering/IT</option>
+                        <option value="sales">Sales</option>
+                    </select>
+                </div>
+                <button class="ana-btn-primary">
+                    <i data-lucide="download" style="width:16px;"></i> Export PDF
+                </button>
+            </div>
+        </div>
+
+        <div class="ana-insights-panel">
+            <div class="ana-insight-icon">
+                <i data-lucide="sparkles"></i>
+            </div>
+            <div class="ana-insight-content">
+                <h4>AI Intelligence Insight</h4>
+                <p>Employee productivity has increased by 12% this month. Based on current trends, we recommend reviewing bonus allocations for the engineering team by Q2.</p>
+            </div>
+        </div>
+
+        <div class="ana-kpi-grid">
+            <div class="ana-kpi-card">
+                <label>Total Workforce</label>
+                <div class="value">124</div>
+                <div class="trend ana-trend-up"><i data-lucide="arrow-up" style="width:14px;"></i> +5 New</div>
+            </div>
+            <div class="ana-kpi-card">
+                <label>Avg. Attendance</label>
+                <div class="value">94.2%</div>
+                <div class="trend ana-trend-up"><i data-lucide="arrow-up" style="width:14px;"></i> 2.1% improvement</div>
+            </div>
+            <div class="ana-kpi-card">
+                <label>Monthly Payroll</label>
+                <div class="value">₹18.4L</div>
+                <div class="trend ana-trend-down"><i data-lucide="arrow-down" style="width:14px;"></i> -1.2% cost diff</div>
+            </div>
+            <div class="ana-kpi-card">
+                <label>Hiring Velocity</label>
+                <div class="value">12.5%</div>
+                <div class="trend ana-trend-up"><i data-lucide="arrow-up" style="width:14px;"></i> High</div>
+            </div>
+        </div>
+
+        <div class="ana-charts-grid">
+            <div class="ana-chart-card full-width">
+                <h3><i data-lucide="trending-up" style="color:#554994;"></i> Organization Productivity Trends</h3>
+                <!-- Real chart injected here, fallback via mock visually -->
+                <div class="ana-mock-chart-container">
+                    <div class="ana-mock-bar" style="height:40%;"></div>
+                    <div class="ana-mock-bar" style="height:55%;"></div>
+                    <div class="ana-mock-bar" style="height:45%;"></div>
+                    <div class="ana-mock-bar" style="height:70%;"></div>
+                    <div class="ana-mock-bar" style="height:85%;"></div>
+                    <div class="ana-mock-bar" style="height:92%;"></div>
+                </div>
+                <div class="ana-mock-labels">
+                    <span>Oct</span><span>Nov</span><span>Dec</span><span>Jan</span><span>Feb</span><span>Mar</span>
+                </div>
+            </div>
+            <div class="ana-chart-card">
+                <h3><i data-lucide="users" style="color:#554994;"></i> Department Headcount</h3>
+                <!-- Mock pie/distribution -->
+                <div style="flex:1; display:flex; flex-direction:column; justify-content:center; gap:20px;">
+                    <div>
+                        <div style="display:flex; justify-content:space-between; margin-bottom:8px; font-size:0.8rem; font-weight:800; color:#1e293b;">Engineering <span style="color:#554994;">45%</span></div>
+                        <div style="height:10px; background:#f1f5f9; border-radius:10px;"><div style="height:100%; width:45%; background:#554994; border-radius:10px;"></div></div>
+                    </div>
+                    <div>
+                        <div style="display:flex; justify-content:space-between; margin-bottom:8px; font-size:0.8rem; font-weight:800; color:#1e293b;">Sales & Mktg <span style="color:#10b981;">30%</span></div>
+                        <div style="height:10px; background:#f1f5f9; border-radius:10px;"><div style="height:100%; width:30%; background:#10b981; border-radius:10px;"></div></div>
+                    </div>
+                    <div>
+                        <div style="display:flex; justify-content:space-between; margin-bottom:8px; font-size:0.8rem; font-weight:800; color:#1e293b;">Human Resources <span style="color:#f59e0b;">15%</span></div>
+                        <div style="height:10px; background:#f1f5f9; border-radius:10px;"><div style="height:100%; width:15%; background:#f59e0b; border-radius:10px;"></div></div>
+                    </div>
+                    <div>
+                        <div style="display:flex; justify-content:space-between; margin-bottom:8px; font-size:0.8rem; font-weight:800; color:#1e293b;">Operations <span style="color:#6366f1;">10%</span></div>
+                        <div style="height:10px; background:#f1f5f9; border-radius:10px;"><div style="height:100%; width:10%; background:#6366f1; border-radius:10px;"></div></div>
+                    </div>
+                </div>
+            </div>
+            <div class="ana-chart-card">
+                <h3><i data-lucide="clock" style="color:#554994;"></i> Monthly Attrition Rate</h3>
+                <div class="ana-mock-chart-container" style="gap:25px;">
+                    <div class="ana-mock-bar" style="height:15%; background:#ef4444;"></div>
+                    <div class="ana-mock-bar" style="height:10%; background:#ef4444;"></div>
+                    <div class="ana-mock-bar" style="height:25%; background:#ef4444;"></div>
+                    <div class="ana-mock-bar" style="height:8%; background:#ef4444;"></div>
+                </div>
+                <div class="ana-mock-labels">
+                    <span>Dec</span><span>Jan</span><span>Feb</span><span>Mar</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="ana-list-card">
+            <div class="ana-list-header">
+                <h4><i data-lucide="building" style="color:#554994;"></i> Department Performance Summary</h4>
+                <div style="display:flex; gap:10px;">
+                    <input type="text" placeholder="Search..." style="padding:6px 12px; border:1px solid #e2e8f0; border-radius:8px; font-family:'Inter'; outline:none;">
+                    <button class="ana-btn-primary" style="height:34px; padding:0 12px; background:white; color:#1e293b; border:1px solid #e2e8f0;">Export</button>
+                </div>
+            </div>
+            <div style="overflow-x:auto;">
+                <table class="ana-table">
+                    <thead>
+                        <tr>
+                            <th>Department</th>
+                            <th>Headcount</th>
+                            <th>Avg Attendance</th>
+                            <th>Productivity Score</th>
+                            <th style="text-align:right;">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Engineering/IT</td>
+                            <td>56</td>
+                            <td>96.5%</td>
+                            <td><span style="color:#10b981;"><i data-lucide="arrow-up" style="width:12px;"></i> 92%</span></td>
+                            <td style="text-align:right;"><span style="background:#d1fae5; color:#065f46; padding:4px 10px; border-radius:6px; font-size:0.7rem; font-weight:800; text-transform:uppercase;">Optimum</span></td>
+                        </tr>
+                        <tr>
+                            <td>Sales & Marketing</td>
+                            <td>38</td>
+                            <td>91.2%</td>
+                            <td><span style="color:#10b981;"><i data-lucide="arrow-up" style="width:12px;"></i> 88%</span></td>
+                            <td style="text-align:right;"><span style="background:#d1fae5; color:#065f46; padding:4px 10px; border-radius:6px; font-size:0.7rem; font-weight:800; text-transform:uppercase;">Optimum</span></td>
+                        </tr>
+                        <tr>
+                            <td>Operations</td>
+                            <td>12</td>
+                            <td>88.4%</td>
+                            <td><span style="color:#ef4444;"><i data-lucide="arrow-down" style="width:12px;"></i> 74%</span></td>
+                            <td style="text-align:right;"><span style="background:#fef3c7; color:#92400e; padding:4px 10px; border-radius:6px; font-size:0.7rem; font-weight:800; text-transform:uppercase;">Needs Eval</span></td>
+                        </tr>
+                        <tr>
+                            <td>Human Resources</td>
+                            <td>18</td>
+                            <td>95.1%</td>
+                            <td><span style="color:#10b981;"><i data-lucide="minus" style="width:12px;"></i> 85%</span></td>
+                            <td style="text-align:right;"><span style="background:#d1fae5; color:#065f46; padding:4px 10px; border-radius:6px; font-size:0.7rem; font-weight:800; text-transform:uppercase;">Optimum</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        (function() {
+            if (window.lucide) window.lucide.createIcons();
+        })();
+    </script>
+</div>

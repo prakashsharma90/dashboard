@@ -1,0 +1,44 @@
+<div class="vhr-page-container">
+    <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:2rem;">
+        <div>
+            <h2 style="font-size:1.3rem; font-weight:800; color:#1e293b; letter-spacing:-0.8px; margin:0;">Enterprise Settings Hub</h2>
+            <p style="color:#94a3b8; font-weight:600; font-size:0.75rem; margin-top:2px;">Platform-wide configurations, API integrations, and security policies</p>
+        </div>
+        <button class="btn-primary" style="background:#10b981; color:white; border-radius:12px; font-weight:800; font-size:0.85rem; padding:10px 20px; border:none; cursor:pointer;">Save All Changes</button>
+    </div>
+
+    <!-- Settings Grid -->
+    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:2rem; margin-bottom:2rem;">
+        <div class="premium-stat-card" style="background:white; border:1px solid #e2e8f0; border-radius:20px; padding:1.75rem;">
+            <h4 style="font-weight:900; color:#1e293b; margin-top:0; margin-bottom:1.5rem; display:flex; align-items:center; gap:10px;">
+                <i data-lucide="shield-check" style="width:16px; color:#38bdf8;"></i> Security & Compliance
+            </h4>
+            <div style="display:flex; flex-direction:column; gap:20px;">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <div><b style="font-size:0.85rem;">Two-Factor Authentication</b><p style="font-size:0.7rem; color:#94a3b8; margin:0;">Require 2FA for all administrator accounts</p></div>
+                    <div style="width:40px; height:20px; background:#bef264; border-radius:20px; position:relative; cursor:pointer;"><div style="width:16px; height:16px; background:white; border-radius:50%; position:absolute; right:2px; top:2px;"></div></div>
+                </div>
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <div><b style="font-size:0.85rem;">IP Whitelisting</b><p style="font-size:0.7rem; color:#94a3b8; margin:0;">Restrict dashboard access to specific CIDR ranges</p></div>
+                    <div style="width:40px; height:20px; background:#e2e8f0; border-radius:20px; position:relative; cursor:pointer;"><div style="width:16px; height:16px; background:white; border-radius:50%; position:absolute; left:2px; top:2px;"></div></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="premium-stat-card" style="background:white; border:1px solid #e2e8f0; border-radius:20px; padding:1.75rem;">
+            <h4 style="font-weight:900; color:#1e293b; margin-top:0; margin-bottom:1.5rem; display:flex; align-items:center; gap:10px;">
+                <i data-lucide="zap" style="width:16px; color:#38bdf8;"></i> API & Webhooks
+            </h4>
+            <div style="display:flex; flex-direction:column; gap:12px;">
+                <div style="background:#f8fafc; padding:12px; border-radius:12px; border:1px solid #f1f5f9;">
+                   <div style="font-size:0.65rem; color:#94a3b8; font-weight:800; margin-bottom:5px;">SUPABASE_SECRET_KEY</div>
+                   <div style="font-size:0.85rem; color:#1e293b; font-family:monospace; display:flex; justify-content:space-between; align-items:center;">
+                       <span>sb_********_******</span>
+                       <i data-lucide="copy" style="width:14px; cursor:pointer;"></i>
+                   </div>
+                </div>
+                <button style="background:white; border:1px solid #e2e8f0; font-size:0.8rem; font-weight:800; color:#475569; padding:8px; border-radius:10px; cursor:pointer;">Generate New Production Key</button>
+            </div>
+        </div>
+    </div>
+</div>

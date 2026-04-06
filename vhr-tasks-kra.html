@@ -1,0 +1,743 @@
+<style>
+    :root {
+        --vhr-purple: #554994;
+        --vhr-purple-light: #f5f3ff;
+        --vhr-purple-hover: #463b7a;
+        --priority-high: #ef4444;
+        --priority-medium: #f59e0b;
+        --priority-low: #3b82f6;
+        --text-dark: #0f172a;
+        --text-body: #334155;
+        --text-muted: #64748b;
+        --border-color: #e2e8f0;
+        --bg-page: #f8fafc;
+        --bg-card: #ffffff;
+    }
+
+    .vhr-page-container {
+        padding: 0;
+        margin-top: -24px;
+        background: var(--bg-page);
+        min-height: 100vh;
+        font-family: inherit;
+    }
+
+    .page-header {
+        margin-bottom: 24px;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+    }
+
+    .page-title {
+        font-size: 1.3rem;
+        font-weight: 800;
+        color: var(--text-dark);
+        letter-spacing: -0.6px;
+        margin: 0;
+    }
+
+    .page-subtitle {
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        font-weight: 500;
+        margin: 2px 0 0 0;
+    }
+
+    .tasks-kra-wrapper {
+        display: grid;
+        grid-template-columns: 1fr 300px;
+        gap: 24px;
+        padding: 0;
+        max-width: 1440px;
+        margin: 0 auto;
+    }
+
+    /* LEFT: TASKS WORKING AREA */
+    .tasks-section {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .tasks-header-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        background: var(--bg-card);
+        padding: 12px 16px;
+        border-radius: 12px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        border: 1px solid var(--border-color);
+    }
+
+    .tasks-count-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--text-dark);
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .tasks-count-title span {
+        font-size: 0.8rem;
+        color: var(--vhr-purple);
+        font-weight: 700;
+        background: var(--vhr-purple-light);
+        padding: 2px 10px;
+        border-radius: 20px;
+    }
+
+    .header-actions {
+        display: flex;
+        gap: 16px;
+        align-items: center;
+    }
+
+    .search-bar-elevated {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        background: #f1f5f9;
+        padding: 8px 16px;
+        border-radius: 12px;
+        width: 280px;
+        border: 1px solid transparent;
+        transition: all 0.2s;
+    }
+
+    .search-bar-elevated:focus-within {
+        background: var(--bg-card);
+        border-color: var(--vhr-purple);
+        box-shadow: 0 0 0 3px var(--vhr-purple-light);
+    }
+
+    .search-bar-elevated input {
+        border: none;
+        outline: none;
+        width: 100%;
+        background: transparent;
+        font-size: 0.85rem;
+        font-weight: 500;
+        color: var(--text-dark);
+        font-family: inherit;
+    }
+
+    .search-bar-elevated input::placeholder {
+        color: #94a3b8;
+    }
+
+    .btn-create-action {
+        background: var(--vhr-purple);
+        color: white;
+        border: none;
+        padding: 6px 14px;
+        border-radius: 8px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        transition: all 0.2s ease;
+        box-shadow: 0 4px 6px -1px rgba(85, 73, 148, 0.2);
+    }
+
+    .btn-create-action:hover {
+        background: var(--vhr-purple-hover);
+        transform: translateY(-1px);
+        box-shadow: 0 6px 8px -1px rgba(85, 73, 148, 0.3);
+    }
+
+    /* TASK GROUPING */
+    .task-group-header {
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: #94a3b8;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin: 20px 0 12px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .task-group-header::after {
+        content: '';
+        flex: 1;
+        height: 1px;
+        background: var(--border-color);
+    }
+
+    .task-group {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    /* TASK CARDS REDESIGN */
+    .task-card {
+        background: var(--bg-card);
+        border-radius: 10px;
+        padding: 12px 20px;
+        border: 1px solid var(--border-color);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+        position: relative;
+        overflow: hidden;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+    }
+
+    .task-card:hover {
+        border-color: #cbd5e1;
+        box-shadow: 0 12px 24px -8px rgba(0,0,0,0.08);
+        transform: translateX(4px);
+    }
+
+    .task-card::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 4px;
+        transition: width 0.2s ease;
+    }
+
+    .task-card:hover::before {
+        width: 6px;
+    }
+
+    .task-card.high::before { background: var(--priority-high); }
+    .task-card.medium::before { background: var(--priority-medium); }
+    .task-card.low::before { background: var(--priority-low); }
+
+    .task-info-side {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    .task-title-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .task-title {
+        font-size: 0.9rem;
+        font-weight: 700;
+        color: var(--text-dark);
+        margin: 0;
+        line-height: 1.3;
+        letter-spacing: -0.15px;
+    }
+
+    .priority-pill {
+        font-size: 0.6rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        padding: 2px 8px;
+        border-radius: 6px;
+        letter-spacing: 0.5px;
+        white-space: nowrap;
+    }
+
+    .priority-pill.high { background: #fee2e2; color: #b91c1c; }
+    .priority-pill.medium { background: #fef3c7; color: #b45309; }
+    .priority-pill.low { background: #dbeafe; color: #1d4ed8; }
+
+    .task-meta-flex {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        flex-wrap: wrap;
+    }
+
+    .meta-item {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        font-weight: 500;
+    }
+
+    .meta-item i {
+        width: 13px;
+        height: 13px;
+        color: #94a3b8;
+    }
+
+    .meta-item b {
+        color: var(--text-body);
+        font-weight: 600;
+    }
+
+    .meta-item.due-urgent b {
+        color: var(--priority-high);
+    }
+
+    .meta-item.due-urgent i {
+        color: var(--priority-high);
+    }
+
+    .task-actions-side {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .btn-work-task {
+        background: var(--vhr-purple-light);
+        color: var(--vhr-purple);
+        border: none;
+        padding: 8px 14px;
+        border-radius: 8px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        transition: all 0.2s ease;
+        white-space: nowrap;
+    }
+
+    .btn-work-task:hover {
+        background: var(--vhr-purple);
+        color: white;
+        box-shadow: 0 4px 12px rgba(85, 73, 148, 0.2);
+    }
+
+    .btn-mark-done {
+        width: 38px;
+        height: 38px;
+        border-radius: 10px;
+        border: 1px solid var(--border-color);
+        background: white;
+        color: var(--text-muted);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .btn-mark-done:hover {
+        background: #f0fdf4;
+        color: #166534;
+        border-color: #bbf7d0;
+    }
+
+
+    /* RIGHT: PERFORMANCE PANEL */
+    .performance-column {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .widget-title {
+        font-size: 0.85rem;
+        font-weight: 800;
+        color: var(--text-dark);
+        margin-bottom: 16px;
+    }
+
+    .score-strip-card {
+        background: var(--bg-card);
+        border-radius: 14px;
+        border: 1px solid var(--border-color);
+        padding: 16px 20px;
+        box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02);
+    }
+
+    .score-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        margin-bottom: 20px;
+    }
+
+    .score-value {
+        font-size: 1.75rem;
+        font-weight: 800;
+        color: var(--text-dark);
+        line-height: 1;
+        letter-spacing: -0.5px;
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+    }
+
+    .score-value span { font-size: 0.8rem; color: #10b981; font-weight: 700; letter-spacing: normal; display: flex; align-items: center; gap: 4px; }
+
+    .sparkline-container {
+        width: 100px;
+        height: 40px;
+        display: flex;
+        align-items: flex-end;
+        gap: 4px;
+    }
+
+    .spark-bar {
+        flex: 1;
+        background: var(--vhr-purple-light);
+        border-radius: 2px 2px 0 0;
+        transition: height 0.5s;
+    }
+    .spark-bar.active { background: var(--vhr-purple); }
+
+    .score-ai-insight {
+        font-size: 0.8rem;
+        color: var(--text-body);
+        line-height: 1.5;
+        border-top: 1px solid var(--border-color);
+        padding-top: 16px;
+        display: flex;
+        gap: 12px;
+        align-items: flex-start;
+        font-weight: 500;
+    }
+
+    .score-ai-insight i { width: 16px; height: 16px; flex-shrink: 0; color: #f59e0b; margin-top: 2px; }
+
+    /* ALIGNMENT BARS */
+    .alignment-card {
+        background: var(--bg-card);
+        border-radius: 14px;
+        border: 1px solid var(--border-color);
+        padding: 16px 20px;
+        box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02);
+    }
+
+    .alignment-item {
+        margin-bottom: 20px;
+    }
+    .alignment-item:last-child { margin-bottom: 0; }
+
+    .alignment-label-row {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: var(--text-body);
+        margin-bottom: 8px;
+    }
+
+    .alignment-value {
+        font-weight: 700;
+        color: var(--text-dark);
+    }
+
+    .progress-container {
+        height: 8px;
+        background: #f1f5f9;
+        border-radius: 10px;
+        position: relative;
+    }
+
+    .progress-fill {
+        height: 100%;
+        background: var(--vhr-purple);
+        border-radius: 10px;
+    }
+
+    .pace-indicator {
+        position: absolute;
+        top: -6px;
+        width: 2px;
+        height: 20px;
+        background: #94a3b8;
+        z-index: 2;
+        border-radius: 2px;
+    }
+
+    .pace-indicator::before {
+        content: '';
+        position: absolute;
+        top: -4px;
+        left: -3px;
+        width: 0;
+        height: 0;
+        border-left: 4px solid transparent;
+        border-right: 4px solid transparent;
+        border-top: 4px solid #94a3b8;
+    }
+
+    /* AI SMART INSIGHTS */
+    .ai-smart-card {
+        background: linear-gradient(to bottom right, #ffffff, #fdf2f8);
+        border-radius: 14px;
+        border: 1px solid #fce7f3;
+        padding: 16px 20px;
+        box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02);
+    }
+
+    .ai-title {
+        font-size: 0.85rem;
+        font-weight: 800;
+        color: #db2777;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 12px;
+    }
+
+    .ai-body {
+        font-size: 0.85rem;
+        color: #334155;
+        line-height: 1.6;
+        font-weight: 500;
+    }
+
+    .view-more-link {
+        display: inline-block;
+        margin-top: 12px;
+        font-size: 0.8rem;
+        color: var(--vhr-purple);
+        font-weight: 700;
+        text-decoration: none;
+    }
+    .view-more-link:hover { text-decoration: underline; }
+</style>
+
+<div class="vhr-page-container">
+    <div class="tasks-kra-wrapper">
+        <!-- LEFT: WORKING AREA -->
+        <div class="tasks-section">
+            <div class="page-header">
+                <div>
+                    <h1 class="page-title">Operations Workbench</h1>
+                    <p class="page-subtitle">Track, manage, and execute HR deliverables effectively.</p>
+                </div>
+            </div>
+
+            <div class="tasks-header-row">
+                <div class="tasks-count-title">
+                    Active Tasks <span>4</span>
+                </div>
+                <div class="header-actions">
+                    <div class="search-bar-elevated">
+                        <i data-lucide="search" style="width:16px; color:#94a3b8;"></i>
+                        <input type="text" placeholder="Search tasks, people, categories...">
+                    </div>
+                    <button class="btn-create-action">
+                        <i data-lucide="plus" style="width:16px;"></i>
+                        New Task
+                    </button>
+                    <button class="btn-cta btn-cta-done" style="padding: 8px; border-color: transparent;"><i data-lucide="sliders-horizontal" style="width:16px;"></i></button>
+                </div>
+            </div>
+
+            <!-- GROUP: TODAY -->
+            <div class="task-group-header">Today</div>
+            <div class="task-group">
+                <div class="task-card high">
+                    <div class="task-info-side">
+                        <div class="task-title-row">
+                            <h3 class="task-title">Schedule Final Interview: Tech Lead Candidate (Anand S.)</h3>
+                            <span class="priority-pill high">High</span>
+                        </div>
+                        <div class="task-meta-flex">
+                            <div class="meta-item due-urgent">
+                                <i data-lucide="clock"></i>
+                                <span>Time: <b>2:00 PM Today</b></span>
+                            </div>
+                            <div class="meta-item">
+                                <i data-lucide="briefcase"></i>
+                                <span>Category: <b>Recruitment</b></span>
+                            </div>
+                            <div class="meta-item">
+                                <i data-lucide="building"></i>
+                                <span>Client: <b>Salarite Solutions</b></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="task-actions-side">
+                        <button class="btn-work-task">Work on Task <i data-lucide="arrow-up-right" style="width:14px;"></i></button>
+                        <button class="btn-mark-done" title="Mark as Done"><i data-lucide="check" style="width:18px;"></i></button>
+                    </div>
+                </div>
+
+                <div class="task-card high">
+                    <div class="task-info-side">
+                        <div class="task-title-row">
+                            <h3 class="task-title">Authorize March Payroll Cycle: Statutory Compliance Verify</h3>
+                            <span class="priority-pill high">High</span>
+                        </div>
+                        <div class="task-meta-flex">
+                            <div class="meta-item due-urgent">
+                                <i data-lucide="clock"></i>
+                                <span>Time: <b>5:30 PM Today</b></span>
+                            </div>
+                            <div class="meta-item">
+                                <i data-lucide="wallet"></i>
+                                <span>Category: <b>Payroll Processing</b></span>
+                            </div>
+                            <div class="meta-item">
+                                <i data-lucide="building"></i>
+                                <span>Client: <b>Global HR Inc.</b></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="task-actions-side">
+                        <button class="btn-work-task">Work on Task <i data-lucide="arrow-up-right" style="width:14px;"></i></button>
+                        <button class="btn-mark-done" title="Mark as Done"><i data-lucide="check" style="width:18px;"></i></button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- GROUP: TOMORROW -->
+            <div class="task-group-header">Tomorrow</div>
+            <div class="task-group">
+                <div class="task-card medium">
+                    <div class="task-info-side">
+                        <div class="task-title-row">
+                            <h3 class="task-title">Review Grievance File #GR-204: Workplace Policy Query</h3>
+                            <span class="priority-pill medium">Medium</span>
+                        </div>
+                        <div class="task-meta-flex">
+                            <div class="meta-item">
+                                <i data-lucide="calendar"></i>
+                                <span>Due: <b>07 Apr, 11:00 AM</b></span>
+                            </div>
+                            <div class="meta-item">
+                                <i data-lucide="shield-alert"></i>
+                                <span>Category: <b>Grievance Desk</b></span>
+                            </div>
+                            <div class="meta-item">
+                                <i data-lucide="building"></i>
+                                <span>Client: <b>Internal Ops</b></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="task-actions-side">
+                        <button class="btn-work-task">Work on Task <i data-lucide="arrow-up-right" style="width:14px;"></i></button>
+                        <button class="btn-mark-done" title="Mark as Done"><i data-lucide="check" style="width:18px;"></i></button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- GROUP: THIS WEEK -->
+            <div class="task-group-header">Later This Week</div>
+            <div class="task-group">
+                <div class="task-card low">
+                    <div class="task-info-side">
+                        <div class="task-title-row">
+                            <h3 class="task-title">Archive Q4 Compliance Documents: Secure Storage Phase</h3>
+                            <span class="priority-pill low">Low</span>
+                        </div>
+                        <div class="task-meta-flex">
+                            <div class="meta-item">
+                                <i data-lucide="calendar"></i>
+                                <span>Due: <b>10 Apr, By EOD</b></span>
+                            </div>
+                            <div class="meta-item">
+                                <i data-lucide="folder"></i>
+                                <span>Category: <b>Doc Center</b></span>
+                            </div>
+                            <div class="meta-item">
+                                <i data-lucide="building"></i>
+                                <span>Client: <b>Global HR Inc.</b></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="task-actions-side">
+                        <button class="btn-work-task">Work on Task <i data-lucide="arrow-up-right" style="width:14px;"></i></button>
+                        <button class="btn-mark-done" title="Mark as Done"><i data-lucide="check" style="width:18px;"></i></button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- RIGHT: PERFORMANCE INSIGHTS -->
+        <div class="performance-column">
+            
+            <div class="score-strip-card">
+                <div class="widget-title">Overall Efficiency</div>
+                <div class="score-row">
+                    <div class="score-value">
+                        92%
+                        <span><i data-lucide="trending-up" style="width:14px;"></i> +3% this week</span>
+                    </div>
+                    <div class="sparkline-container">
+                        <div class="spark-bar" style="height: 30%"></div>
+                        <div class="spark-bar" style="height: 45%"></div>
+                        <div class="spark-bar" style="height: 60%"></div>
+                        <div class="spark-bar" style="height: 50%"></div>
+                        <div class="spark-bar" style="height: 75%"></div>
+                        <div class="spark-bar" style="height: 85%"></div>
+                        <div class="spark-bar active" style="height: 100%"></div>
+                    </div>
+                </div>
+                <div class="score-ai-insight">
+                    <i data-lucide="award"></i>
+                    <div>Institutional Tier: Your resolve rate is in the top 5% of VHR specialists.</div>
+                </div>
+            </div>
+
+            <div class="alignment-card">
+                <div class="widget-title">Target Alignment</div>
+                
+                <div class="alignment-item">
+                    <div class="alignment-label-row">
+                        <span>Hiring Target (April)</span>
+                        <span class="alignment-value">60%</span>
+                    </div>
+                    <div class="progress-container">
+                        <div class="progress-fill" style="width: 60%;"></div>
+                        <div class="pace-indicator" style="left: 20%;" title="Expected Pace: 20%"></div>
+                    </div>
+                </div>
+
+                <div class="alignment-item">
+                    <div class="alignment-label-row">
+                        <span>Grievance Response SLA</span>
+                        <span class="alignment-value">100%</span>
+                    </div>
+                    <div class="progress-container">
+                        <div class="progress-fill" style="width: 100%; background: #10b981;"></div>
+                        <div class="pace-indicator" style="left: 20%;" title="Expected Pace: 20%"></div>
+                    </div>
+                </div>
+
+                <div class="alignment-item">
+                    <div class="alignment-label-row">
+                        <span>Benchmark Speed</span>
+                        <span class="alignment-value">80%</span>
+                    </div>
+                    <div class="progress-container">
+                        <div class="progress-fill" style="width: 80%; background: #3b82f6;"></div>
+                        <div class="pace-indicator" style="left: 20%;" title="Expected Pace: 20%"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="ai-smart-card">
+                <div class="ai-title">
+                    <i data-lucide="sparkles" style="width: 18px;"></i>
+                    Actionable Insights
+                </div>
+                <div class="ai-body">
+                    Complete the <strong>March Payroll Authorization</strong> by 4:00 PM today to guarantee on-time processing and avoid SLA breach for Global HR Inc.
+                    <br>
+                    <a href="#" class="view-more-link">View all 3 suggestions →</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    if (window.lucide) {
+        lucide.createIcons();
+    }
+</script>

@@ -1,0 +1,708 @@
+<div id="company-leave" class="sub-view">
+    <style>
+        .vhr-leave-container {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .leave-stat-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .leave-stat-card {
+            background: white;
+            padding: 22px 20px;
+            border-radius: 16px;
+            border: 1px solid #e2e8f0;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .leave-stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            border-radius: 4px 0 0 4px;
+        }
+
+        .leave-stat-card:hover, .leave-stat-card.active-filter {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.06);
+            border-color: #554994;
+        }
+
+        .leave-stat-card.active-filter::after {
+            content: '✓';
+            position: absolute;
+            top: 10px;
+            right: 12px;
+            font-size: 0.65rem;
+            background: #554994;
+            color: white;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .lsc-pending::before { background: #f59e0b; }
+        .lsc-approved::before { background: #10b981; }
+        .lsc-on-leave::before { background: #554994; }
+        .lsc-rejected::before { background: #ef4444; }
+
+        .leave-stat-label {
+            font-size: 0.7rem;
+            font-weight: 800;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .leave-stat-value {
+            font-size: 1.5rem;
+            font-weight: 900;
+            color: #1e293b;
+        }
+
+        .leave-panel-card {
+            background: white;
+            border-radius: 20px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.02);
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+
+        .leave-panel-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid #f1f5f9;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .leave-panel-title {
+            font-size: 1.1rem;
+            font-weight: 800;
+            color: #1e293b;
+            margin: 0;
+        }
+
+        .leave-tbl {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+
+        .leave-tbl th {
+            text-align: left;
+            padding: 14px 20px;
+            background: #f8fafc;
+            color: #64748b;
+            font-size: 0.7rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .leave-tbl td {
+            padding: 16px 20px;
+            border-bottom: 1px solid #f1f5f9;
+            font-size: 0.85rem;
+            color: #334155;
+            vertical-align: middle;
+        }
+
+        .leave-tbl tr:hover td {
+            background: #fcfcfd;
+        }
+
+        .leave-pill {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .lp-pending { background: #fef3c7; color: #92400e; }
+        .lp-approved { background: #d1fae5; color: #065f46; }
+        .lp-rejected { background: #fee2e2; color: #991b1b; }
+        .lp-on-leave { background: #ede9fe; color: #5b21b6; }
+
+        .leave-type-badge {
+            background: #f1f5f9;
+            color: #475569;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+
+        .btn-leave {
+            padding: 10px 18px;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: 0.2s;
+            border: none;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        .btn-leave-primary {
+            background: #554994;
+            color: white;
+            box-shadow: 0 4px 12px rgba(85, 73, 148, 0.2);
+        }
+
+        .btn-leave-primary:hover {
+            background: #433a75;
+            transform: translateY(-1px);
+        }
+
+        .btn-leave-outline {
+            background: white;
+            border: 1px solid #e2e8f0;
+            color: #64748b;
+        }
+
+        .btn-leave-outline:hover {
+            border-color: #554994;
+            color: #554994;
+            background: #fdfdff;
+        }
+
+        .btn-action-sm {
+            padding: 6px;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            background: white;
+            cursor: pointer;
+            transition: 0.2s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-action-sm.approve:hover { background: #10b981; color: white; border-color: #10b981; }
+        .btn-action-sm.reject:hover { background: #ef4444; color: white; border-color: #ef4444; }
+
+        .leave-input {
+            padding: 10px 14px;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            font-family: inherit;
+            color: #1e293b;
+            outline: none;
+            transition: 0.2s;
+        }
+
+        .leave-input:focus {
+            border-color: #554994;
+            box-shadow: 0 0 0 3px rgba(85, 73, 148, 0.1);
+        }
+
+        @media (max-width: 768px) {
+            .leave-stat-grid { grid-template-columns: 1fr 1fr; }
+            .leave-bottom-grid { grid-template-columns: 1fr !important; }
+        }
+    </style>
+
+    <div class="vhr-leave-container">
+        <!-- HEADER -->
+        <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:2rem;">
+            <div>
+                <h2 style="font-size:1.75rem; font-weight:800; color:#1e293b; letter-spacing:-1px; margin:0;">Leave Management</h2>
+                <p style="color:#94a3b8; font-weight:600; font-size:0.75rem; margin-top:2px;">Track, approve, and manage workforce leave requests and policy compliance</p>
+            </div>
+            
+            <div style="display:flex; gap:10px;">
+                <button class="btn-leave btn-leave-outline" onclick="exportLeaveVHR()">
+                    <i data-lucide="download" style="width: 16px;"></i> 
+                    Export Report
+                </button>
+                <button class="btn-leave btn-leave-primary" onclick="openLeaveModal()">
+                    <i data-lucide="plus-circle" style="width: 16px;"></i> 
+                    Manual Leave
+                </button>
+            </div>
+        </div>
+
+        <!-- STAT CARDS (Clickable Filters) -->
+        <div class="leave-stat-grid">
+            <div class="leave-stat-card lsc-pending" onclick="filterLeaveTable('pending', this)">
+                <span class="leave-stat-label">Pending Approval</span>
+                <span class="leave-stat-value" id="vhr-val-pending">05</span>
+            </div>
+            <div class="leave-stat-card lsc-approved" onclick="filterLeaveTable('approved', this)">
+                <span class="leave-stat-label">Approved (Monthly)</span>
+                <span class="leave-stat-value" id="vhr-val-approved">18</span>
+            </div>
+            <div class="leave-stat-card lsc-on-leave" onclick="filterLeaveTable('on-leave', this)">
+                <span class="leave-stat-label">Currently on Leave</span>
+                <span class="leave-stat-value" id="vhr-val-on-leave">06</span>
+            </div>
+            <div class="leave-stat-card lsc-rejected" onclick="filterLeaveTable('rejected', this)">
+                <span class="leave-stat-label">Rejected Requests</span>
+                <span class="leave-stat-value" id="vhr-val-rejected">02</span>
+            </div>
+        </div>
+
+        <!-- LEAVE REQUEST TABLE -->
+        <div class="leave-panel-card">
+            <div class="leave-panel-header">
+                <h3 class="leave-panel-title">Active Leave Applications</h3>
+                <div style="display:flex; gap:10px; align-items:center;">
+                    <select class="leave-input" id="vhr-filter-leave-type" onchange="filterLeaveByType()">
+                        <option value="">All Types</option>
+                        <option value="Sick Leave">Sick Leave</option>
+                        <option value="Casual Leave">Casual Leave</option>
+                        <option value="Earned Leave">Earned Leave</option>
+                        <option value="Unpaid Leave">Unpaid Leave</option>
+                    </select>
+                    <button class="btn-leave btn-leave-outline" style="padding:8px 14px; font-size:0.75rem;" onclick="resetLeaveFilters()">
+                        <i data-lucide="rotate-ccw" style="width:14px;"></i> Reset
+                    </button>
+                </div>
+            </div>
+
+            <div style="overflow-x: auto;">
+                <table class="leave-tbl">
+                    <thead>
+                        <tr>
+                            <th>Employee</th>
+                            <th>Leave Type</th>
+                            <th>Duration</th>
+                            <th>Days</th>
+                            <th>Status</th>
+                            <th>Reason</th>
+                            <th style="text-align: right;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="vhr-leave-table-body">
+                        <!-- Pending -->
+                        <tr class="vhr-leave-row" data-status="pending" data-type="Sick Leave">
+                            <td>
+                                <div style="display:flex; align-items:center; gap:12px;">
+                                    <div style="width:32px; height:32px; border-radius:50%; background:#fef3c7; display:flex; align-items:center; justify-content:center; font-size:0.75rem; font-weight:800; color:#92400e;">SJ</div>
+                                    <div>
+                                        <div style="font-weight:700;">Sameer Jain</div>
+                                        <div style="font-size:0.7rem; color:#94a3b8;">EMP-1008</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td><span class="leave-type-badge">Sick Leave</span></td>
+                            <td><span style="font-weight:600;">Apr 07 – Apr 10</span></td>
+                            <td><span style="font-weight:800; color:#554994;">3</span></td>
+                            <td><span class="leave-pill lp-pending">Pending</span></td>
+                            <td style="max-width:180px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:#64748b;">Viral fever, doctor advice</td>
+                            <td style="text-align:right;">
+                                <div style="display:flex; gap:6px; justify-content:flex-end;">
+                                    <button class="btn-action-sm approve" title="Approve" onclick="approveLeaveVHR(this)"><i data-lucide="check" style="width:14px;"></i></button>
+                                    <button class="btn-action-sm reject" title="Reject" onclick="rejectLeaveVHR(this)"><i data-lucide="x" style="width:14px;"></i></button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr class="vhr-leave-row" data-status="pending" data-type="Casual Leave">
+                            <td>
+                                <div style="display:flex; align-items:center; gap:12px;">
+                                    <div style="width:32px; height:32px; border-radius:50%; background:#fef3c7; display:flex; align-items:center; justify-content:center; font-size:0.75rem; font-weight:800; color:#92400e;">RG</div>
+                                    <div>
+                                        <div style="font-weight:700;">Reyansh Gupta</div>
+                                        <div style="font-size:0.7rem; color:#94a3b8;">EMP-1005</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td><span class="leave-type-badge">Casual Leave</span></td>
+                            <td><span style="font-weight:600;">Apr 12 – Apr 12</span></td>
+                            <td><span style="font-weight:800; color:#554994;">1</span></td>
+                            <td><span class="leave-pill lp-pending">Pending</span></td>
+                            <td style="max-width:180px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:#64748b;">Personal commitment</td>
+                            <td style="text-align:right;">
+                                <div style="display:flex; gap:6px; justify-content:flex-end;">
+                                    <button class="btn-action-sm approve" title="Approve" onclick="approveLeaveVHR(this)"><i data-lucide="check" style="width:14px;"></i></button>
+                                    <button class="btn-action-sm reject" title="Reject" onclick="rejectLeaveVHR(this)"><i data-lucide="x" style="width:14px;"></i></button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr class="vhr-leave-row" data-status="pending" data-type="Earned Leave">
+                            <td>
+                                <div style="display:flex; align-items:center; gap:12px;">
+                                    <div style="width:32px; height:32px; border-radius:50%; background:#fef3c7; display:flex; align-items:center; justify-content:center; font-size:0.75rem; font-weight:800; color:#92400e;">NK</div>
+                                    <div>
+                                        <div style="font-weight:700;">Neha Kapoor</div>
+                                        <div style="font-size:0.7rem; color:#94a3b8;">EMP-1019</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td><span class="leave-type-badge">Earned Leave</span></td>
+                            <td><span style="font-weight:600;">Apr 15 – Apr 22</span></td>
+                            <td><span style="font-weight:800; color:#554994;">7</span></td>
+                            <td><span class="leave-pill lp-pending">Pending</span></td>
+                            <td style="max-width:180px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:#64748b;">Family vacation planned</td>
+                            <td style="text-align:right;">
+                                <div style="display:flex; gap:6px; justify-content:flex-end;">
+                                    <button class="btn-action-sm approve" title="Approve" onclick="approveLeaveVHR(this)"><i data-lucide="check" style="width:14px;"></i></button>
+                                    <button class="btn-action-sm reject" title="Reject" onclick="rejectLeaveVHR(this)"><i data-lucide="x" style="width:14px;"></i></button>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <!-- Approved -->
+                        <tr class="vhr-leave-row" data-status="approved" data-type="Sick Leave">
+                            <td>
+                                <div style="display:flex; align-items:center; gap:12px;">
+                                    <div style="width:32px; height:32px; border-radius:50%; background:#d1fae5; display:flex; align-items:center; justify-content:center; font-size:0.75rem; font-weight:800; color:#065f46;">AS</div>
+                                    <div>
+                                        <div style="font-weight:700;">Aarav Sharma</div>
+                                        <div style="font-size:0.7rem; color:#94a3b8;">EMP-1001</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td><span class="leave-type-badge">Sick Leave</span></td>
+                            <td><span style="font-weight:600;">Apr 01 – Apr 02</span></td>
+                            <td><span style="font-weight:800; color:#554994;">2</span></td>
+                            <td><span class="leave-pill lp-approved">Approved</span></td>
+                            <td style="max-width:180px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:#64748b;">Medical appointment</td>
+                            <td style="text-align:right;">
+                                <button class="btn-action-sm" disabled title="Processed" style="opacity:0.4;"><i data-lucide="minus" style="width:14px;"></i></button>
+                            </td>
+                        </tr>
+                        <tr class="vhr-leave-row" data-status="approved" data-type="Casual Leave">
+                            <td>
+                                <div style="display:flex; align-items:center; gap:12px;">
+                                    <div style="width:32px; height:32px; border-radius:50%; background:#d1fae5; display:flex; align-items:center; justify-content:center; font-size:0.75rem; font-weight:800; color:#065f46;">DV</div>
+                                    <div>
+                                        <div style="font-weight:700;">Diya Verma</div>
+                                        <div style="font-size:0.7rem; color:#94a3b8;">EMP-1012</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td><span class="leave-type-badge">Casual Leave</span></td>
+                            <td><span style="font-weight:600;">Apr 04 – Apr 04</span></td>
+                            <td><span style="font-weight:800; color:#554994;">1</span></td>
+                            <td><span class="leave-pill lp-approved">Approved</span></td>
+                            <td style="max-width:180px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:#64748b;">Family function</td>
+                            <td style="text-align:right;">
+                                <button class="btn-action-sm" disabled title="Processed" style="opacity:0.4;"><i data-lucide="minus" style="width:14px;"></i></button>
+                            </td>
+                        </tr>
+
+                        <!-- On Leave (currently active) -->
+                        <tr class="vhr-leave-row" data-status="on-leave" data-type="Earned Leave">
+                            <td>
+                                <div style="display:flex; align-items:center; gap:12px;">
+                                    <div style="width:32px; height:32px; border-radius:50%; background:#ede9fe; display:flex; align-items:center; justify-content:center; font-size:0.75rem; font-weight:800; color:#5b21b6;">KP</div>
+                                    <div>
+                                        <div style="font-weight:700;">Krish Patel</div>
+                                        <div style="font-size:0.7rem; color:#94a3b8;">EMP-1006</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td><span class="leave-type-badge">Earned Leave</span></td>
+                            <td><span style="font-weight:600;">Apr 05 – Apr 08</span></td>
+                            <td><span style="font-weight:800; color:#554994;">4</span></td>
+                            <td><span class="leave-pill lp-on-leave">On Leave</span></td>
+                            <td style="max-width:180px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:#64748b;">Pre-approved vacation</td>
+                            <td style="text-align:right;">
+                                <button class="btn-action-sm" disabled title="Active" style="opacity:0.4;"><i data-lucide="minus" style="width:14px;"></i></button>
+                            </td>
+                        </tr>
+
+                        <!-- Rejected -->
+                        <tr class="vhr-leave-row" data-status="rejected" data-type="Unpaid Leave">
+                            <td>
+                                <div style="display:flex; align-items:center; gap:12px;">
+                                    <div style="width:32px; height:32px; border-radius:50%; background:#fee2e2; display:flex; align-items:center; justify-content:center; font-size:0.75rem; font-weight:800; color:#991b1b;">IY</div>
+                                    <div>
+                                        <div style="font-weight:700;">Ishan Yadav</div>
+                                        <div style="font-size:0.7rem; color:#94a3b8;">EMP-1007</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td><span class="leave-type-badge">Unpaid Leave</span></td>
+                            <td><span style="font-weight:600;">Apr 08 – Apr 20</span></td>
+                            <td><span style="font-weight:800; color:#554994;">12</span></td>
+                            <td><span class="leave-pill lp-rejected">Rejected</span></td>
+                            <td style="max-width:180px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:#64748b;">Insufficient balance, critical project</td>
+                            <td style="text-align:right;">
+                                <button class="btn-action-sm" disabled title="Processed" style="opacity:0.4;"><i data-lucide="minus" style="width:14px;"></i></button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- BOTTOM SECTION: Balances + Policy -->
+        <div class="leave-bottom-grid" style="display:grid; grid-template-columns: 1.2fr 0.8fr; gap:2rem;">
+            <!-- Leave Balances -->
+            <div class="leave-panel-card">
+                <div class="leave-panel-header">
+                    <h3 class="leave-panel-title" style="display:flex; align-items:center; gap:10px;">
+                        <i data-lucide="wallet" style="width:18px; color:#554994;"></i> Leave Balances (Quick View)
+                    </h3>
+                </div>
+                <div style="padding:20px;">
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
+                        <div style="background:#f8fafc; border:1px solid #f1f5f9; border-radius:14px; padding:16px; text-align:center;">
+                            <div style="font-size:0.65rem; font-weight:800; color:#64748b; text-transform:uppercase; letter-spacing:1px;">Sick Leave</div>
+                            <div style="font-size:1.75rem; font-weight:900; color:#1e293b; margin-top:4px;">8 <span style="font-size:0.7rem; color:#94a3b8; font-weight:600;">/ 12</span></div>
+                            <div style="background:#e2e8f0; height:4px; border-radius:4px; margin-top:8px;"><div style="background:#10b981; height:100%; width:67%; border-radius:4px;"></div></div>
+                        </div>
+                        <div style="background:#f8fafc; border:1px solid #f1f5f9; border-radius:14px; padding:16px; text-align:center;">
+                            <div style="font-size:0.65rem; font-weight:800; color:#64748b; text-transform:uppercase; letter-spacing:1px;">Casual Leave</div>
+                            <div style="font-size:1.75rem; font-weight:900; color:#1e293b; margin-top:4px;">4 <span style="font-size:0.7rem; color:#94a3b8; font-weight:600;">/ 10</span></div>
+                            <div style="background:#e2e8f0; height:4px; border-radius:4px; margin-top:8px;"><div style="background:#f59e0b; height:100%; width:40%; border-radius:4px;"></div></div>
+                        </div>
+                        <div style="background:#f8fafc; border:1px solid #f1f5f9; border-radius:14px; padding:16px; text-align:center;">
+                            <div style="font-size:0.65rem; font-weight:800; color:#64748b; text-transform:uppercase; letter-spacing:1px;">Earned Leave</div>
+                            <div style="font-size:1.75rem; font-weight:900; color:#1e293b; margin-top:4px;">12 <span style="font-size:0.7rem; color:#94a3b8; font-weight:600;">/ 15</span></div>
+                            <div style="background:#e2e8f0; height:4px; border-radius:4px; margin-top:8px;"><div style="background:#554994; height:100%; width:80%; border-radius:4px;"></div></div>
+                        </div>
+                        <div style="background:#f8fafc; border:1px solid #f1f5f9; border-radius:14px; padding:16px; text-align:center;">
+                            <div style="font-size:0.65rem; font-weight:800; color:#64748b; text-transform:uppercase; letter-spacing:1px;">Unpaid Leave</div>
+                            <div style="font-size:1.75rem; font-weight:900; color:#1e293b; margin-top:4px;">2 <span style="font-size:0.7rem; color:#94a3b8; font-weight:600;">used</span></div>
+                            <div style="background:#e2e8f0; height:4px; border-radius:4px; margin-top:8px;"><div style="background:#ef4444; height:100%; width:20%; border-radius:4px;"></div></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Leave Policy Rules -->
+            <div class="leave-panel-card">
+                <div class="leave-panel-header">
+                    <h3 class="leave-panel-title" style="display:flex; align-items:center; gap:10px;">
+                        <i data-lucide="shield-check" style="width:18px; color:#554994;"></i> Leave Policy Rules
+                    </h3>
+                </div>
+                <div style="padding:20px;">
+                    <div style="display:flex; flex-direction:column; gap:16px;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; padding-bottom:14px; border-bottom:1px dashed #e2e8f0;">
+                            <span style="font-size:0.8rem; font-weight:700; color:#64748b;">Default Annual Limit</span>
+                            <span style="font-size:0.85rem; font-weight:900; color:#554994;">24 Days</span>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; align-items:center; padding-bottom:14px; border-bottom:1px dashed #e2e8f0;">
+                            <span style="font-size:0.8rem; font-weight:700; color:#64748b;">Carry Forward</span>
+                            <span style="font-size:0.85rem; font-weight:900; color:#10b981;">Enabled (Max 15)</span>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; align-items:center; padding-bottom:14px; border-bottom:1px dashed #e2e8f0;">
+                            <span style="font-size:0.8rem; font-weight:700; color:#64748b;">Sandwich Policy</span>
+                            <span style="font-size:0.85rem; font-weight:900; color:#ef4444;">Active</span>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <span style="font-size:0.8rem; font-weight:700; color:#64748b;">Min Notice (Earned)</span>
+                            <span style="font-size:0.85rem; font-weight:900; color:#1e293b;">7 Days</span>
+                        </div>
+                    </div>
+                    
+                    <button class="btn-leave btn-leave-primary" style="width:100%; margin-top:1.5rem; justify-content:center; font-size:0.75rem;">
+                        Configure Policies
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: Manual Leave Entry -->
+    <div id="vhr-leave-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.4); z-index:9999; backdrop-filter:blur(4px); align-items:center; justify-content:center;">
+        <div class="leave-panel-card" style="width:100%; max-width:480px; margin:20px; box-shadow:0 25px 50px rgba(0,0,0,0.15);">
+            <div style="padding:24px; border-bottom:1px solid #f1f5f9; display:flex; justify-content:space-between; align-items:center;">
+                <h3 style="margin:0; font-weight:900; color:#1e293b; font-size:1.1rem;">Apply Manual Leave</h3>
+                <button onclick="closeLeaveModal()" style="background:none; border:none; cursor:pointer; color:#94a3b8;"><i data-lucide="x" style="width:20px;"></i></button>
+            </div>
+            
+            <div style="padding:24px; display:flex; flex-direction:column; gap:16px;">
+                <div>
+                    <label style="display:block; font-size:0.7rem; font-weight:800; color:#64748b; text-transform:uppercase; margin-bottom:8px;">Select Employee</label>
+                    <select class="leave-input" style="width:100%;">
+                        <option value="">Choose Employee...</option>
+                        <option>Aarav Sharma (EMP-1001)</option>
+                        <option>Vivaan Verma (EMP-1002)</option>
+                        <option>Aditya Singh (EMP-1003)</option>
+                        <option>Krish Patel (EMP-1006)</option>
+                    </select>
+                </div>
+                <div>
+                    <label style="display:block; font-size:0.7rem; font-weight:800; color:#64748b; text-transform:uppercase; margin-bottom:8px;">Leave Type</label>
+                    <select class="leave-input" style="width:100%;">
+                        <option>Sick Leave</option>
+                        <option>Casual Leave</option>
+                        <option>Earned Leave</option>
+                        <option>Unpaid Leave</option>
+                    </select>
+                </div>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px;">
+                    <div>
+                        <label style="display:block; font-size:0.7rem; font-weight:800; color:#64748b; text-transform:uppercase; margin-bottom:8px;">From Date</label>
+                        <input type="date" class="leave-input" style="width:100%;">
+                    </div>
+                    <div>
+                        <label style="display:block; font-size:0.7rem; font-weight:800; color:#64748b; text-transform:uppercase; margin-bottom:8px;">To Date</label>
+                        <input type="date" class="leave-input" style="width:100%;">
+                    </div>
+                </div>
+                <div>
+                    <label style="display:block; font-size:0.7rem; font-weight:800; color:#64748b; text-transform:uppercase; margin-bottom:8px;">Reason / Remarks</label>
+                    <textarea class="leave-input" style="width:100%; height:80px; resize:none;" placeholder="Brief explanation..."></textarea>
+                </div>
+                
+                <button class="btn-leave btn-leave-primary" style="width:100%; justify-content:center; padding:14px; margin-top:6px;" onclick="submitManualLeave()">
+                    Approve & Mark Leave
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            // Initialize Lucide icons
+            if (window.lucide) window.lucide.createIcons();
+
+            let activeStatusFilter = null;
+
+            // ----- STAT CARD FILTER -----
+            window.filterLeaveTable = function(status, cardElement) {
+                // Toggle: click same card again = deselect
+                if (activeStatusFilter === status) {
+                    activeStatusFilter = null;
+                    document.querySelectorAll('.leave-stat-card').forEach(c => c.classList.remove('active-filter'));
+                    showAllRows();
+                    return;
+                }
+
+                activeStatusFilter = status;
+                document.querySelectorAll('.leave-stat-card').forEach(c => c.classList.remove('active-filter'));
+                if (cardElement) cardElement.classList.add('active-filter');
+
+                applyFilters();
+            };
+
+            // ----- TYPE DROPDOWN FILTER -----
+            window.filterLeaveByType = function() {
+                applyFilters();
+            };
+
+            // ----- COMBINED FILTER LOGIC -----
+            function applyFilters() {
+                const typeFilter = document.getElementById('vhr-filter-leave-type').value;
+                const rows = document.querySelectorAll('.vhr-leave-row');
+                
+                rows.forEach(row => {
+                    const rowStatus = row.getAttribute('data-status');
+                    const rowType = row.getAttribute('data-type');
+
+                    const matchesStatus = !activeStatusFilter || rowStatus === activeStatusFilter;
+                    const matchesType = !typeFilter || rowType === typeFilter;
+
+                    row.style.display = (matchesStatus && matchesType) ? 'table-row' : 'none';
+                });
+            }
+
+            function showAllRows() {
+                document.querySelectorAll('.vhr-leave-row').forEach(row => {
+                    row.style.display = 'table-row';
+                });
+            }
+
+            // ----- RESET -----
+            window.resetLeaveFilters = function() {
+                activeStatusFilter = null;
+                document.querySelectorAll('.leave-stat-card').forEach(c => c.classList.remove('active-filter'));
+                document.getElementById('vhr-filter-leave-type').value = '';
+                showAllRows();
+            };
+
+            // ----- ACTION BUTTONS -----
+            window.approveLeaveVHR = function(btn) {
+                const row = btn.closest('tr');
+                const pillEl = row.querySelector('.leave-pill');
+                pillEl.className = 'leave-pill lp-approved';
+                pillEl.textContent = 'Approved';
+                row.setAttribute('data-status', 'approved');
+
+                // Replace action buttons
+                const actionCell = row.querySelector('td:last-child');
+                actionCell.innerHTML = '<button class="btn-action-sm" disabled title="Processed" style="opacity:0.4;"><i data-lucide="minus" style="width:14px;"></i></button>';
+
+                // Update avatar color
+                const avatar = row.querySelector('div[style*="border-radius:50%"]');
+                if (avatar) { avatar.style.background = '#d1fae5'; avatar.style.color = '#065f46'; }
+
+                updateStatCounts();
+                if (window.lucide) window.lucide.createIcons();
+            };
+
+            window.rejectLeaveVHR = function(btn) {
+                const row = btn.closest('tr');
+                const pillEl = row.querySelector('.leave-pill');
+                pillEl.className = 'leave-pill lp-rejected';
+                pillEl.textContent = 'Rejected';
+                row.setAttribute('data-status', 'rejected');
+
+                const actionCell = row.querySelector('td:last-child');
+                actionCell.innerHTML = '<button class="btn-action-sm" disabled title="Processed" style="opacity:0.4;"><i data-lucide="minus" style="width:14px;"></i></button>';
+
+                const avatar = row.querySelector('div[style*="border-radius:50%"]');
+                if (avatar) { avatar.style.background = '#fee2e2'; avatar.style.color = '#991b1b'; }
+
+                updateStatCounts();
+                if (window.lucide) window.lucide.createIcons();
+            };
+
+            function updateStatCounts() {
+                const rows = document.querySelectorAll('.vhr-leave-row');
+                let p = 0, a = 0, o = 0, r = 0;
+                rows.forEach(row => {
+                    const s = row.getAttribute('data-status');
+                    if (s === 'pending') p++;
+                    else if (s === 'approved') a++;
+                    else if (s === 'on-leave') o++;
+                    else if (s === 'rejected') r++;
+                });
+                document.getElementById('vhr-val-pending').textContent = String(p).padStart(2, '0');
+                document.getElementById('vhr-val-approved').textContent = String(a).padStart(2, '0');
+                document.getElementById('vhr-val-on-leave').textContent = String(o).padStart(2, '0');
+                document.getElementById('vhr-val-rejected').textContent = String(r).padStart(2, '0');
+            }
+
+            // ----- MODAL -----
+            window.openLeaveModal = function() {
+                document.getElementById('vhr-leave-modal').style.display = 'flex';
+            };
+
+            window.closeLeaveModal = function() {
+                document.getElementById('vhr-leave-modal').style.display = 'none';
+            };
+
+            window.submitManualLeave = function() {
+                alert("Leave marked and approved successfully.");
+                closeLeaveModal();
+            };
+
+            window.exportLeaveVHR = function() {
+                alert("Generating Leave Status Report (PDF/XLSX)...");
+            };
+
+        })();
+    </script>
+</div>

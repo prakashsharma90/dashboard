@@ -1,0 +1,451 @@
+<div id="company-documents" class="sub-view">
+    <style>
+        .vhr-doc-center {
+            font-family: 'Inter', sans-serif;
+            background: transparent;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        /* Module Top Navigation */
+        .vhr-module-nav {
+            display: flex;
+            align-items: center;
+            gap: 30px;
+            margin-bottom: 25px;
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 15px;
+        }
+
+        .vhr-nav-link {
+            text-decoration: none;
+            color: #94a3b8;
+            font-size: 0.85rem;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 0;
+            position: relative;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .vhr-nav-link.active {
+            color: #554994;
+        }
+
+        .vhr-nav-link.active::after {
+            content: '';
+            position: absolute;
+            bottom: -16px;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: #554994;
+            border-radius: 10px;
+        }
+
+        /* Institutional Cards */
+        .vhr-doc-card {
+            background: white;
+            border-radius: 20px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.02);
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .vhr-card-header {
+            padding: 20px 25px;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .vhr-card-header h3 {
+            font-size: 1.1rem;
+            font-weight: 800;
+            margin: 0;
+            color: #1e293b;
+        }
+
+        /* High-Density Tables */
+        .vhr-doc-panel table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .vhr-doc-panel th {
+            background: #f8fafc;
+            font-size: 0.7rem;
+            font-weight: 800;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 14px 24px;
+            border-bottom: 1px solid #e2e8f0;
+            text-align: left;
+        }
+
+        .vhr-doc-panel td {
+            font-size: 0.85rem;
+            padding: 16px 24px;
+            border-bottom: 1px solid #f1f5f9;
+            color: #334155;
+            vertical-align: middle;
+        }
+
+        .vhr-doc-panel tr:hover td {
+            background: #fcfcfd;
+        }
+
+        /* Functional Badges */
+        .vhr-status-badge {
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .vhr-status-active { background: #d1fae5; color: #065f46; }
+        .vhr-status-expired { background: #fee2e2; color: #991b1b; }
+        .vhr-status-pending { background: #fef3c7; color: #92400e; }
+
+        /* Integrated Header Controls */
+        .vhr-header-utilities {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .vhr-btn-doc {
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 0.8rem;
+            padding: 8px 15px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border: 1px solid #e2e8f0;
+            background: white;
+            color: #64748b;
+        }
+        .vhr-btn-doc:hover { color: #554994; border-color: #554994; }
+
+        .vhr-btn-doc-primary {
+            background: #554994;
+            color: white;
+            border: none;
+        }
+        .vhr-btn-doc-primary:hover { opacity: 0.9; color: white; }
+
+        /* Document Grid View */
+        .vhr-grid-folders {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .vhr-folder-item {
+            background: white;
+            padding: 20px;
+            border-radius: 18px;
+            border: 1px solid #e2e8f0;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .vhr-folder-item:hover { transform: translateY(-4px); box-shadow: 0 10px 25px rgba(0,0,0,0.06); border-color:#554994;}
+
+        .vhr-folder-icon {
+            width: 44px;
+            height: 44px;
+            background: #f5f3ff;
+            color: #554994;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .vhr-section-content { display: none; }
+        .vhr-active-section { display: block; }
+
+        .vhr-search-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: white;
+            border: 1px solid #e2e8f0;
+            padding: 8px 14px;
+            border-radius: 10px;
+            transition: 0.2s;
+        }
+        .vhr-search-container:focus-within {
+            border-color: #554994;
+            box-shadow: 0 0 0 3px rgba(85, 73, 148, 0.1);
+        }
+        .vhr-search-container input {
+            border: none;
+            background: transparent;
+            outline: none;
+            font-size: 0.85rem;
+            width: 200px;
+            font-family: inherit;
+        }
+    </style>
+
+    <div class="vhr-doc-center">
+        <!-- HEADER -->
+        <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:1rem;">
+            <div>
+                <h2 style="font-size:1.75rem; font-weight:800; color:#1e293b; letter-spacing:-1px; margin:0;">Document Center</h2>
+                <p style="color:#94a3b8; font-weight:600; font-size:0.75rem; margin-top:4px;">Manage, distribute, and track institutional documents and compliance records.</p>
+            </div>
+            <div style="display:flex; gap:10px;">
+                <button class="vhr-btn-doc vhr-btn-doc-primary">
+                    <i data-lucide="upload" style="width: 16px;"></i> 
+                    Upload Document
+                </button>
+            </div>
+        </div>
+
+        <!-- 1. Module Top Navigation -->
+        <nav class="vhr-module-nav">
+            <div class="vhr-nav-link active" data-target="vhr-section-overview">
+                <i data-lucide="layout-grid" style="width:16px;"></i> Overview
+            </div>
+            <div class="vhr-nav-link" data-target="vhr-section-management">
+                <i data-lucide="folder" style="width:16px;"></i> Master Directory
+            </div>
+            <div class="vhr-nav-link" data-target="vhr-section-records">
+                <i data-lucide="users" style="width:16px;"></i> Employee Vault
+            </div>
+            <div class="vhr-nav-link" data-target="vhr-section-templates">
+                <i data-lucide="file-text" style="width:16px;"></i> HR Templates
+            </div>
+        </nav>
+
+        <!-- 2. Overview Section -->
+        <div id="vhr-section-overview" class="vhr-section-content vhr-active-section">
+            <!-- Stats Bar -->
+            <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:20px; margin-bottom:25px;">
+                <div class="vhr-doc-card" style="padding:20px; display:flex; align-items:center; gap:15px; margin:0;">
+                    <div class="vhr-folder-icon" style="background:#f5f3ff; color:#554994;"><i data-lucide="files"></i></div>
+                    <div>
+                        <div style="font-size:0.65rem; font-weight:800; color:#94a3b8; text-transform:uppercase;">Stored</div>
+                        <div style="font-size:1.4rem; font-weight:900; color:#1e293b;">1,248</div>
+                    </div>
+                </div>
+                <div class="vhr-doc-card" style="padding:20px; display:flex; align-items:center; gap:15px; margin:0;">
+                    <div class="vhr-folder-icon" style="background:#fee2e2; color:#ef4444;"><i data-lucide="alert-triangle"></i></div>
+                    <div>
+                        <div style="font-size:0.65rem; font-weight:800; color:#94a3b8; text-transform:uppercase;">Expiring</div>
+                        <div style="font-size:1.4rem; font-weight:900; color:#1e293b;">12</div>
+                    </div>
+                </div>
+                <div class="vhr-doc-card" style="padding:20px; display:flex; align-items:center; gap:15px; margin:0;">
+                    <div class="vhr-folder-icon" style="background:#d1fae5; color:#10b981;"><i data-lucide="check-circle"></i></div>
+                    <div>
+                        <div style="font-size:0.65rem; font-weight:800; color:#94a3b8; text-transform:uppercase;">Verified</div>
+                        <div style="font-size:1.4rem; font-weight:900; color:#1e293b;">94%</div>
+                    </div>
+                </div>
+                <div class="vhr-doc-card" style="padding:20px; display:flex; align-items:center; gap:15px; margin:0;">
+                    <div class="vhr-folder-icon" style="background:#fef3c7; color:#f59e0b;"><i data-lucide="clock"></i></div>
+                    <div>
+                        <div style="font-size:0.65rem; font-weight:800; color:#94a3b8; text-transform:uppercase;">Pending</div>
+                        <div style="font-size:1.4rem; font-weight:900; color:#1e293b;">28</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Folder Grid -->
+            <div class="vhr-grid-folders">
+                <div class="vhr-folder-item">
+                    <div class="vhr-folder-icon"><i data-lucide="folder"></i></div>
+                    <div style="font-weight:800; font-size:1rem; color:#1e293b;">Company Policies</div>
+                    <div style="font-size:0.75rem; color:#64748b; font-weight:700;">12 Files</div>
+                </div>
+                <div class="vhr-folder-item">
+                    <div class="vhr-folder-icon" style="background:#fefce8; color:#eab308;"><i data-lucide="briefcase"></i></div>
+                    <div style="font-weight:800; font-size:1rem; color:#1e293b;">Offer Letters</div>
+                    <div style="font-size:0.75rem; color:#64748b; font-weight:700;">450 Files</div>
+                </div>
+                <div class="vhr-folder-item">
+                    <div class="vhr-folder-icon" style="background:#f0fdf4; color:#10b981;"><i data-lucide="user"></i></div>
+                    <div style="font-weight:800; font-size:1rem; color:#1e293b;">Employee IDs</div>
+                    <div style="font-size:0.75rem; color:#64748b; font-weight:700;">890 Files</div>
+                </div>
+                <div class="vhr-folder-item">
+                    <div class="vhr-folder-icon" style="background:#f5f3ff; color:#8b5cf6;"><i data-lucide="file-signature"></i></div>
+                    <div style="font-weight:800; font-size:1rem; color:#1e293b;">Contracts</div>
+                    <div style="font-size:0.75rem; color:#64748b; font-weight:700;">115 Files</div>
+                </div>
+            </div>
+
+            <!-- Recent Activity Table -->
+            <div class="vhr-doc-card vhr-doc-panel">
+                <div class="vhr-card-header">
+                    <div style="display:flex; align-items:center; gap:12px;">
+                        <h3>Institutional Document Ledger</h3>
+                        <span style="font-size:0.65rem; font-weight:900; background:#f1f5f9; color:#475569; padding:4px 8px; border-radius:6px; letter-spacing:0.5px;">RECENT UPDATES</span>
+                    </div>
+                </div>
+                <div style="overflow-x:auto;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Document Name</th>
+                                <th>Category</th>
+                                <th>Last Updated</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <div style="display:flex; align-items:center; gap:10px;">
+                                        <div style="width:30px; height:30px; background:#fef2f2; border-radius:8px; display:flex; align-items:center; justify-content:center; color:#b91c1c; font-weight:900; font-size:0.65rem;">PDF</div>
+                                        <b style="color:#1e293b;">Employee_Handbook_2026.pdf</b>
+                                    </div>
+                                </td>
+                                <td><span style="background:#f1f5f9; padding:4px 10px; border-radius:6px; font-size:0.75rem; font-weight:700;">Compliance</span></td>
+                                <td style="font-weight:600;">Mar 02, 2026</td>
+                                <td><button style="background:none; border:none; color:#554994; cursor:pointer; font-weight:800; font-size:0.8rem;">Preview</button></td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div style="display:flex; align-items:center; gap:10px;">
+                                        <div style="width:30px; height:30px; background:#eff6ff; border-radius:8px; display:flex; align-items:center; justify-content:center; color:#1d4ed8; font-weight:900; font-size:0.65rem;">DOC</div>
+                                        <b style="color:#1e293b;">New_Hire_Contract_Template.docx</b>
+                                    </div>
+                                </td>
+                                <td><span style="background:#f1f5f9; padding:4px 10px; border-radius:6px; font-size:0.75rem; font-weight:700;">Legal</span></td>
+                                <td style="font-weight:600;">Feb 28, 2026</td>
+                                <td><button style="background:none; border:none; color:#554994; cursor:pointer; font-weight:800; font-size:0.8rem;">Preview</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Management Section -->
+        <div id="vhr-section-management" class="vhr-section-content">
+            <div class="vhr-doc-card vhr-doc-panel">
+                <div class="vhr-card-header">
+                    <div style="display:flex; align-items:center; gap:12px;">
+                        <h3>Master Document Directory</h3>
+                        <span style="font-size:0.65rem; font-weight:900; background:#f5f3ff; color:#554994; padding:4px 8px; border-radius:6px;">1,248 Docs</span>
+                    </div>
+                    <div class="vhr-header-utilities">
+                        <select class="vhr-btn-doc" style="outline:none;">
+                            <option value="">All Types</option>
+                            <option value="Offer Letter">Offer Letters</option>
+                            <option value="Aadhar Card">ID Proofs</option>
+                            <option value="NDA">NDAs</option>
+                            <option value="Policy Update">Policies</option>
+                        </select>
+                        <div class="vhr-search-container">
+                            <i data-lucide="search" style="width: 14px; color: #94a3b8;"></i>
+                            <input type="text" placeholder="Search files...">
+                        </div>
+                    </div>
+                </div>
+                <div style="padding:40px; text-align:center; color:#94a3b8;">
+                    <i data-lucide="hard-drive" style="width:32px; height:32px; margin-bottom:10px; opacity:0.5;"></i>
+                    <h4 style="margin:0; font-weight:800; color:#1e293b;">Directory Initializing</h4>
+                    <p style="font-size:0.8rem; margin-top:5px;">Connecting to Document AWS S3 Bucket...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Employee Records Section -->
+        <div id="vhr-section-records" class="vhr-section-content">
+            <div class="vhr-doc-card vhr-doc-panel">
+                <div class="vhr-card-header">
+                    <div style="display:flex; align-items:center; gap:12px;">
+                        <h3>Workforce Compliance Audit</h3>
+                    </div>
+                    <div class="vhr-header-utilities">
+                        <div class="vhr-search-container">
+                            <i data-lucide="search" style="width: 14px; color: #94a3b8;"></i>
+                            <input type="text" placeholder="Search employee...">
+                        </div>
+                    </div>
+                </div>
+                <div style="padding:40px; text-align:center; color:#94a3b8;">
+                    <i data-lucide="users" style="width:32px; height:32px; margin-bottom:10px; opacity:0.5;"></i>
+                    <h4 style="margin:0; font-weight:800; color:#1e293b;">Records Initializing</h4>
+                    <p style="font-size:0.8rem; margin-top:5px;">Synchronizing KYC Data...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Templates Section -->
+        <div id="vhr-section-templates" class="vhr-section-content">
+             <div class="vhr-doc-card">
+                <div class="vhr-card-header">
+                    <h3>Institutional Templates Engine</h3>
+                    <button class="vhr-btn-doc vhr-btn-doc-primary"><i data-lucide="plus" style="width:14px;"></i> Create Template</button>
+                </div>
+                <div style="padding:25px;">
+                    <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:20px;">
+                        <div style="border: 1px solid #e2e8f0; padding:20px; border-radius:15px; background:#f8fafc;">
+                            <div style="font-size:0.7rem; font-weight:900; color:#554994; margin-bottom:5px;">HR MODULE</div>
+                            <h4 style="margin:0 0 10px; font-size:1.1rem; color:#1e293b;">Standard Offer Letter</h4>
+                            <p style="font-size:0.75rem; color:#64748b; font-weight:500;">Dynamic variables for salary, designation & joining date.</p>
+                            <button class="vhr-btn-doc" style="margin-top:15px; width:100%; justify-content:center;">Edit Template</button>
+                        </div>
+                        <div style="border: 1px solid #e2e8f0; padding:20px; border-radius:15px; background:#f8fafc;">
+                            <div style="font-size:0.7rem; font-weight:900; color:#554994; margin-bottom:5px;">COMPLIANCE</div>
+                            <h4 style="margin:0 0 10px; font-size:1.1rem; color:#1e293b;">Confidentiality (NDA)</h4>
+                            <p style="font-size:0.75rem; color:#64748b; font-weight:500;">Legal grade non-disclosure agreement for tech hires.</p>
+                            <button class="vhr-btn-doc" style="margin-top:15px; width:100%; justify-content:center;">Edit Template</button>
+                        </div>
+                        <div style="border: 1px solid #e2e8f0; padding:20px; border-radius:15px; background:#f8fafc;">
+                            <div style="font-size:0.7rem; font-weight:900; color:#554994; margin-bottom:5px;">OPERATIONS</div>
+                            <h4 style="margin:0 0 10px; font-size:1.1rem; color:#1e293b;">Relieving Letter</h4>
+                            <p style="font-size:0.75rem; color:#64748b; font-weight:500;">Automated generation for exit clearance cycles.</p>
+                            <button class="vhr-btn-doc" style="margin-top:15px; width:100%; justify-content:center;">Edit Template</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        (function() {
+            if (window.lucide) window.lucide.createIcons();
+
+            // Setup Tab Logic
+            const navLinks = document.querySelectorAll('.vhr-module-nav .vhr-nav-link');
+            const sections = document.querySelectorAll('.vhr-section-content');
+
+            navLinks.forEach(link => {
+                link.addEventListener('click', function() {
+                    navLinks.forEach(l => l.classList.remove('active'));
+                    this.classList.add('active');
+
+                    const target = this.getAttribute('data-target');
+                    sections.forEach(s => s.classList.remove('vhr-active-section'));
+                    document.getElementById(target).classList.add('vhr-active-section');
+                });
+            });
+        })();
+    </script>
+</div>

@@ -30,6 +30,34 @@
         .form-group { margin-bottom: 15px; }
         .form-group label { display: block; font-size: 0.8rem; font-weight: 600; color: #64748b; margin-bottom: 6px; }
         .form-input { width: 100%; padding: 10px 14px; border: 1px solid #e2e8f0; border-radius: 8px; font-family: inherit; font-size: 0.9rem; }
+
+        @media (max-width: 768px) {
+            .main-content {
+                height: auto !important;
+                overflow-y: visible !important;
+                padding: 15px !important;
+                padding-top: 80px !important;
+                padding-bottom: 60px !important;
+            }
+            .page-header { flex-direction: column; align-items: flex-start; gap: 15px; margin-bottom: 1.5rem; }
+            .page-header > div { width: 100%; }
+            .page-header button { width: 100%; justify-content: center; }
+            
+            /* Force pagination and info to be visible on mobile */
+            .dataTables_info, .dataTables_paginate { width: 100% !important; text-align: center !important; position: sticky; left: 0; right: 0; display: block !important; margin: 15px auto !important; }
+            .dataTables_wrapper .dataTables_paginate .paginate_button { 
+                padding: 8px 14px !important; 
+                margin: 4px !important; 
+                font-size: 0.8rem !important; 
+                background: #f1f5f9 !important; 
+                border-color: #e2e8f0 !important; 
+                border-radius: 8px !important;
+                display: inline-block !important;
+            }
+            .dataTables_wrapper .dataTables_paginate .paginate_button.current { background: #4D4286 !important; color: white !important; font-weight: bold; }
+            
+            .dataTables_wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; display: block; width: 100%; padding-bottom: 20px; }
+        }
     </style>
 </head>
 <body>

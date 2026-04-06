@@ -1,0 +1,488 @@
+<div id="company-grievances" class="sub-view">
+    <style>
+        /* PROFESSIONAL GRIEVANCE DRAWER */
+        .detail-drawer {
+            position: fixed;
+            top: 0;
+            right: -650px; /* Hidden off-screen */
+            height: 100vh;
+            width: 600px;
+            background: white;
+            box-shadow: -10px 0 50px rgba(0,0,0,0.15);
+            z-index: 10000;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            border-left: 1px solid #e2e8f0;
+        }
+
+        .detail-drawer.open {
+            right: 0;
+            width: 550px;
+            min-width: 550px;
+        }
+
+        .drawer-header {
+            padding: 24px;
+            border-bottom: 1px solid #f1f5f9;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: white;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .drawer-body {
+            flex: 1;
+            padding: 24px;
+            overflow-y: auto;
+            background: #fcfcfd;
+        }
+
+        .drawer-footer {
+            padding: 20px;
+            border-top: 1px solid #e2e8f0;
+            background: white;
+        }
+
+        .grievance-workspace {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+            position: relative;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .grievance-list-container {
+            flex: 1;
+            width: 100%;
+            transition: flex 0.3s ease;
+        }
+        
+        @media (max-width: 768px) {
+            .grievance-workspace { flex-direction: column; }
+            .grv-stats-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 10px; }
+            .grv-stat-card { padding: 14px; gap: 10px; }
+            .grv-stat-icon { width: 38px; height: 38px; }
+            .detail-drawer.open { width: 100%; min-width: 100%; }
+        }
+
+        .grv-section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-bottom: 2rem;
+        }
+
+        .grv-section-title {
+            font-size: 1.75rem;
+            font-weight: 800;
+            color: #1e293b;
+            letter-spacing: -1px;
+            margin: 0;
+        }
+
+        /* Stats Grid */
+        .grv-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .grv-stat-card {
+            background: white;
+            padding: 22px 20px;
+            border-radius: 16px;
+            border: 1px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .grv-stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.06);
+            border-color: #554994;
+        }
+
+        .grv-stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .icon-total { background: #eff6ff; color: #3b82f6; }
+        .icon-open { background: #fef3c7; color: #d97706; }
+        .icon-resolved { background: #d1fae5; color: #059669; }
+        .icon-priority { background: #fee2e2; color: #ef4444; }
+
+        .grv-stat-info h4 {
+            margin: 0;
+            font-size: 0.7rem;
+            color: #94a3b8;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .grv-stat-info .val {
+            font-size: 1.5rem;
+            font-weight: 900;
+            color: #1e293b;
+            margin-top: 4px;
+        }
+
+        .grv-panel {
+            background: white;
+            border-radius: 20px;
+            border: 1px solid #e2e8f0;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.02);
+            margin-bottom: 2rem;
+        }
+
+        .grv-panel-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid #f1f5f9;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .grv-panel-title {
+            font-size: 1.1rem;
+            font-weight: 800;
+            color: #1e293b;
+            margin: 0;
+        }
+
+        /* Table styles */
+        .grv-data-table { width: 100%; border-collapse: collapse; }
+        .grv-data-table th { 
+            text-align: left; 
+            padding: 14px 24px; 
+            background: #f8fafc; 
+            font-size: 0.7rem; 
+            text-transform: uppercase; 
+            color: #64748b; 
+            border-bottom: 1px solid #e2e8f0; 
+            font-weight: 800;
+            letter-spacing: 1px;
+        }
+        .grv-data-table td { 
+            padding: 16px 24px; 
+            border-bottom: 1px solid #f1f5f9; 
+            font-size: 0.85rem; 
+            color: #334155; 
+            vertical-align: middle;
+        }
+        
+        .grv-data-table tr:hover td { background: #fcfcfd; }
+
+        .grv-status-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+        .grv-status-pending { background: #fef3c7; color: #92400e; }
+        .grv-status-active { background: #d1fae5; color: #065f46; } /* Resolved */
+        .grv-status-open { background: #dbeafe; color: #1e40af; } /* In Progress */
+        .grv-status-closed { background: #f1f5f9; color: #64748b; }
+
+        .btn-icon-grv {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            background: white;
+            color: #64748b;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: 0.2s;
+        }
+        .btn-icon-grv:hover { background: #f8fafc; color: #554994; border-color: #554994; }
+
+        /* Search input */
+        .grv-search-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: white;
+            border: 1px solid #e2e8f0;
+            padding: 8px 14px;
+            border-radius: 10px;
+            transition: 0.2s;
+        }
+        .grv-search-container:focus-within {
+            border-color: #554994;
+            box-shadow: 0 0 0 3px rgba(85, 73, 148, 0.1);
+        }
+        .grv-search-container input {
+            border: none;
+            background: transparent;
+            outline: none;
+            font-size: 0.85rem;
+            width: 200px;
+            font-family: inherit;
+        }
+
+        .chat-bubbles {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .chat-item {
+            display: flex;
+            flex-direction: column;
+            max-width: 85%;
+        }
+
+        .chat-item.employee { align-self: flex-start; }
+        .chat-item.employer { align-self: flex-end; }
+        .chat-item.system { align-self: center; width: 100%; text-align: center; }
+
+        .chat-bubble {
+            padding: 14px 18px;
+            border-radius: 14px;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            position: relative;
+        }
+
+        .chat-item.employee .chat-bubble { background: white; border: 1px solid #e2e8f0; border-bottom-left-radius: 4px; color: #1e293b; }
+        .chat-item.employer .chat-bubble { background: #554994; color: white; border-bottom-right-radius: 4px; }
+        .chat-item.system .chat-bubble { background: transparent; color: #64748b; font-size: 0.75rem; border: none; padding: 4px; font-weight: 600; }
+
+        .chat-meta {
+            font-size: 0.7rem;
+            color: #94a3b8;
+            margin-top: 4px;
+            font-weight: 600;
+        }
+        .chat-item.employee .chat-meta { margin-left: 4px; }
+        .chat-item.employer .chat-meta { margin-right: 4px; text-align: right; }
+
+        .audit-item {
+            padding: 10px;
+            border-bottom: 1px solid #f1f5f9;
+            font-size: 0.75rem;
+        }
+        .audit-item:last-child { border-bottom: none; }
+    </style>
+
+    <div class="grievance-workspace">
+        <div class="grievance-list-container" id="list-container">
+            <div class="grv-section-header">
+                <div>
+                    <h2 class="grv-section-title">Grievance Hub</h2>
+                    <p style="color: #94a3b8; font-weight: 600; font-size: 0.75rem; margin-top: 4px;">Monitor HR grievances and control ticket visibility across roles.</p>
+                </div>
+                <div class="header-actions" style="display:flex; gap:12px;">
+                    <button style="display:flex; align-items:center; gap:8px; padding:10px 18px; border-radius:10px; border:1px solid #e2e8f0; font-weight:700; cursor:pointer; background:white; color:#64748b;" onclick="if(typeof renderGrievanceTable === 'function') renderGrievanceTable()"><i data-lucide="rotate-cw" style="width:16px;"></i> Refresh Tickets</button>
+                </div>
+            </div>
+
+            <!-- Stats Grid -->
+            <div class="grv-stats-grid">
+                <div class="grv-stat-card">
+                    <div class="grv-stat-icon icon-total"><i data-lucide="ticket"></i></div>
+                    <div class="grv-stat-info">
+                        <h4>Total Tickets</h4>
+                        <div class="val" id="grv-stat-total">0</div>
+                    </div>
+                </div>
+                <div class="grv-stat-card">
+                    <div class="grv-stat-icon icon-open"><i data-lucide="clock"></i></div>
+                    <div class="grv-stat-info">
+                        <h4>Open Tickets</h4>
+                        <div class="val" id="grv-stat-open">0</div>
+                    </div>
+                </div>
+                <div class="grv-stat-card">
+                    <div class="grv-stat-icon icon-resolved"><i data-lucide="check-circle-2"></i></div>
+                    <div class="grv-stat-info">
+                        <h4>Resolved</h4>
+                        <div class="val" id="grv-stat-resolved">0</div>
+                    </div>
+                </div>
+                <div class="grv-stat-card">
+                    <div class="grv-stat-icon icon-priority"><i data-lucide="zap"></i></div>
+                    <div class="grv-stat-info">
+                        <h4>High Priority</h4>
+                        <div class="val" id="grv-stat-priority">0</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Grievance Table Panel -->
+            <div class="grv-panel">
+                <div class="grv-panel-header">
+                    <h3 class="grv-panel-title">All Grievance Tickets</h3>
+                    <div class="grv-search-container">
+                        <i data-lucide="search" style="width: 14px; color: #94a3b8;"></i>
+                        <input type="text" id="vhr-grievance-search" placeholder="Search by ID or subject...">
+                    </div>
+                </div>
+                <div style="overflow-x: auto;">
+                    <table class="grv-data-table" id="vhr-grievance-table">
+                        <thead>
+                            <tr>
+                                <th>Ticket ID</th>
+                                <th>Type</th>
+                                <th>Subject</th>
+                                <th>Raised By</th>
+                                <th>Priority</th>
+                                <th>Status</th>
+                                <th>Assigned To</th>
+                                <th style="text-align: right;">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="vhr-grievance-table-body">
+                            <!-- Populated dynamically or via JS, hardcoding some for demo -->
+                            <tr>
+                                <td><span style="font-weight:700; color:#554994;">GRV-001</span></td>
+                                <td><span style="background:#f1f5f9; padding:4px 8px; border-radius:6px; font-size:0.7rem; font-weight:700;">Payroll Issue</span></td>
+                                <td style="font-weight:600; color:#1e293b;">Delayed Salary April</td>
+                                <td><span style="font-weight:600;">Aditi Singh</span> <span style="color:#94a3b8; font-size:0.7rem; display:block;">EMP-1004</span></td>
+                                <td><span style="color:#ef4444; font-weight:800; font-size:0.75rem;"><i data-lucide="arrow-up" style="width:12px; vertical-align:middle;"></i> High</span></td>
+                                <td><span class="grv-status-badge grv-status-open">Open</span></td>
+                                <td><span style="font-weight:600;">HR Team</span></td>
+                                <td style="text-align:right;">
+                                    <button class="btn-icon-grv" title="View Details"><i data-lucide="eye" style="width:16px;"></i></button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><span style="font-weight:700; color:#554994;">GRV-002</span></td>
+                                <td><span style="background:#f1f5f9; padding:4px 8px; border-radius:6px; font-size:0.7rem; font-weight:700;">Workplace</span></td>
+                                <td style="font-weight:600; color:#1e293b;">AC Not Working (Floor 3)</td>
+                                <td><span style="font-weight:600;">Rohan Das</span> <span style="color:#94a3b8; font-size:0.7rem; display:block;">EMP-1011</span></td>
+                                <td><span style="color:#f59e0b; font-weight:800; font-size:0.75rem;"><i data-lucide="minus" style="width:12px; vertical-align:middle;"></i> Medium</span></td>
+                                <td><span class="grv-status-badge grv-status-active">Resolved</span></td>
+                                <td><span style="font-weight:600;">Facilities</span></td>
+                                <td style="text-align:right;">
+                                    <button class="btn-icon-grv" title="View Details"><i data-lucide="eye" style="width:16px;"></i></button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><span style="font-weight:700; color:#554994;">GRV-003</span></td>
+                                <td><span style="background:#f1f5f9; padding:4px 8px; border-radius:6px; font-size:0.7rem; font-weight:700;">Managerial</span></td>
+                                <td style="font-weight:600; color:#1e293b;">Unfair Performance Review</td>
+                                <td><span style="font-weight:600;">Priya Menon</span> <span style="color:#94a3b8; font-size:0.7rem; display:block;">EMP-1008</span></td>
+                                <td><span style="color:#ef4444; font-weight:800; font-size:0.75rem;"><i data-lucide="alert-circle" style="width:12px; vertical-align:middle;"></i> Critical</span></td>
+                                <td><span class="grv-status-badge grv-status-pending">Under Review</span></td>
+                                <td><span style="font-weight:600;">HR Head</span></td>
+                                <td style="text-align:right;">
+                                    <button class="btn-icon-grv" title="View Details"><i data-lucide="eye" style="width:16px;"></i></button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- SIDE DRAWER DETAIL VIEW -->
+        <div id="vhr-grievance-detail-drawer" class="detail-drawer">
+            <!-- Content will be injected here during interactivity -->
+        </div>
+    </div>
+    
+    <!-- GRIEVANCE VISIBILITY MODAL -->
+    <div id="vhr-grievance-visibility-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); backdrop-filter:blur(4px); z-index:10000; align-items:center; justify-content:center; padding:20px;">
+        <div style="background:white; border-radius:20px; width:100%; max-width:450px; padding:32px; box-shadow:0 20px 50px rgba(0,0,0,0.15);">
+            <div style="text-align:center; margin-bottom:24px;">
+                <div style="width:56px; height:56px; background:#f5f3ff; color:#554994; border-radius:14px; margin:0 auto 16px; display:flex; align-items:center; justify-content:center;">
+                    <i data-lucide="eye" style="width:28px;"></i>
+                </div>
+                <h3 style="font-weight:800; font-size:1.4rem; margin:0 0 8px; color:#1e293b;">Visibility Control</h3>
+                <p style="color:#64748b; font-size:0.9rem;">Select who can access full details of this grievance.</p>
+            </div>
+
+            <form id="vhr-grievance-visibility-form">
+                <input type="hidden" id="vhr-visibility-grievance-id">
+                <div style="display:flex; flex-direction:column; gap:12px; margin-bottom:24px;">
+                    <label style="display:flex; align-items:center; gap:12px; padding:16px; border:1px solid #e2e8f0; border-radius:12px; cursor:pointer; transition:0.2s;" onmouseover="this.style.borderColor='#554994';" onmouseout="this.style.borderColor='#e2e8f0';">
+                        <input type="checkbox" name="visibility-role" value="HR" style="width:18px; height:18px; accent-color:#554994;">
+                        <div>
+                            <div style="font-weight:700; color:#1e293b; font-size:0.95rem;">HR Manager</div>
+                            <div style="font-size:0.75rem; color:#64748b;">Access to payroll, records, and mediation.</div>
+                        </div>
+                    </label>
+                    <label style="display:flex; align-items:center; gap:12px; padding:16px; border:1px solid #e2e8f0; border-radius:12px; cursor:pointer; transition:0.2s;" onmouseover="this.style.borderColor='#554994';" onmouseout="this.style.borderColor='#e2e8f0';">
+                        <input type="checkbox" name="visibility-role" value="Manager" style="width:18px; height:18px; accent-color:#554994;">
+                        <div>
+                            <div style="font-weight:700; color:#1e293b; font-size:0.95rem;">Department Manager</div>
+                            <div style="font-size:0.75rem; color:#64748b;">Direct supervisor for operational resolution.</div>
+                        </div>
+                    </label>
+                    <label style="display:flex; align-items:center; gap:12px; padding:16px; border:1px solid #e2e8f0; border-radius:12px; cursor:pointer; transition:0.2s;" onmouseover="this.style.borderColor='#554994';" onmouseout="this.style.borderColor='#e2e8f0';">
+                        <input type="checkbox" name="visibility-role" value="Team Leader" style="width:18px; height:18px; accent-color:#554994;">
+                        <div>
+                            <div style="font-weight:700; color:#1e293b; font-size:0.95rem;">Team Leader</div>
+                            <div style="font-size:0.75rem; color:#64748b;">Limited access for ground-level fixes.</div>
+                        </div>
+                    </label>
+                </div>
+
+                <div style="display:flex; gap:12px;">
+                    <button type="button" onclick="document.getElementById('vhr-grievance-visibility-modal').style.display='none';" style="flex:1; padding:14px; border-radius:10px; border:1px solid #e2e8f0; background:white; font-weight:700; cursor:pointer; color:#64748b;">Cancel</button>
+                    <button type="submit" style="flex:2; padding:14px; border-radius:10px; border:none; background:#554994; color:white; font-weight:800; cursor:pointer;">Update Visibility</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Update stats explicitly based on the demo table rows shown for VHR display if real fetching fails
+        (function() {
+            setTimeout(() => {
+                if (window.lucide) window.lucide.createIcons();
+                const total = document.querySelectorAll('#vhr-grievance-table-body tr').length;
+                let open = 0, resolved = 0, critical = 0;
+                document.querySelectorAll('#vhr-grievance-table-body tr').forEach(row => {
+                    const txt = row.innerText.toLowerCase();
+                    if(txt.includes('open') || txt.includes('under review')) open++;
+                    if(txt.includes('resolved')) resolved++;
+                    if(txt.includes('high') || txt.includes('critical')) critical++;
+                });
+                
+                const sTotal = document.getElementById('grv-stat-total');
+                const sOpen = document.getElementById('grv-stat-open');
+                const sResolved = document.getElementById('grv-stat-resolved');
+                const sPriority = document.getElementById('grv-stat-priority');
+                
+                if (sTotal) sTotal.innerText = total;
+                if (sOpen) sOpen.innerText = open;
+                if (sResolved) sResolved.innerText = resolved;
+                if (sPriority) sPriority.innerText = critical;
+            }, 100);
+
+            // Search logic
+            const searchInput = document.getElementById('vhr-grievance-search');
+            if (searchInput) {
+                searchInput.addEventListener('input', function(e) {
+                    const term = e.target.value.toLowerCase();
+                    const rows = document.querySelectorAll('#vhr-grievance-table-body tr');
+                    rows.forEach(row => {
+                        row.style.display = row.innerText.toLowerCase().includes(term) ? '' : 'none';
+                    });
+                });
+            }
+        })();
+    </script>
+</div>

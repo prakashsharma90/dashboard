@@ -1,0 +1,597 @@
+<div id="company-recruitment" class="sub-view">
+    <style>
+        .vhr-ats-container {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .ats-stat-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .ats-stat-card {
+            background: white;
+            padding: 22px 20px;
+            border-radius: 16px;
+            border: 1px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .ats-stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            border-color: #554994;
+        }
+
+        .ats-stat-icon-box {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .ats-icon-purple { background: rgba(85, 73, 148, 0.1); color: #554994; }
+        .ats-icon-blue { background: #eff6ff; color: #2563eb; }
+        .ats-icon-amber { background: #fffbeb; color: #f59e0b; }
+        .ats-icon-green { background: #ecfdf5; color: #10b981; }
+
+        .ats-stat-label {
+            font-size: 0.7rem;
+            font-weight: 800;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin: 0;
+        }
+
+        .ats-stat-value {
+            font-size: 1.5rem;
+            font-weight: 900;
+            color: #1e293b;
+            margin-top: 2px;
+        }
+
+        .ats-kanban-board {
+            display: flex;
+            gap: 16px;
+            overflow-x: auto;
+            padding-bottom: 20px;
+            min-height: 60vh;
+        }
+
+        .ats-kanban-col {
+            background: #f8fafc;
+            border-radius: 16px;
+            width: 300px;
+            min-width: 300px;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid #e2e8f0;
+            transition: background 0.2s;
+        }
+
+        .ats-kanban-header {
+            padding: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: white;
+            border-bottom: 2px solid #e2e8f0;
+            border-radius: 16px 16px 0 0;
+        }
+
+        .ats-kanban-title {
+            font-size: 0.8rem;
+            font-weight: 850;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin: 0;
+            color: #1e293b;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .ats-kanban-count {
+            background: #f1f5f9;
+            color: #64748b;
+            font-size: 0.75rem;
+            font-weight: 800;
+            padding: 4px 10px;
+            border-radius: 10px;
+        }
+
+        .ats-kanban-list {
+            flex: 1;
+            padding: 12px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .vhr-candidate-card {
+            background: white;
+            border-radius: 12px;
+            padding: 14px;
+            border: 1px solid #e2e8f0;
+            cursor: grab;
+            transition: all 0.2s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+            position: relative;
+        }
+
+        .vhr-candidate-card:hover {
+            box-shadow: 0 10px 20px rgba(0,0,0,0.06);
+            border-color: #554994;
+            transform: translateY(-2px);
+        }
+
+        .vhr-candidate-card:active {
+            cursor: grabbing;
+        }
+
+        .vhr-cc-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 10px;
+        }
+
+        .vhr-cc-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            background: #f1f5f9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            color: #554994;
+            font-size: 0.85rem;
+        }
+
+        .vhr-cc-name {
+            font-size: 0.85rem;
+            font-weight: 800;
+            color: #1e293b;
+            margin: 0;
+        }
+
+        .vhr-cc-role {
+            font-size: 0.65rem;
+            color: #64748b;
+            font-weight: 700;
+            margin-top: 2px;
+        }
+
+        .vhr-cc-match {
+            background: linear-gradient(135deg, #554994, #6366f1);
+            color: white;
+            font-size: 0.6rem;
+            font-weight: 900;
+            padding: 2px 8px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .vhr-cc-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            margin-top: 10px;
+        }
+
+        .vhr-cc-tag {
+            font-size: 0.6rem;
+            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: 4px;
+            background: #f8fafc;
+            color: #475569;
+            border: 1px solid #e2e8f0;
+        }
+
+        .ats-filter-bar {
+            background: white;
+            border-radius: 14px;
+            padding: 12px 16px;
+            margin-bottom: 1.5rem;
+            border: 1px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+            flex-wrap: wrap;
+        }
+
+        .vhr-search-wrap {
+            position: relative;
+            flex: 1;
+            max-width: 350px;
+        }
+
+        .vhr-search-wrap i,
+        .vhr-search-wrap svg {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+            width: 16px;
+            height: 16px;
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        .vhr-search-wrap input {
+            width: 100%;
+            height: 40px;
+            padding: 0 14px 0 38px;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            font-family: inherit;
+            font-size: 0.85rem;
+            outline: none;
+            background: #f8fafc;
+            transition: 0.2s;
+        }
+
+        .vhr-search-wrap input:focus {
+            background: white;
+            border-color: #554994;
+            box-shadow: 0 0 0 3px rgba(85, 73, 148, 0.1);
+        }
+
+        .btn-vhr {
+            padding: 10px 18px;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: 0.2s;
+            border: none;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        .btn-vhr-primary {
+            background: #554994;
+            color: white;
+            box-shadow: 0 4px 12px rgba(85, 73, 148, 0.2);
+        }
+
+        .btn-vhr-primary:hover {
+            background: #433a75;
+            transform: translateY(-1px);
+        }
+
+        .btn-vhr-outline {
+            background: white;
+            border: 1px solid #e2e8f0;
+            color: #64748b;
+        }
+
+        .btn-vhr-outline:hover {
+            border-color: #554994;
+            color: #554994;
+            background: #fdfdff;
+        }
+    </style>
+
+    <div class="vhr-ats-container">
+        <!-- HEADER -->
+        <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:1.5rem;">
+            <div>
+                <h2 style="font-size:1.75rem; font-weight:800; color:#1e293b; letter-spacing:-1px; margin:0;">Recruitment / ATS</h2>
+                <p style="color:#94a3b8; font-weight:600; font-size:0.75rem; margin-top:2px;">End-to-end talent acquisition and candidate pipeline tracking</p>
+            </div>
+            
+            <div style="display:flex; gap:10px;">
+                <button class="btn-vhr btn-vhr-outline">
+                    <i data-lucide="settings" style="width: 16px;"></i> Settings
+                </button>
+                <button class="btn-vhr btn-vhr-primary">
+                    <i data-lucide="plus-circle" style="width: 16px;"></i> Create Opening
+                </button>
+            </div>
+        </div>
+
+        <!-- STATS -->
+        <div class="ats-stat-grid">
+            <div class="ats-stat-card">
+                <div class="ats-stat-icon-box ats-icon-blue">
+                    <i data-lucide="briefcase"></i>
+                </div>
+                <div>
+                    <p class="ats-stat-label">Active Jobs</p>
+                    <div class="ats-stat-value">12</div>
+                </div>
+            </div>
+            <div class="ats-stat-card">
+                <div class="ats-stat-icon-box ats-icon-purple">
+                    <i data-lucide="users"></i>
+                </div>
+                <div>
+                    <p class="ats-stat-label">Total Applicants</p>
+                    <div class="ats-stat-value">438</div>
+                </div>
+            </div>
+            <div class="ats-stat-card">
+                <div class="ats-stat-icon-box ats-icon-amber">
+                    <i data-lucide="calendar"></i>
+                </div>
+                <div>
+                    <p class="ats-stat-label">Scheduled Intvws</p>
+                    <div class="ats-stat-value">08</div>
+                </div>
+            </div>
+            <div class="ats-stat-card">
+                <div class="ats-stat-icon-box ats-icon-green">
+                    <i data-lucide="award"></i>
+                </div>
+                <div>
+                    <p class="ats-stat-label">Hired (Monthly)</p>
+                    <div class="ats-stat-value">24</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- FILTER BAR -->
+        <div class="ats-filter-bar">
+            <div class="vhr-search-wrap">
+                <i data-lucide="search"></i>
+                <input type="text" placeholder="Search candidates visually..." id="vhr-ats-search" onkeyup="filterATSCandidates()">
+            </div>
+            
+            <div style="display:flex; gap:10px; align-items:center;">
+                <select style="padding: 10px 14px; border:1px solid #e2e8f0; border-radius:10px; background:#f8fafc; font-size:0.8rem; font-weight:700; color:#475569; outline:none;" id="vhr-ats-job-filter" onchange="filterATSCandidates()">
+                    <option value="">All Job Openings</option>
+                    <option value="React Dev">Senior React Developer</option>
+                    <option value="UI/UX">UI/UX Designer</option>
+                    <option value="HR">HR Manager</option>
+                </select>
+                <div style="background:#554994; color:white; font-size:0.65rem; font-weight:800; padding:10px 14px; border-radius:10px; display:flex; align-items:center; gap:6px; box-shadow:0 4px 10px rgba(85,73,148,0.2);">
+                    <i data-lucide="zap" style="width:14px;"></i> AI Parsing Active
+                </div>
+            </div>
+        </div>
+
+        <!-- KANBAN BOARD -->
+        <div class="ats-kanban-board" id="vhr-kanban-board">
+            
+            <!-- SOURCING -->
+            <div class="ats-kanban-col">
+                <div class="ats-kanban-header" style="border-bottom-color: #94a3b8;">
+                    <h3 class="ats-kanban-title"><i data-lucide="inbox" style="width:16px; color:#64748b;"></i> Sourcing</h3>
+                    <span class="ats-kanban-count">24</span>
+                </div>
+                <div class="ats-kanban-list" data-stage="sourcing">
+                    <!-- Card 1 -->
+                    <div class="vhr-candidate-card" draggable="true" data-role="React Dev" data-name="Aarav Mittal">
+                        <div class="vhr-cc-top">
+                            <div style="display:flex; gap:10px; align-items:center;">
+                                <div class="vhr-cc-avatar">AM</div>
+                                <div>
+                                    <h4 class="vhr-cc-name">Aarav Mittal</h4>
+                                    <p class="vhr-cc-role">React Dev • 4y exp</p>
+                                </div>
+                            </div>
+                            <div class="vhr-cc-match"><i data-lucide="zap" style="width:10px;"></i> 92%</div>
+                        </div>
+                        <div class="vhr-cc-tags">
+                            <span class="vhr-cc-tag">React.js</span>
+                            <span class="vhr-cc-tag">Node.js</span>
+                            <span class="vhr-cc-tag">AWS</span>
+                        </div>
+                    </div>
+                    <!-- Card 2 -->
+                    <div class="vhr-candidate-card" draggable="true" data-role="UI/UX" data-name="Sanya Khan">
+                        <div class="vhr-cc-top">
+                            <div style="display:flex; gap:10px; align-items:center;">
+                                <div class="vhr-cc-avatar" style="background:#fef3c7; color:#92400e;">SK</div>
+                                <div>
+                                    <h4 class="vhr-cc-name">Sanya Khan</h4>
+                                    <p class="vhr-cc-role">UI/UX • 2y exp</p>
+                                </div>
+                            </div>
+                            <div class="vhr-cc-match" style="background:#64748b;"><i data-lucide="zap" style="width:10px;"></i> 78%</div>
+                        </div>
+                        <div class="vhr-cc-tags">
+                            <span class="vhr-cc-tag">Figma</span>
+                            <span class="vhr-cc-tag">Prototyping</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SCREENING -->
+            <div class="ats-kanban-col">
+                <div class="ats-kanban-header" style="border-bottom-color: #3b82f6;">
+                    <h3 class="ats-kanban-title"><i data-lucide="phone-call" style="width:16px; color:#3b82f6;"></i> Screening</h3>
+                    <span class="ats-kanban-count" style="background:#eff6ff; color:#2563eb;">12</span>
+                </div>
+                <div class="ats-kanban-list" data-stage="screening">
+                    <!-- Card 3 -->
+                    <div class="vhr-candidate-card" draggable="true" data-role="React Dev" data-name="Rohan Verma">
+                        <div class="vhr-cc-top">
+                            <div style="display:flex; gap:10px; align-items:center;">
+                                <div class="vhr-cc-avatar" style="background:#dbeafe; color:#1e40af;">RV</div>
+                                <div>
+                                    <h4 class="vhr-cc-name">Rohan Verma</h4>
+                                    <p class="vhr-cc-role">React Dev • 5y exp</p>
+                                </div>
+                            </div>
+                            <div class="vhr-cc-match"><i data-lucide="zap" style="width:10px;"></i> 95%</div>
+                        </div>
+                        <div class="vhr-cc-tags">
+                            <span class="vhr-cc-tag">React.js</span>
+                            <span class="vhr-cc-tag">Next.js</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TECHNICAL -->
+            <div class="ats-kanban-col">
+                <div class="ats-kanban-header" style="border-bottom-color: #8b5cf6;">
+                    <h3 class="ats-kanban-title"><i data-lucide="code-2" style="width:16px; color:#8b5cf6;"></i> Technical</h3>
+                    <span class="ats-kanban-count" style="background:#f5f3ff; color:#7c3aed;">08</span>
+                </div>
+                <div class="ats-kanban-list" data-stage="technical">
+                     <!-- Card 4 -->
+                    <div class="vhr-candidate-card" draggable="true" data-role="React Dev" data-name="Rahul Roy">
+                        <div class="vhr-cc-top">
+                            <div style="display:flex; gap:10px; align-items:center;">
+                                <div class="vhr-cc-avatar" style="background:#ede9fe; color:#5b21b6;">RR</div>
+                                <div>
+                                    <h4 class="vhr-cc-name">Rahul Roy</h4>
+                                    <p class="vhr-cc-role">React Dev • 6y exp</p>
+                                    <p style="font-size:0.6rem; color:#ef4444; font-weight:800; margin:2px 0 0;">Priority</p>
+                                </div>
+                            </div>
+                            <div class="vhr-cc-match"><i data-lucide="zap" style="width:10px;"></i> 98%</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- HR ROUND -->
+            <div class="ats-kanban-col">
+                <div class="ats-kanban-header" style="border-bottom-color: #f59e0b;">
+                    <h3 class="ats-kanban-title"><i data-lucide="users-2" style="width:16px; color:#f59e0b;"></i> HR Round</h3>
+                    <span class="ats-kanban-count" style="background:#fffbeb; color:#d97706;">05</span>
+                </div>
+                <div class="ats-kanban-list" data-stage="hr">
+                    <!-- Empty state mockup for visualization -->
+                    <div style="text-align:center; padding:30px 10px; color:#94a3b8;">
+                        <i data-lucide="coffee" style="width:24px; opacity:0.5; margin-bottom:10px;"></i>
+                        <p style="font-size:0.75rem; font-weight:600; margin:0;">Waiting for evaluations</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- OFFERED / HIRED -->
+            <div class="ats-kanban-col">
+                <div class="ats-kanban-header" style="border-bottom-color: #10b981;">
+                    <h3 class="ats-kanban-title"><i data-lucide="party-popper" style="width:16px; color:#10b981;"></i> Offered</h3>
+                    <span class="ats-kanban-count" style="background:#ecfdf5; color:#059669;">03</span>
+                </div>
+                <div class="ats-kanban-list" data-stage="offered">
+                     <!-- Card 5 -->
+                     <div class="vhr-candidate-card" draggable="true" data-role="HR" data-name="Neha Goyal" style="border: 1px solid #10b981; background: #fdfdfd;">
+                        <div class="vhr-cc-top">
+                            <div style="display:flex; gap:10px; align-items:center;">
+                                <div class="vhr-cc-avatar" style="background:#d1fae5; color:#065f46;">NG</div>
+                                <div>
+                                    <h4 class="vhr-cc-name">Neha Goyal</h4>
+                                    <p class="vhr-cc-role">HR Manager</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div style="background:#10b981; color:white; font-size:0.6rem; font-weight:900; text-align:center; padding:4px; border-radius:6px; margin-top:8px;">
+                            Offer Accepted!
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            // Check if lucide exists and initialized
+            if (window.lucide) {
+                window.lucide.createIcons();
+            }
+
+            // Implement Native HTML5 Drag and Drop for Kanban
+            const cards = document.querySelectorAll('.vhr-candidate-card');
+            const lists = document.querySelectorAll('.ats-kanban-list');
+            
+            let draggedItem = null;
+
+            cards.forEach(card => {
+                card.addEventListener('dragstart', function(e) {
+                    draggedItem = this;
+                    setTimeout(() => this.style.opacity = '0.5', 0);
+                });
+
+                card.addEventListener('dragend', function() {
+                    setTimeout(() => {
+                        this.style.opacity = '1';
+                        draggedItem = null;
+                        updateKanbanCounts();
+                    }, 0);
+                });
+            });
+
+            lists.forEach(list => {
+                list.addEventListener('dragover', function(e) {
+                    e.preventDefault();
+                    this.style.background = '#f1f5f9';
+                });
+                
+                list.addEventListener('dragleave', function(e) {
+                    this.style.background = 'transparent';
+                });
+
+                list.addEventListener('drop', function(e) {
+                    e.preventDefault();
+                    this.style.background = 'transparent';
+                    if (draggedItem) {
+                        // Remove empty states if they exist
+                        const empty = this.querySelector('div[style*="text-align:center"]');
+                        if(empty) empty.remove();
+                        this.appendChild(draggedItem);
+                    }
+                });
+            });
+
+            function updateKanbanCounts() {
+                document.querySelectorAll('.ats-kanban-col').forEach(col => {
+                    const countSpan = col.querySelector('.ats-kanban-count');
+                    const cardsCount = col.querySelectorAll('.vhr-candidate-card').length;
+                    if (countSpan) countSpan.textContent = String(cardsCount).padStart(2, '0');
+                });
+            }
+
+            // Client-side filtering logic
+            window.filterATSCandidates = function() {
+                const searchQ = document.getElementById('vhr-ats-search').value.toLowerCase();
+                const roleQ = document.getElementById('vhr-ats-job-filter').value;
+
+                document.querySelectorAll('.vhr-candidate-card').forEach(card => {
+                    const name = card.getAttribute('data-name').toLowerCase();
+                    const role = card.getAttribute('data-role');
+
+                    const matchesSearch = !searchQ || name.includes(searchQ);
+                    const matchesRole = !roleQ || role === roleQ;
+
+                    if (matchesSearch && matchesRole) {
+                        card.style.display = 'block';
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+            };
+
+        })();
+    </script>
+</div>

@@ -47,8 +47,17 @@
   box-sizing: border-box;
 }
 
+@media (max-width: 768px) {
+  html, body {
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    height: auto !important;
+    min-height: 100% !important;
+  }
+}
+
 body {
-  font-family: 'Inter', sans-serif;
+  font-family: 'DM Sans', sans-serif;
   background-color: var(--main-bg);
   color: var(--text-dark);
   min-height: 100vh;
@@ -142,7 +151,7 @@ h1 { font-size: 20px; }
 /* Existing Dashboard Defaults */
 .dashboard, .dashboard-wrapper, .dashboard-layout {
   display: grid;
-  grid-template-columns: 260px 1fr;
+  grid-template-columns: 220px 1fr;
   height: 100vh;
   max-width: 100vw;
   overflow: hidden;
@@ -157,6 +166,8 @@ h1 { font-size: 20px; }
 @media (max-width: 768px) {
   .dashboard, .dashboard-wrapper, .dashboard-layout {
     grid-template-columns: 1fr;
+    height: auto !important;
+    overflow: visible !important;
   }
 }
 
@@ -164,6 +175,12 @@ h1 { font-size: 20px; }
 main.main-content {
   padding: 16px;
   overflow-y: auto;
+}
+@media (max-width: 768px) {
+  main.main-content {
+    height: auto !important;
+    overflow: visible !important;
+  }
 }
 @media (min-width: 768px) {
   main.main-content { padding: 24px 32px; }
@@ -521,142 +538,135 @@ main.main-content {
   .admin-profile img { width: 32px; height: 32px; }
 }
 
-/* ---- Employer Sidebar (Light Theme - Professional) ---- */
+/* ---- Employer Sidebar (New Premium Redesign) ---- */
 .employer-sidebar {
-  width: 250px;
-  background: white;
-  border-right: 1px solid var(--border-color);
-  padding: 1.5rem;
+  width: 220px;
+  background: #ffffff;
+  color: #64748b;
   display: flex;
   flex-direction: column;
-  align-items: stretch;
-  text-align: left;
   height: 100vh;
   position: sticky;
   top: 0;
   z-index: 1000;
   flex-shrink: 0;
-  overflow-y: hidden;
-}
-
-/* Global scroll for main nav area */
-.employer-sidebar nav.nav-menu {
-    flex: 1;
-    overflow-y: auto;
-    overflow-x: hidden;
-    padding-right: 4px;
-    margin-bottom: 2rem;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-}
-
-/* Custom Scrollbar for Employer Sidebar */
-.employer-sidebar nav.nav-menu::-webkit-scrollbar {
-    width: 4px;
-}
-.employer-sidebar nav.nav-menu::-webkit-scrollbar-track {
-    background: transparent;
-}
-.employer-sidebar nav.nav-menu::-webkit-scrollbar-thumb {
-    background: #e2e8f0;
-    border-radius: 10px;
-}
-.employer-sidebar nav.nav-menu::-webkit-scrollbar-thumb:hover {
-    background: #cbd5e1;
+  border-right: 1px solid #f1f5f9;
+  font-family: 'DM Sans', sans-serif;
+  padding: 0;
 }
 
 .employer-sidebar .sidebar-header {
   display: flex;
   align-items: center;
-  gap: 12px;
-  margin-bottom: 2rem;
-  padding-bottom: 1rem;
-  border-bottom: 1px solid var(--border-color);
+  gap: 10px;
+  padding: 20px 18px 16px;
+  border-bottom: 1px solid #f1f5f9;
+  margin-bottom: 0;
 }
 
 .employer-sidebar .logo {
-  width: 36px;
-  height: 36px;
-  background: linear-gradient(135deg, var(--brand-green), var(--brand-green-dark));
-  border-radius: 10px;
-  color: white;
+  width: 32px;
+  height: 32px;
+  background: #554994;
+  border-radius: 8px;
+  color: #ffffff;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: 800;
+  font-weight: 700;
   font-size: 1rem;
 }
 
 .employer-sidebar .brand {
-  font-weight: 800;
-  font-size: 1.25rem;
-  color: var(--text-dark);
+  font-weight: 600;
+  font-size: 13px;
+  color: #1e293b;
+  letter-spacing: -0.2px;
 }
 
 .employer-sidebar .badge {
-  background: rgba(77, 66, 134, 0.1);
-  color: var(--brand-green-dark);
-  font-size: 0.65rem;
-  padding: 2px 8px;
-  border-radius: 4px;
-  margin-left: auto;
+  background: transparent;
+  color: #554994;
+  font-size: 9px;
+  padding: 0;
+  border-radius: 0;
+  margin-left: 0;
   text-transform: uppercase;
-  font-weight: 800;
-  letter-spacing: 0.5px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  display: block;
+  margin-top: 2px;
+}
+
+.employer-sidebar nav.nav-menu {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 0;
+}
+
+.employer-sidebar nav.nav-menu::-webkit-scrollbar {
+  width: 3px;
+}
+.employer-sidebar nav.nav-menu::-webkit-scrollbar-thumb {
+  background: #e2e8f0;
+}
+
+.employer-sidebar .sidebar-category {
+  font-size: 9px;
+  font-weight: 600 !important;
+  color: #000000 !important;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  padding: 16px 18px 6px;
 }
 
 .employer-sidebar .nav-item {
+  color: #64748b;
+  font-weight: 400;
+  font-size: 12.5px;
+  padding: 8px 18px;
+  border-radius: 0;
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 6px 12px;
-  border-radius: 8px;
-  color: #64748b;
+  gap: 10px;
   text-decoration: none;
-  font-size: 0.8rem;
-  font-weight: 850;
-  transition: all 0.2s ease;
-  border: none;
-  background: transparent;
-  letter-spacing: -0.1px;
-  margin-bottom: 2px;
+  transition: all 0.15s;
+  margin-bottom: 0px;
+  border-left: 2px solid transparent;
 }
 
 .employer-sidebar .nav-item:hover {
   background: #f8fafc;
-  color: var(--brand-green);
+  color: #1e293b;
+  transform: none;
 }
 
 .employer-sidebar .nav-item.active {
-  background: var(--brand-green) !important;
-  color: white !important;
-  font-weight: 850;
-  box-shadow: 0 4px 12px rgba(77, 66, 134, 0.12);
+  background: rgba(85, 73, 148, 0.08);
+  color: #1e293b;
+  font-weight: 400;
+  border-left-color: #554994;
+  box-shadow: none;
 }
 
 .employer-sidebar .nav-item i {
-  width: 16px;
-  height: 16px;
-  stroke-width: 2.5px;
+  width: 14px;
+  height: 14px;
+  opacity: 0.7;
+  stroke-width: 1.8px;
 }
 
-.employer-sidebar .sidebar-category {
-    font-size: 0.6rem;
-    font-weight: 900;
-    color: #94a3b8;
-    text-transform: uppercase;
-    letter-spacing: 0.6px;
-    margin: 6px 0 2px 12px;
+.employer-sidebar .nav-item.active i {
+  opacity: 1;
 }
 
 
-/* ---- Employee Sidebar (Light Theme - Professional) ---- */
+/* ---- Employee Sidebar (New Premium Redesign) ---- */
 .sidebar-employee {
-  width: 260px;
-  background: white;
-  color: var(--text-dark);
-  padding: 1.5rem;
+  width: 220px;
+  background: #ffffff;
+  color: #64748b;
   display: flex;
   flex-direction: column;
   height: 100vh;
@@ -664,121 +674,151 @@ main.main-content {
   top: 0;
   z-index: 1000;
   flex-shrink: 0;
-  border-right: 1px solid var(--border-color);
+  border-right: 1px solid #f1f5f9;
+  font-family: 'DM Sans', sans-serif;
+  padding: 0;
 }
 
 .sidebar-employee .sidebar-header {
   display: flex;
   align-items: center;
-  gap: 12px;
-  margin-bottom: 1rem;
-  padding-bottom: 1rem;
-  border-bottom: 1px solid var(--border-color);
+  gap: 10px;
+  padding: 20px 18px 16px;
+  border-bottom: 1px solid #f1f5f9;
+  margin-bottom: 0;
 }
 
 .sidebar-employee .logo {
-  width: 38px;
-  height: 38px;
-  background: var(--accent);
-  border-radius: 10px;
-  color: white;
+  width: 32px;
+  height: 32px;
+  background: #554994;
+  border-radius: 8px;
+  color: #ffffff;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: 900;
-  font-size: 1.1rem;
+  font-weight: 700;
+  font-size: 1rem;
 }
 
 .sidebar-employee .brand {
-  font-weight: 800;
-  font-size: 1.3rem;
-  color: var(--text-dark);
-  letter-spacing: -0.5px;
+  font-weight: 600;
+  font-size: 13px;
+  color: #1e293b;
+  letter-spacing: -0.2px;
 }
 
 .sidebar-employee .badge {
-  background: rgba(77, 66, 134, 0.1);
-  color: var(--brand-green-dark);
-  font-size: 0.6rem;
-  padding: 2px 8px;
-  border-radius: 4px;
-  margin-left: auto;
+  background: transparent;
+  color: #554994;
+  font-size: 9px;
+  padding: 0;
+  border-radius: 0;
+  margin-left: 0;
   text-transform: uppercase;
   font-weight: 700;
+  letter-spacing: 1.5px;
+  display: block;
+  margin-top: 2px;
 }
 
 .sidebar-employee .nav-group-title {
-  font-size: 0.65rem;
-  font-weight: 800;
-  color: #94a3b8;
+  font-size: 9px;
+  font-weight: 600 !important;
+  color: #000000 !important;
   text-transform: uppercase;
-  letter-spacing: 1px;
-  padding: 10px 12px 10px; /* Reduced top padding */
+  letter-spacing: 1.2px;
+  padding: 16px 18px 6px;
 }
 
 .sidebar-employee .sidebar-nav {
   flex: 1;
   overflow-y: auto;
   overflow-x: hidden;
-  padding-right: 4px;
+  padding: 0;
 }
 
-/* Custom internal scrollbar for Sidebar Nav (Light) */
 .sidebar-employee .sidebar-nav::-webkit-scrollbar {
-  width: 4px;
+  width: 3px;
 }
-
-.sidebar-employee .sidebar-nav::-webkit-scrollbar-track {
-  background: transparent;
-}
-
 .sidebar-employee .sidebar-nav::-webkit-scrollbar-thumb {
   background: #e2e8f0;
-  border-radius: 10px;
-}
-
-.sidebar-employee .sidebar-nav::-webkit-scrollbar-thumb:hover {
-  background: #cbd5e1;
 }
 
 .sidebar-employee .nav-item {
   color: #64748b;
-  font-weight: 600;
-  font-size: 0.9rem;
-  padding: 10px 14px;
-  border-radius: 10px;
+  font-weight: 400;
+  font-size: 12.5px;
+  padding: 8px 18px;
+  border-radius: 0;
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
   text-decoration: none;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  margin-bottom: 2px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  transition: all 0.15s;
+  margin-bottom: 0px;
+  border-left: 2px solid transparent;
 }
 
 .sidebar-employee .nav-item:hover {
-  background: #f1f5f9;
-  color: var(--brand-green);
-  transform: translateX(4px);
+  background: #f8fafc;
+  color: #1e293b;
+  transform: none;
 }
 
 .sidebar-employee .nav-item.active {
-  background: var(--accent);
-  color: white;
-  font-weight: 800;
-  box-shadow: 0 10px 20px rgba(77, 66, 134, 0.3);
+  background: rgba(85, 73, 148, 0.08);
+  color: #1e293b;
+  font-weight: 400;
+  border-left-color: #554994;
+  box-shadow: none;
 }
 
 .sidebar-employee .nav-item i {
-  width: 18px;
-  height: 18px;
-  opacity: 0.8;
+  width: 14px;
+  height: 14px;
+  opacity: 0.7;
+  stroke-width: 1.8px;
 }
 
 .sidebar-employee .nav-item.active i {
   opacity: 1;
+}
+
+.sidebar-employee .sidebar-footer {
+  padding: 14px 18px;
+  border-top: 1px solid #f1f5f9;
+}
+
+.sidebar-employee .user-peek {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.sidebar-employee .user-peek img {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+.sidebar-employee .user-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar-employee .user-info .name {
+  font-size: 12px;
+  font-weight: 700;
+  color: #1e293b;
+  line-height: 1.2;
+}
+
+.sidebar-employee .user-info .role {
+  font-size: 10px;
+  color: #64748b;
+  font-weight: 500;
 }
 
 .sidebar-employee .sidebar-footer {
@@ -3872,3 +3912,58 @@ h1, h2, h3, .card-title, .value, .val {
     color: var(--accent);
 }
 
+
+/* =========================================
+   SHIFT SCHEDULE MODULE STYLES
+   ========================================= */
+
+.shift-hero-card {
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.shift-hero-card:hover {
+    transform: translateY(-5px);
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.2); opacity: 0.7; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+.schedule-section table {
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.schedule-section tr:first-child td:first-child { border-top-left-radius: 24px; }
+.schedule-section tr:first-child td:last-child { border-top-right-radius: 24px; }
+.schedule-section tr:last-child td:first-child { border-bottom-left-radius: 24px; }
+.schedule-section tr:last-child td:last-child { border-bottom-right-radius: 24px; }
+
+.shift-rules-section .policy-card {
+    transition: all 0.3s ease;
+    cursor: default;
+}
+
+.shift-rules-section .policy-card:hover {
+    transform: scale(1.02);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+}
+
+.btn-premium-outline.swap-btn {
+    transition: all 0.2s ease;
+}
+
+.btn-premium-outline.swap-btn:hover {
+    background: var(--accent);
+    color: white;
+    box-shadow: 0 4px 12px rgba(77, 66, 134, 0.2);
+}
+
+/* Responsiveness for Shift Section */
+@media (max-width: 1024px) {
+    .shifts-container > div[style*="grid-template-columns: 1.8fr 1.2fr"] {
+        grid-template-columns: 1fr !important;
+    }
+}

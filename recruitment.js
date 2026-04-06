@@ -197,27 +197,27 @@ function createCandidateCard(app, candidate, job) {
             </div>
 
             <div class="candidate-stats">
-                <div class="c-stat-box">
+                <div class="c-stat-box" style="border-right: 1px solid #f1f5f9; padding-right: 8px;">
                     <span>Expected</span>
                     <b>₹${(candidate.expected_salary || '12L').toLocaleString()}</b>
                 </div>
-                <div class="c-stat-box">
+                <div class="c-stat-box" style="padding-left: 8px;">
                     <span>Experience</span>
                     <b>${candidate.experience_years || '0'}+ Yrs</b>
                 </div>
             </div>
 
-            <div class="candidate-footer">
+            <div class="ai-score" style="background: ${scoreColor}15; color: ${scoreColor}; margin-top: 12px; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 6px; border-radius: 10px; font-size: 0.75rem; font-weight: 900; border: 1px solid ${scoreColor}30;">
+                <i data-lucide="zap" style="width:14px; height: 14px; fill: ${scoreColor};"></i> Match: ${ai_score}%
+            </div>
+
+            <div class="candidate-footer" style="padding-top: 10px; border-top: 1px dashed #f1f5f9; margin-top: 10px;">
                 <div class="preview-btn" onclick="openCandidateModal('${app.id}')">
-                    <i data-lucide="eye" style="width:12px;"></i> Preview
+                    <i data-lucide="eye" style="width:14px;"></i> Preview
                 </div>
                 <div class="time-ago">
-                    <i data-lucide="clock" style="width:10px;"></i> 2h ago
+                    <i data-lucide="clock" style="width:12px;"></i> 2h ago
                 </div>
-            </div>
-            
-            <div class="ai-score" style="background: ${scoreColor}15; color: ${scoreColor}; margin-top: 8px; display: block; text-align: center; padding: 3px; border-radius: 6px; font-size: 0.65rem; font-weight: 900;">
-                <i data-lucide="zap" style="width:10px;"></i> Match: ${ai_score}%
             </div>
         </div>
     `;

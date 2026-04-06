@@ -133,26 +133,58 @@
         .ai-insight-box i { position: absolute; right: 10px; top: 10px; opacity: 0.1; width: 40px; height: 40px; }
 
         @media (max-width: 768px) {
-            .page-header { flex-direction: column; align-items: flex-start; gap: 12px; }
-            .page-header > div { width: 100%; grid-template-columns: 1fr 1fr; display: grid; gap: 10px; }
-            .page-header button { width: 100%; justify-content: center; padding: 10px 4px; font-size: 0.65rem; }
+            .page-header { flex-direction: column; align-items: flex-start; gap: 10px; margin-bottom: 0.75rem; }
+            .page-title { font-size: 1.1rem !important; }
+            .page-title div { width: 30px !important; height: 30px !important; }
+            .page-title i { width: 16px !important; }
             
-            .payroll-stats { grid-template-columns: repeat(2, 1fr) !important; }
+            .page-header > div { width: 100%; grid-template-columns: 1fr 1fr; display: grid; gap: 8px; }
+            .page-header button { width: 100%; justify-content: center; padding: 8px 4px; font-size: 0.6rem; }
+            
+            .payroll-stats { grid-template-columns: repeat(2, 1fr) !important; gap: 8px !important; }
+            .stat-card { padding: 10px !important; }
+            .stat-label { font-size: 0.55rem !important; }
+            .stat-value { font-size: 1.1rem !important; margin-top: 0px !important; }
+            .stat-sub { font-size: 0.55rem !important; padding: 1px 6px !important; }
             .stat-card:last-child { grid-column: span 2; }
+            .stat-card:last-child .stat-value { font-size: 0.9rem !important; }
             
-            .payroll-tabs { overflow-x: auto; flex-wrap: nowrap; -webkit-overflow-scrolling: touch; padding: 0 10px; margin-left: -1rem; margin-right: -1rem; }
-            .payroll-tab { padding: 12px 10px; font-size: 0.75rem; white-space: nowrap; flex-shrink: 0; }
-            .grid-2, .grid-3 { grid-template-columns: 1fr; }
+            .payroll-tabs { overflow-x: auto; flex-wrap: nowrap; -webkit-overflow-scrolling: touch; padding: 0 5px; margin-left: -1rem; margin-right: -1rem; margin-bottom: 1rem; }
+            .payroll-tab { padding: 10px 8px; font-size: 0.7rem; white-space: nowrap; flex-shrink: 0; }
+            .grid-2, .grid-3 { grid-template-columns: 1fr; gap: 12px !important; }
             
-            .card-header { flex-direction: column; align-items: flex-start; gap: 12px; padding: 15px; }
-            .header-utilities { flex-direction: column; align-items: stretch !important; gap: 8px; margin-top: 10px; width: 100%; }
+            .card-header { flex-direction: column; align-items: flex-start; gap: 8px; padding: 12px; }
+            .card-header h3 { font-size: 0.75rem !important; }
+            .header-utilities { flex-direction: column; align-items: stretch !important; gap: 6px; margin-top: 5px; width: 100%; }
             .table-search-box { width: 100%; justify-content: flex-start; }
-            .table-search-box input { width: 100% !important; }
+            .table-search-box input { width: 100% !important; height: 30px !important; font-size: 0.65rem !important; }
 
-            .modal-container { margin: 10px; border-radius: 16px; width: 95vw !important; }
+            .modal-container { margin: 10px; border-radius: 12px; width: 95vw !important; }
             
-            /* Prevent tables from breaking layout */
-            .dataTables_wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; display: block; width: 100%; }
+            /* Fix scrolling - Allow the page to scroll naturally so pagination is reachable */
+            .main-content {
+                height: auto !important;
+                overflow-y: visible !important;
+                padding-bottom: 50px !important; /* Extra padding for bottom clearance */
+            }
+
+            /* Force pagination and info to be centered and visible regardless of table scroll */
+            .dataTables_info, .dataTables_paginate { width: 100% !important; text-align: center !important; position: sticky; left: 0; right: 0; display: block !important; margin: 0 auto; clear: both; }
+            .dataTables_wrapper .dataTables_paginate .paginate_button { 
+                padding: 6px 12px !important; 
+                margin: 2px !important; 
+                font-size: 0.7rem !important; 
+                background: #f1f5f9 !important; 
+                border-radius: 6px !important; 
+                border: 1px solid #e2e8f0 !important;
+                display: inline-block !important;
+            }
+            .dataTables_wrapper .dataTables_paginate .paginate_button.current { background: var(--pr-primary) !important; color: white !important; border-color: var(--pr-primary) !important; font-weight: 700; }
+            .dataTables_wrapper .dataTables_paginate .paginate_button:active { background: #cbd5e1 !important; }
+            
+            /* Ensure the table itself is the only thing scrolling horizontally */
+            #payout-register-table, #structures-table, #loans-table { width: 100% !important; display: table !important; }
+            .dataTables_wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; padding-bottom: 20px; }
         }
     </style>
 </head>

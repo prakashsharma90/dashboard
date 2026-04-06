@@ -1,0 +1,412 @@
+<div id="company-performance" class="sub-view">
+    <style>
+        .vhr-perf-engine {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            padding-bottom: 40px;
+        }
+
+        /* Top Nav Control */
+        .perf-views-nav {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 5px;
+            border-bottom: 2px solid #f1f5f9;
+        }
+
+        .perf-view-tab {
+            padding: 10px 20px;
+            font-size: 0.9rem;
+            font-weight: 800;
+            color: #64748b;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            margin-bottom: -2px;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .perf-view-tab.active { color: #554994; border-bottom: 3px solid #554994; }
+        .perf-view-tab:hover:not(.active) { color: #1e293b; }
+
+        .perf-view-content { display: none; animation: vhrFade 0.3s ease; }
+        .perf-view-content.active { display: block; }
+
+        @keyframes vhrFade {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ----- TAB 1: EMPLOYEE 360 ENGINE (Main Details) ----- */
+        .emp-master-card {
+            background: linear-gradient(135deg, #1e293b, #334155);
+            border-radius: 20px;
+            padding: 30px;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 10px 30px rgba(30, 41, 59, 0.2);
+            margin-bottom: 20px;
+        }
+
+        .emp-info-wrap { display: flex; align-items: center; gap: 20px; }
+        .emp-photo { width: 80px; height: 80px; border-radius: 20px; background: rgba(255,255,255,0.1); border: 2px solid rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; font-size: 1.8rem; font-weight: 800; }
+        
+        .p-status-badge { background: #10b981; color: white; padding: 4px 12px; border-radius: 8px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; display: inline-block; margin-top: 8px; }
+
+        .big-score-ring {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: conic-gradient(#10b981 88%, rgba(255,255,255,0.1) 0);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .big-score-ring::after {
+            content: '';
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            background: #2b3748;
+            border-radius: 50%;
+        }
+
+        .huge-score-text {
+            position: absolute;
+            z-index: 1;
+            font-size: 2rem;
+            font-weight: 900;
+            display: flex;
+            align-items: baseline;
+        }
+        .huge-score-text span { font-size: 1rem; opacity: 0.8; margin-left: 2px; }
+
+        .perf-layout-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+        }
+        @media (max-width: 1024px) { .perf-layout-grid { grid-template-columns: 1fr; } }
+
+        .v-panel {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 20px;
+            padding: 24px;
+            margin-bottom: 20px;
+        }
+        
+        .v-panel h3 { font-size: 1.1rem; font-weight: 800; color: #1e293b; margin: 0 0 20px 0; display: flex; align-items: center; gap: 8px; }
+
+        /* Progress bars */
+        .kpi-row { margin-bottom: 16px; }
+        .kpi-row:last-child { margin-bottom: 0; }
+        .k-header { display: flex; justify-content: space-between; font-size: 0.8rem; font-weight: 800; color: #475569; margin-bottom: 8px; }
+        .k-val { color: #1e293b; font-weight: 900; }
+        .k-track { width: 100%; height: 8px; background: #f1f5f9; border-radius: 4px; overflow: hidden; }
+        .k-fill { height: 100%; border-radius: 4px; }
+        .f-blue { background: #3b82f6; } .f-purple { background: #554994; } .f-green { background: #10b981; } .f-amber { background: #f59e0b; }
+
+        /* Timelines */
+        .timeline-box { padding-left: 15px; border-left: 2px solid #e2e8f0; position: relative; margin-bottom: 20px; }
+        .timeline-box:last-child { margin-bottom: 0; }
+        .timeline-box::before { content:''; position:absolute; left:-6px; top:0; width:10px; height:10px; border-radius:50%; background:#554994; border:2px solid white; box-shadow:0 0 0 1px #e2e8f0; }
+        .tl-date { font-size: 0.7rem; font-weight: 800; color: #94a3b8; text-transform: uppercase; margin-bottom: 4px; }
+        .tl-content { font-size: 0.85rem; font-weight: 600; color: #334155; line-height: 1.5; background: #f8fafc; padding: 12px; border-radius: 12px; border: 1px solid #f1f5f9; }
+
+        /* Actions panel */
+        .action-flex { display: flex; flex-direction: column; gap: 10px; }
+        .btn-act { padding: 12px; border-radius: 12px; font-weight: 800; font-size: 0.85rem; display: flex; align-items: center; justify-content: space-between; cursor: pointer; transition: 0.2s; font-family: inherit; }
+        .act-promote { background: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0; }
+        .act-promote:hover { background: #d1fae5; }
+        .act-salary { background: #eff6ff; color: #1e40af; border: 1px solid #bfdbfe; }
+        .act-pip { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
+
+        /* Smart Alerts */
+        .alert-banner { background: #fffbeb; border: 1px solid #fde68a; padding: 15px; border-radius: 12px; display: flex; align-items: flex-start; gap: 12px; margin-bottom: 12px; }
+        .alert-banner .ic { color: #d97706; padding-top: 2px; }
+        
+        /* ----- TAB 2/3: ORG & DEPT DASHBOARDS ----- */
+        .org-stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 20px; }
+        .org-card { background: white; border: 1px solid #e2e8f0; border-radius: 20px; padding: 24px; text-align: center; }
+        .org-card h4 { font-size: 0.8rem; font-weight: 800; color: #64748b; text-transform: uppercase; margin: 0 0 10px 0; }
+        .org-card .h-val { font-size: 2rem; font-weight: 900; color: #1e293b; }
+
+        .bell-curve-mock { height: 180px; display: flex; align-items: flex-end; justify-content: center; gap: 12px; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; }
+        .bc-bar { width: 40px; background: #e2e8f0; border-radius: 6px 6px 0 0; position: relative; }
+        .bc-bar.active { background: #554994; }
+        .bc-labels { display: flex; justify-content: center; gap: 24px; margin-top: 10px; font-size: 0.75rem; font-weight: 800; color: #64748b; }
+
+        .v-table { width: 100%; border-collapse: collapse; }
+        .v-table th { text-align: left; padding: 12px; font-size: 0.7rem; font-weight: 800; color: #64748b; text-transform: uppercase; border-bottom: 1px solid #e2e8f0; }
+        .v-table td { padding: 14px 12px; border-bottom: 1px solid #f1f5f9; font-size: 0.85rem; font-weight: 700; color: #1e293b; }
+        .c-green { color: #10b981; background: #ecfdf5; padding: 4px 10px; border-radius: 6px; }
+        .c-red { color: #ef4444; background: #fef2f2; padding: 4px 10px; border-radius: 6px; }
+
+    </style>
+
+    <div class="vhr-perf-engine">
+        
+        <!-- TOP VIEW SELECTOR -->
+        <div class="perf-views-nav">
+            <div class="perf-view-tab active" onclick="switchPerfView('emp')"><i data-lucide="user"></i> Employee Profile (360°)</div>
+            <div class="perf-view-tab" onclick="switchPerfView('dept')"><i data-lucide="users"></i> Department View</div>
+            <div class="perf-view-tab" onclick="switchPerfView('org')"><i data-lucide="building"></i> Org Dashboard</div>
+        </div>
+
+        <!-- VIEW 1: EMPLOYEE MASTER PROFILE -->
+        <div id="v-emp" class="perf-view-content active">
+            
+            <div style="display:flex; justify-content:flex-end; gap:10px; margin-bottom:15px;">
+                <select style="padding:10px; border-radius:10px; border:1px solid #e2e8f0; font-family:inherit; font-weight:700; width:300px; outline:none;">
+                    <option>Rahul Sharma (Marketing)</option>
+                    <option>Sanya Kapoor (Development)</option>
+                </select>
+                <button style="background:white; border:1px solid #e2e8f0; border-radius:10px; padding:10px 15px; font-weight:800; cursor:pointer;"><i data-lucide="download" style="width:16px;"></i></button>
+            </div>
+
+            <!-- Master Profile Card -->
+            <div class="emp-master-card">
+                <div class="emp-info-wrap">
+                    <div class="emp-photo">RS</div>
+                    <div>
+                        <h2 style="margin: 0; font-size: 2rem; font-weight: 900; letter-spacing: -0.5px;">Rahul Sharma</h2>
+                        <div style="font-size: 1rem; font-weight: 600; opacity: 0.8; margin-bottom: 8px;">Marketing Executive</div>
+                        <!-- Stars -->
+                        <div style="color:#fbbf24; font-size:1.2rem; filter:drop-shadow(0 2px 4px rgba(0,0,0,0.2)); margin-bottom:4px;">★ ★ ★ ★ <span style="opacity:0.3">★</span></div>
+                        <div class="p-status-badge">Active Status</div>
+                    </div>
+                </div>
+                
+                <div style="display:flex; flex-direction:column; align-items:center; gap:8px;">
+                    <div class="big-score-ring">
+                        <div class="huge-score-text">88<span>%</span></div>
+                    </div>
+                    <div style="font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; opacity: 0.8;">Live Score</div>
+                </div>
+            </div>
+
+            <div class="perf-layout-grid">
+                
+                <!-- Left Details -->
+                <div>
+                    <!-- KPI & Goals -->
+                    <div class="v-panel">
+                        <h3><i data-lucide="target" style="color: #3b82f6;"></i> Core KPI & Goal Progress</h3>
+                        <div class="kpi-row">
+                            <div class="k-header"><span>Goal Completion</span><span class="k-val">80%</span></div>
+                            <div class="k-track"><div class="k-fill f-blue" style="width: 80%;"></div></div>
+                        </div>
+                        <div class="kpi-row">
+                            <div class="k-header"><span>Task Efficiency</span><span class="k-val">90%</span></div>
+                            <div class="k-track"><div class="k-fill f-purple" style="width: 90%;"></div></div>
+                        </div>
+                        <div class="kpi-row">
+                            <div class="k-header"><span>Attendance Consistency</span><span class="k-val">100%</span></div>
+                            <div class="k-track"><div class="k-fill f-green" style="width: 100%;"></div></div>
+                        </div>
+                        <div class="kpi-row">
+                            <div class="k-header"><span>Learning Progress</span><span class="k-val">70%</span></div>
+                            <div class="k-track"><div class="k-fill f-amber" style="width: 70%;"></div></div>
+                        </div>
+                    </div>
+
+                    <!-- Layout Sub-grid -->
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
+                        
+                        <!-- Timeline -->
+                        <div class="v-panel">
+                            <h3><i data-lucide="history" style="color: #554994;"></i> Behavior Timeline</h3>
+                            <div class="timeline-box">
+                                <div class="tl-date">10 Jan</div>
+                                <div class="tl-content" style="color:#065f46; background:#ecfdf5; border-color:#d1fae5;">Q1 Marketing Task Completed Early</div>
+                            </div>
+                            <div class="timeline-box">
+                                <div class="tl-date">12 Jan</div>
+                                <div class="tl-content" style="color:#991b1b; background:#fef2f2; border-color:#fecaca;">Late Attendance Flagged</div>
+                            </div>
+                            <div class="timeline-box">
+                                <div class="tl-date">15 Jan</div>
+                                <div class="tl-content">Hubspot Training Cert Completed</div>
+                            </div>
+                        </div>
+
+                        <!-- Skill Matrix -->
+                        <div class="v-panel">
+                            <h3><i data-lucide="brain-circuit" style="color: #8b5cf6;"></i> Skill Matrix</h3>
+                            <div class="kpi-row">
+                                <div class="k-header"><span>Communication</span><span class="k-val">80%</span></div>
+                                <div class="k-track"><div class="k-fill f-purple" style="width: 80%;"></div></div>
+                            </div>
+                            <div class="kpi-row">
+                                <div class="k-header"><span>Leadership</span><span class="k-val">60%</span></div>
+                                <div class="k-track"><div class="k-fill f-purple" style="width: 60%;"></div></div>
+                            </div>
+                            <div class="kpi-row">
+                                <div class="k-header"><span>Problem Solving</span><span class="k-val">70%</span></div>
+                                <div class="k-track"><div class="k-fill f-purple" style="width: 70%;"></div></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Triggers -->
+                <div>
+                    <!-- Smart Alerts -->
+                    <div class="v-panel" style="background: #f8fafc; border: 1px dashed #cbd5e1;">
+                        <h3 style="margin-bottom:12px;"><i data-lucide="lightbulb" style="color: #d97706;"></i> Smart Intelligence Alerts</h3>
+                        <div class="alert-banner" style="background:white;">
+                            <i data-lucide="info" class="ic"></i>
+                            <div>
+                                <div style="font-weight:800; font-size:0.8rem; color:#92400e;">Recommendation Found</div>
+                                <div style="font-size:0.75rem; color:#64748b; font-weight:600; margin-top:2px;">Employee has scored >85% for 2 cycles. Eligible for Promotion Review.</div>
+                            </div>
+                        </div>
+                        <div class="alert-banner" style="background:#fef2f2; border-color:#fecaca;">
+                            <i data-lucide="alert-triangle" style="color:#dc2626;" class="ic"></i>
+                            <div>
+                                <div style="font-weight:800; font-size:0.8rem; color:#991b1b;">Attendance Warning</div>
+                                <div style="font-size:0.75rem; color:#64748b; font-weight:600; margin-top:2px;">Missed 2 sprint deadlines this week.</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 360 Feedback logs -->
+                    <div class="v-panel">
+                        <h3><i data-lucide="message-square" style="color: #10b981;"></i> 360° Feedback Log</h3>
+                        <div style="background:#f8fafc; padding:15px; border-radius:12px; margin-bottom:10px;">
+                            <div style="font-size:0.7rem; font-weight:800; color:#64748b; text-transform:uppercase; margin-bottom:4px;">Jan 25 • Peer Feedback</div>
+                            <div style="font-size:0.85rem; font-weight:600; color:#1e293b;">"Great team player, always helps out."</div>
+                        </div>
+                        <div style="background:#f8fafc; padding:15px; border-radius:12px;">
+                            <div style="font-size:0.7rem; font-weight:800; color:#64748b; text-transform:uppercase; margin-bottom:4px;">Jan 10 • Manager Feedback</div>
+                            <div style="font-size:0.85rem; font-weight:600; color:#1e293b;">"Strong communication, needs focus on speed."</div>
+                        </div>
+                    </div>
+
+                    <!-- Decision Actions -->
+                    <div class="v-panel">
+                        <h3><i data-lucide="layers" style="color: #554994;"></i> HR Action Panel</h3>
+                        <div class="action-flex">
+                            <button class="btn-act act-promote">Initiate Promotion <i data-lucide="chevron-right"></i></button>
+                            <button class="btn-act act-salary">Propose Increment <i data-lucide="chevron-right"></i></button>
+                            <button class="btn-act act-pip">Start PIP (Safety Net) <i data-lucide="chevron-right"></i></button>
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+
+        <!-- VIEW 2: DEPARTMENT DASHBOARD -->
+        <div id="v-dept" class="perf-view-content">
+            <div class="org-stats-grid">
+                <div class="org-card">
+                    <h4>Dept Performance Score</h4>
+                    <div class="h-val">82%</div>
+                </div>
+                <div class="org-card">
+                    <h4>Average Rating</h4>
+                    <div class="h-val" style="color:#fbbf24;">4.2 ⭐</div>
+                </div>
+                <div class="org-card">
+                    <h4>Department Headcount</h4>
+                    <div class="h-val">24 Active</div>
+                </div>
+            </div>
+
+            <div class="v-panel">
+                <h3><i data-lucide="users" style="width:20px; color:#554994;"></i> Team Members Status</h3>
+                <table class="v-table">
+                    <thead>
+                        <tr><th>Employee</th><th>Role</th><th>Score</th><th>Status Tracker</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Rahul Sharma</td><td>Marketing Exec</td><td><span class="c-green">88% (High)</span></td><td><div style="width:10px; height:10px; border-radius:50%; background:#10b981; display:inline-block; margin-right:6px;"></div> Optimal</td></tr>
+                        <tr><td>Aditi Singh</td><td>Content Writer</td><td><span style="color:#d97706; background:#fef3c7; padding:4px 10px; border-radius:6px;">74% (Avg)</span></td><td><div style="width:10px; height:10px; border-radius:50%; background:#fbbf24; display:inline-block; margin-right:6px;"></div> Needs Review</td></tr>
+                        <tr><td>Deepak Kumar</td><td>SEO Analyst</td><td><span class="c-red">58% (Low)</span></td><td><div style="width:10px; height:10px; border-radius:50%; background:#ef4444; display:inline-block; margin-right:6px;"></div> At Risk (Action Required)</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- VIEW 3: ORGANIZATION DASHBOARD -->
+        <div id="v-org" class="perf-view-content">
+            <div class="org-stats-grid" style="grid-template-columns: repeat(3, 1fr);">
+                <div class="org-card" style="background:#554994; color:white; border:none;">
+                    <h4 style="color:#c7d2fe;">Total Monitored Employees</h4>
+                    <div class="h-val" style="color:white;">1,240</div>
+                </div>
+                <div class="org-card">
+                    <h4>Org Avg Performance</h4>
+                    <div class="h-val" style="color:#10b981;">79.4%</div>
+                </div>
+                <div class="org-card">
+                    <h4>Current Attrition Risk</h4>
+                    <div class="h-val" style="color:#ef4444;">4.2%</div>
+                </div>
+            </div>
+
+            <div class="perf-layout-grid">
+                <div class="v-panel">
+                    <h3><i data-lucide="bell" style="color:#554994;"></i> Performance Distribution (Bell Curve)</h3>
+                    <p style="font-size:0.8rem; color:#64748b; margin-top:-5px; margin-bottom:20px; font-weight:600;">Detects rating inflation or bias across the entire organization metrics.</p>
+                    <div class="bell-curve-mock">
+                        <div class="bc-bar" style="height: 10%;"></div>
+                        <div class="bc-bar" style="height: 35%;"></div>
+                        <div class="bc-bar active" style="height: 80%;"></div>
+                        <div class="bc-bar" style="height: 45%;"></div>
+                        <div class="bc-bar" style="height: 15%;"></div>
+                    </div>
+                    <div class="bc-labels">
+                        <span>Low/PIP</span><span>Average</span><span>Meets Target</span><span>Exceeds</span><span>Exceptional</span>
+                    </div>
+                </div>
+
+                <div style="display:flex; flex-direction:column; gap:20px;">
+                    <div class="v-panel" style="background:#fef2f2; border-color:#fecaca;">
+                        <h3 style="color:#991b1b;"><i data-lucide="alert-circle" style="color:#dc2626;"></i> At-Risk Tracker</h3>
+                        <ul style="padding:0; margin:0; list-style:none; font-size:0.85rem; font-weight:700;">
+                            <li style="margin-bottom:10px; display:flex; justify-content:space-between;"><span>Dev Team (Backend)</span><span style="color:#ef4444;">5 Pending PIP</span></li>
+                            <li style="display:flex; justify-content:space-between;"><span>Sales Ground Force</span><span style="color:#ef4444;">12 High Absenteeism</span></li>
+                        </ul>
+                    </div>
+                    <div class="v-panel" style="background:#ecfdf5; border-color:#a7f3d0;">
+                        <h3 style="color:#065f46;"><i data-lucide="award" style="color:#10b981;"></i> High Performers</h3>
+                        <ul style="padding:0; margin:0; list-style:none; font-size:0.85rem; font-weight:700;">
+                            <li style="margin-bottom:10px; display:flex; justify-content:space-between;"><span>Marketing Execs</span><span style="color:#10b981;">Top 5%</span></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <script>
+        (function() {
+            if (window.lucide) window.lucide.createIcons();
+            
+            // Expose switcher
+            window.switchPerfView = function(viewId) {
+                // Nav state
+                document.querySelectorAll('.perf-view-tab').forEach(t => t.classList.remove('active'));
+                event.currentTarget.classList.add('active');
+
+                // Content state
+                document.querySelectorAll('.perf-view-content').forEach(c => c.classList.remove('active'));
+                document.getElementById('v-' + viewId).classList.add('active');
+            }
+        })();
+    </script>
+</div>

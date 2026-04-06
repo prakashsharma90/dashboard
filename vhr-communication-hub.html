@@ -1,0 +1,711 @@
+<div id="company-communication" class="sub-view">
+    <style>
+        .vhr-com-container {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            position: relative;
+            height: calc(100vh - 160px); /* Fill dashboard height while accounting for padding/header */
+            background: white;
+            border-radius: 20px;
+            border: 1px solid #e2e8f0;
+            overflow: hidden;
+            display: flex;
+            box-sizing: border-box;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.02);
+        }
+
+        .vhr-com-container * {
+            box-sizing: border-box;
+        }
+
+        /* ---------------------------------
+           1. LEFT PANEL - CHAT LIST
+           --------------------------------- */
+        .com-left-panel {
+            width: 320px;
+            background: #f8fafc;
+            border-right: 1px solid #e2e8f0;
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+        }
+
+        .com-left-header {
+            padding: 20px;
+            border-bottom: 1px solid #e2e8f0;
+            background: white;
+        }
+
+        .com-left-header h2 {
+            font-size: 1.2rem;
+            font-weight: 900;
+            margin: 0 0 12px;
+            color: #1e293b;
+            letter-spacing: -0.5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .com-search-box {
+            position: relative;
+            width: 100%;
+        }
+
+        .com-search-box i {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+            width: 16px;
+            pointer-events: none;
+        }
+
+        .com-search-box input {
+            width: 100%;
+            padding: 10px 14px 10px 36px;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            background: #f1f5f9;
+            font-family: inherit;
+            font-size: 0.8rem;
+            outline: none;
+            transition: 0.2s;
+        }
+
+        .com-search-box input:focus {
+            background: white;
+            border-color: #554994;
+            box-shadow: 0 0 0 3px rgba(85, 73, 148, 0.1);
+        }
+
+        .com-tabs {
+            display: flex;
+            padding: 0 20px;
+            border-bottom: 1px solid #e2e8f0;
+            background: white;
+        }
+
+        .com-tab {
+            flex: 1;
+            text-align: center;
+            padding: 12px 0;
+            font-size: 0.75rem;
+            font-weight: 800;
+            color: #64748b;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+        }
+
+        .com-tab.active {
+            color: #554994;
+            border-bottom-color: #554994;
+        }
+
+        .com-list {
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .chat-row {
+            display: flex;
+            padding: 16px 20px;
+            gap: 12px;
+            border-bottom: 1px solid #e2e8f0;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .chat-row:hover {
+            background: #f1f5f9;
+        }
+
+        .chat-row.active {
+            background: #fdfcff;
+            border-left: 4px solid #554994;
+            position: relative;
+        }
+        .chat-row.active::after {
+            content: '';
+            position: absolute;
+            right: 0; top: 0; bottom: 0; width: 3px;
+            background: #e2e8f0;
+        }
+
+        .chat-avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            background: #edebf9;
+            color: #554994;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 0.9rem;
+            flex-shrink: 0;
+            position: relative;
+        }
+
+        .chat-avatar.emp { background: #dbeafe; color: #1e40af; }
+        .chat-avatar.team { background: #fef3c7; color: #92400e; }
+
+        .online-dot {
+            position: absolute;
+            bottom: -2px;
+            right: -2px;
+            width: 12px;
+            height: 12px;
+            background: #10b981;
+            border: 2px solid white;
+            border-radius: 50%;
+        }
+
+        .chat-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .chat-info-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 4px;
+        }
+
+        .chat-name {
+            font-size: 0.85rem;
+            font-weight: 800;
+            color: #1e293b;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .chat-time {
+            font-size: 0.65rem;
+            color: #94a3b8;
+            font-weight: 700;
+        }
+
+        .chat-message {
+            font-size: 0.75rem;
+            color: #64748b;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font-weight: 600;
+        }
+        
+        .chat-row.unread .chat-message {
+            color: #1e293b;
+            font-weight: 800;
+        }
+
+        .unread-badge {
+            background: #ef4444;
+            color: white;
+            font-size: 0.6rem;
+            font-weight: 800;
+            padding: 2px 6px;
+            border-radius: 10px;
+            display: inline-block;
+            margin-left: 6px;
+        }
+
+        /* ---------------------------------
+           2. CENTER - CHAT WINDOW
+           --------------------------------- */
+        .com-center-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: white;
+            min-width: 400px;
+        }
+
+        .chat-header {
+            padding: 16px 24px;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-profile {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .header-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            background: #edebf9;
+            color: #554994;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .action-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            color: #64748b;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .action-btn:hover {
+            background: #554994;
+            color: white;
+            border-color: #554994;
+        }
+
+        .chat-body {
+            flex: 1;
+            padding: 24px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            background-color: #f8fafc;
+            background-image: radial-gradient(#cbd5e1 1px, transparent 1px);
+            background-size: 24px 24px;
+        }
+
+        .message-row {
+            display: flex;
+            flex-direction: column;
+            max-width: 70%;
+        }
+
+        .msg-received {
+            align-self: flex-start;
+        }
+
+        .msg-sent {
+            align-self: flex-end;
+            align-items: flex-end;
+        }
+
+        .msg-bubble {
+            padding: 14px 20px;
+            font-size: 0.85rem;
+            line-height: 1.6;
+            color: #1e293b;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+            position: relative;
+        }
+
+        .msg-received .msg-bubble {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 20px 20px 20px 4px;
+        }
+
+        .msg-sent .msg-bubble {
+            background: linear-gradient(135deg, #6b5fb6 0%, #554994 100%);
+            color: white;
+            border-radius: 20px 20px 4px 20px;
+            box-shadow: 0 6px 15px rgba(85, 73, 148, 0.2);
+        }
+
+        .msg-time {
+            font-size: 0.6rem;
+            color: #94a3b8;
+            font-weight: 700;
+            margin-top: 6px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .chat-footer {
+            padding: 24px;
+            background: white;
+            border-top: 1px solid #e2e8f0;
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.02);
+            z-index: 10;
+        }
+
+        .chat-input-wrap {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            background: #ffffff;
+            border: 1px solid #cbd5e1;
+            padding: 10px 10px 10px 20px;
+            border-radius: 40px;
+            transition: all 0.3s;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.03);
+        }
+
+        .chat-input-wrap:focus-within {
+            border-color: #554994;
+            box-shadow: 0 0 0 4px rgba(85,73,148,0.1);
+        }
+
+        .chat-input-wrap input {
+            flex: 1;
+            border: none;
+            background: transparent;
+            outline: none;
+            font-family: inherit;
+            font-size: 0.85rem;
+            color: #1e293b;
+        }
+
+        .send-btn {
+            background: linear-gradient(135deg, #6b5fb6 0%, #554994 100%);
+            color: white;
+            border: none;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(85, 73, 148, 0.3);
+            transition: 0.2s;
+        }
+
+        .send-btn:hover {
+            box-shadow: 0 6px 20px rgba(85, 73, 148, 0.4);
+            transform: translateY(-2px);
+        }
+
+        /* ---------------------------------
+           3. RIGHT PANEL - CONTEXT INFO
+           --------------------------------- */
+        .com-right-panel {
+            width: 300px;
+            background: #f8fafc;
+            border-left: 1px solid #e2e8f0;
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+            overflow-y: auto;
+        }
+
+        .context-header {
+            padding: 24px 20px 16px;
+            text-align: center;
+            border-bottom: 1px solid #e2e8f0;
+            background: white;
+        }
+
+        .context-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 24px;
+            background: linear-gradient(135deg, #f5f3ff 0%, #edebf9 100%);
+            color: #554994;
+            font-size: 1.75rem;
+            font-weight: 900;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px;
+            box-shadow: 0 10px 20px rgba(85, 73, 148, 0.1);
+            border: 2px solid white;
+        }
+
+        .context-card {
+            padding: 20px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .context-label {
+            font-size: 0.65rem;
+            font-weight: 850;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
+            display: block;
+        }
+
+        .context-val {
+            font-size: 0.85rem;
+            font-weight: 800;
+            color: #1e293b;
+        }
+
+        .p-tag {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.65rem;
+            font-weight: 800;
+            background: #fffbeb;
+            color: #d97706;
+            margin-top: 8px;
+        }
+
+        .com-actions {
+            padding: 20px;
+        }
+
+        .com-btn {
+            width: 100%;
+            padding: 10px;
+            border-radius: 10px;
+            font-family: inherit;
+            font-weight: 800;
+            font-size: 0.75rem;
+            cursor: pointer;
+            border: 1px solid #e2e8f0;
+            background: white;
+            color: #475569;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 10px;
+            transition: 0.2s;
+        }
+
+        .com-btn:hover {
+            border-color: #554994;
+            color: #554994;
+        }
+
+    </style>
+
+    <div class="vhr-com-container">
+        
+        <!-- LEFT PANEL -->
+        <div class="com-left-panel">
+            <div class="com-left-header">
+                <h2><i data-lucide="message-square" style="width: 20px; color: #554994;"></i> Inbox</h2>
+                <div class="com-search-box">
+                    <i data-lucide="search"></i>
+                    <input type="text" placeholder="Search conversations...">
+                </div>
+            </div>
+            
+            <div class="com-tabs">
+                <div class="com-tab active">All</div>
+                <div class="com-tab">Candidates</div>
+                <div class="com-tab">Employees</div>
+            </div>
+
+            <div class="com-list">
+                <!-- Chat 1 (Active) -->
+                <div class="chat-row active unread">
+                    <div class="chat-avatar">RS<div class="online-dot"></div></div>
+                    <div class="chat-info">
+                        <div class="chat-info-top">
+                            <span class="chat-name">Rahul Sharma</span>
+                            <span class="chat-time">10:42 AM</span>
+                        </div>
+                        <div class="chat-message border-box">Hi sir, when is my interview scheduled? <span class="unread-badge">1</span></div>
+                    </div>
+                </div>
+                <!-- Chat 2 -->
+                <div class="chat-row">
+                    <div class="chat-avatar emp">PK</div>
+                    <div class="chat-info">
+                        <div class="chat-info-top">
+                            <span class="chat-name">Priya Kapoor <i data-lucide="shield-check" style="width: 12px; color: #10b981; vertical-align: middle;"></i></span>
+                            <span class="chat-time">Yesterday</span>
+                        </div>
+                        <div class="chat-message">Thanks for the update!</div>
+                    </div>
+                </div>
+                <!-- Chat 3 -->
+                <div class="chat-row">
+                    <div class="chat-avatar team">AT</div>
+                    <div class="chat-info">
+                        <div class="chat-info-top">
+                            <span class="chat-name">Amit (HR Team)</span>
+                            <span class="chat-time">Mon</span>
+                        </div>
+                        <div class="chat-message">Can you share the candidate docs?</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CENTER PANEL -->
+        <div class="com-center-panel">
+            <div class="chat-header">
+                <div class="header-profile">
+                    <div class="header-avatar">RS</div>
+                    <div>
+                        <div style="font-weight: 900; font-size: 1rem; color: #1e293b;">Rahul Sharma</div>
+                        <div style="font-size: 0.7rem; color: #10b981; font-weight: 700;">Online</div>
+                    </div>
+                </div>
+                <div class="header-actions">
+                    <button class="action-btn" title="Voice Call" onclick="alert('Initiating Voice Call...')"><i data-lucide="phone"></i></button>
+                    <button class="action-btn" title="Video Meeting" onclick="alert('Initiating Video Room...')"><i data-lucide="video"></i></button>
+                    <button class="action-btn" title="More Info" style="background:#554994; color:white; border-color:#554994;"><i data-lucide="sidebar"></i></button>
+                </div>
+            </div>
+
+            <div class="chat-body">
+                <div style="text-align: center; font-size: 0.7rem; font-weight: 800; color: #94a3b8; margin: 10px 0;">Today</div>
+
+                <!-- Message Received -->
+                <div class="message-row msg-received">
+                    <div class="msg-bubble">
+                        Good Morning! I wanted to follow up on my application for the Marketing Executive role.
+                    </div>
+                    <div class="msg-time">10:40 AM <i data-lucide="check" style="width: 12px;"></i></div>
+                </div>
+
+                <!-- Message Sent -->
+                <div class="message-row msg-sent">
+                    <div class="msg-bubble">
+                        Hi Rahul! We've reviewed your assignment. I'd like to schedule your final video interview round for this afternoon. Are you available?
+                    </div>
+                    <div class="msg-time">10:41 AM <i data-lucide="check-check" style="width: 12px; color: #554994;"></i></div>
+                </div>
+
+                <!-- Message Received -->
+                <div class="message-row msg-received">
+                    <div class="msg-bubble">
+                        Yes, absolutely! Let me know the time and I'll jump on the call.
+                    </div>
+                    <div class="msg-time">10:42 AM <i data-lucide="check" style="width: 12px;"></i></div>
+                </div>
+            </div>
+
+            <!-- AI Suggestion Chips -->
+            <div style="padding: 0 24px; display: flex; gap: 10px; margin-bottom: 10px;">
+                <div style="font-size: 0.65rem; font-weight: 800; color: #554994; background: #edebf9; padding: 6px 12px; border-radius: 20px; cursor: pointer; border: 1px solid #d4ceff;">
+                    <i data-lucide="zap" style="width: 10px;"></i> Share Meeting Link
+                </div>
+                <div style="font-size: 0.65rem; font-weight: 800; color: #554994; background: #edebf9; padding: 6px 12px; border-radius: 20px; cursor: pointer; border: 1px solid #d4ceff;">
+                    <i data-lucide="zap" style="width: 10px;"></i> Ask for availability
+                </div>
+            </div>
+
+            <div class="chat-footer">
+                <div class="chat-input-wrap">
+                    <i data-lucide="paperclip" style="color:#94a3b8; cursor:pointer;" onclick="alert('Open file picker')"></i>
+                    <i data-lucide="smile" style="color:#94a3b8; cursor:pointer;"></i>
+                    <input type="text" placeholder="Type a message to Rahul...">
+                    <button class="send-btn"><i data-lucide="send" style="width: 18px;"></i></button>
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT PANEL -->
+        <div class="com-right-panel">
+            <div class="context-header">
+                <div class="context-avatar">RS</div>
+                <h3 style="margin: 0 0 4px; font-size: 1.1rem; font-weight: 900; color: #1e293b;">Rahul Sharma</h3>
+                <p style="margin: 0; font-size: 0.75rem; color: #64748b; font-weight: 700;">Candidate • Marketing</p>
+                <div class="p-tag">Interview Pending</div>
+            </div>
+            
+            <div class="context-card">
+                <span class="context-label">Email Address</span>
+                <div class="context-val">rahul@example.com</div>
+            </div>
+            <div class="context-card">
+                <span class="context-label">Phone</span>
+                <div class="context-val">+91 98765 43210</div>
+            </div>
+            
+            <div class="context-card" style="border: none;">
+                <span class="context-label">HR Notes</span>
+                <textarea placeholder="Add a quick note..." style="width: 100%; height: 80px; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px; font-family: inherit; font-size: 0.75rem; resize: none; outline: none; background: #f8fafc; margin-top: 6px;"></textarea>
+            </div>
+
+            <div class="com-actions">
+                <button class="com-btn"><i data-lucide="file-text"></i> View Resume</button>
+                <button class="com-btn"><i data-lucide="calendar"></i> Schedule Action</button>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        (function() {
+            if (window.lucide) {
+                window.lucide.createIcons();
+            }
+
+            // Simple Tab interaction
+            const tabs = document.querySelectorAll('.com-tab');
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    tabs.forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                });
+            });
+
+            // Interactive Chat Logic
+            const chatInput = document.querySelector('.chat-input-wrap input');
+            const sendBtn = document.querySelector('.send-btn');
+            const chatBody = document.querySelector('.chat-body');
+
+            function sendMessage() {
+                const text = chatInput.value.trim();
+                if (!text) return;
+
+                // Create sent message string structure
+                const timeStr = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                
+                const messageHtml = `
+                    <div class="message-row msg-sent">
+                        <div class="msg-bubble">${text}</div>
+                        <div class="msg-time">${timeStr} <i data-lucide="check-check" style="width: 12px; color: #554994;"></i></div>
+                    </div>
+                `;
+
+                // Append and re-render icons
+                chatBody.insertAdjacentHTML('beforeend', messageHtml);
+                
+                if (window.lucide) {
+                    window.lucide.createIcons();
+                }
+
+                // Clear input and auto-scroll to latest
+                chatInput.value = '';
+                chatBody.scrollTop = chatBody.scrollHeight;
+            }
+
+            // Bind events
+            sendBtn.addEventListener('click', sendMessage);
+            chatInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    sendMessage();
+                }
+            });
+
+            // Initialize scroll position
+            if(chatBody) {
+                chatBody.scrollTop = chatBody.scrollHeight;
+            }
+
+            // Quick AI Chips functionality
+            const chips = document.querySelectorAll('.chat-body + div > div');
+            chips.forEach(chip => {
+                chip.addEventListener('click', () => {
+                    chatInput.value = chip.innerText.trim();
+                    chatInput.focus();
+                });
+            });
+
+        })();
+    </script>
+</div>

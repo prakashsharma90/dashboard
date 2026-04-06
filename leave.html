@@ -150,6 +150,65 @@
         }
         .btn-approve:hover { background: #10b981; color: white; border-color: #10b981; }
         .btn-reject:hover { background: #ef4444; color: white; border-color: #ef4444; }
+        @media (max-width: 768px) {
+            .main-content {
+                height: auto !important;
+                overflow-y: visible !important;
+                padding: 12px !important;
+                padding-top: 75px !important;
+                padding-bottom: 50px !important;
+            }
+            .section-header { 
+                flex-direction: column !important; 
+                align-items: flex-start !important;
+                gap: 15px !important;
+                margin-bottom: 1.5rem !important;
+            }
+            .section-title { font-size: 1.25rem !important; }
+            
+            .header-actions { 
+                display: grid !important; 
+                grid-template-columns: 1fr 1fr !important; 
+                gap: 10px !important; 
+                width: 100% !important;
+            }
+            .header-actions button { 
+                width: 100% !important; 
+                justify-content: center !important; 
+                font-size: 0.7rem !important; 
+                padding: 10px 5px !important; 
+                white-space: nowrap !important;
+                height: 40px !important;
+            }
+
+            .leave-stats-grid { grid-template-columns: 1fr 1fr !important; gap: 12px !important; }
+            .stat-card { 
+                padding: 15px 10px !important; 
+                flex-direction: column !important; 
+                align-items: center !important; 
+                text-align: center !important;
+                gap: 5px !important; 
+            }
+            .stat-label { font-size: 0.6rem !important; opacity: 0.8; line-height: 1.2; height: 30px; display: flex; align-items: center; justify-content: center; }
+            .stat-value { font-size: 1.4rem !important; margin-top: 0px !important; }
+
+            .panel-header { flex-direction: column !important; align-items: stretch !important; gap: 12px !important; padding: 15px !important; }
+            .panel-title { font-size: 0.95rem !important; }
+            .date-input { width: 100% !important; height: 42px !important; font-size: 0.8rem !important; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 35px !important; }
+            
+            /* Center the "No requests found" message on mobile viewport */
+            #leave-requests-table-body .empty-state-cell {
+                text-align: center !important;
+                padding: 60px 20px !important;
+                color: #94a3b8 !important;
+                font-weight: 600 !important;
+                font-size: 0.85rem !important;
+                position: relative;
+            }
+            #leave-requests-table-body tr.empty-row:hover { background: transparent !important; }
+            
+            main > div:nth-last-child(1) { grid-template-columns: 1fr !important; gap: 15px !important; }
+        }
     </style>
 </head>
 <body>
@@ -335,7 +394,7 @@
                 $('#val-on-leave').text(approved); // Simplified logic
 
                 if (allRequests.length === 0) {
-                    tbody.append('<tr><td colspan="7" style="text-align:center; padding:50px; color:#64748b;">No leave requests found.</td></tr>');
+                    tbody.append('<tr class="empty-row"><td colspan="7" class="empty-state-cell">No leave applications found for this cycle.</td></tr>');
                 } else {
                     allRequests.forEach(req => {
                         const emp = req.employees || { first_name: 'Unknown', last_name: '' };

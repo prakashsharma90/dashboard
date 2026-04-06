@@ -1,0 +1,712 @@
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap');
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  .vhr-shell {
+    font-family: 'DM Sans', sans-serif;
+    background: #F5F4F1;
+    display: flex;
+    height: 720px;
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1px solid #E2E0DA;
+  }
+
+  /* SIDEBAR */
+  .sidebar {
+    width: 220px;
+    background: #1A1A18;
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    padding: 0;
+  }
+
+  .sidebar-brand {
+    padding: 20px 18px 16px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+
+  .brand-logo {
+    display: flex; align-items: center; gap: 10px;
+  }
+
+  .brand-icon {
+    width: 32px; height: 32px; background: #C8F55A;
+    border-radius: 8px; display: flex; align-items: center; justify-content: center;
+  }
+
+  .brand-icon svg { width: 16px; height: 16px; }
+
+  .brand-name {
+    font-size: 13px; font-weight: 600; color: #fff; letter-spacing: -0.2px;
+  }
+
+  .brand-tag {
+    font-size: 9px; font-weight: 500; color: #C8F55A; letter-spacing: 1.5px;
+    text-transform: uppercase; margin-top: 1px;
+  }
+
+  .sidebar-section-label {
+    font-size: 9px; font-weight: 500; letter-spacing: 1.2px;
+    text-transform: uppercase; color: rgba(255,255,255,0.25);
+    padding: 16px 18px 6px;
+  }
+
+  .nav-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 18px; cursor: pointer;
+    font-size: 12.5px; color: rgba(255,255,255,0.45);
+    font-weight: 400; transition: color 0.15s;
+    border-left: 2px solid transparent;
+  }
+
+  .nav-item:hover { color: rgba(255,255,255,0.8); }
+
+  .nav-item.active {
+    color: #fff; border-left-color: #C8F55A;
+    background: rgba(255,255,255,0.04);
+  }
+
+  .nav-item svg { width: 14px; height: 14px; flex-shrink: 0; opacity: 0.7; }
+  .nav-item.active svg { opacity: 1; }
+
+  .sidebar-spacer { flex: 1; }
+
+  .sidebar-user {
+    padding: 14px 18px;
+    border-top: 1px solid rgba(255,255,255,0.06);
+    display: flex; align-items: center; gap: 10px;
+  }
+
+  .user-avatar {
+    width: 30px; height: 30px; border-radius: 50%;
+    background: #C8F55A; display: flex; align-items: center;
+    justify-content: center; font-size: 11px; font-weight: 600; color: #1A1A18;
+    flex-shrink: 0;
+  }
+
+  .user-name { font-size: 12px; color: #fff; font-weight: 500; }
+  .user-role { font-size: 10px; color: rgba(255,255,255,0.35); }
+
+  /* MAIN */
+  .main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  /* TOPBAR */
+  .topbar {
+    background: #fff;
+    border-bottom: 1px solid #E8E6E0;
+    padding: 0 24px;
+    height: 56px;
+    display: flex; align-items: center; gap: 16px;
+    flex-shrink: 0;
+  }
+
+  .topbar-client {
+    display: flex; align-items: center; gap: 8px;
+    padding: 6px 12px; background: #F5F4F1;
+    border-radius: 8px; border: 1px solid #E2E0DA;
+  }
+
+  .client-dot {
+    width: 7px; height: 7px; border-radius: 50%; background: #22C55E;
+  }
+
+  .client-name { font-size: 12px; font-weight: 600; color: #1A1A18; }
+
+  .client-switch {
+    font-size: 10px; font-weight: 500; color: #888; letter-spacing: 0.5px;
+    text-transform: uppercase; cursor: pointer;
+  }
+
+  .topbar-divider { width: 1px; height: 20px; background: #E8E6E0; }
+
+  .topbar-timer {
+    display: flex; align-items: center; gap: 6px;
+  }
+
+  .timer-label { font-size: 10px; color: #aaa; text-transform: uppercase; letter-spacing: 0.8px; }
+  .timer-value { font-size: 13px; font-weight: 500; font-family: 'DM Mono', monospace; color: #1A1A18; }
+
+  .topbar-spacer { flex: 1; }
+
+  .checkin-btn {
+    display: flex; align-items: center; gap: 6px;
+    background: #C8F55A; border: none; border-radius: 8px;
+    padding: 8px 16px; cursor: pointer;
+    font-size: 12px; font-weight: 600; color: #1A1A18; font-family: 'DM Sans', sans-serif;
+  }
+
+  .checkin-dot {
+    width: 6px; height: 6px; border-radius: 50%; background: #1A1A18; opacity: 0.5;
+    animation: pulse 1.5s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 0.4; }
+    50% { opacity: 1; }
+  }
+
+  .topbar-tabs {
+    display: flex; gap: 2px;
+    background: #F5F4F1; padding: 3px;
+    border-radius: 9px; border: 1px solid #E2E0DA;
+  }
+
+  .tab-btn {
+    padding: 5px 14px; border: none; border-radius: 7px;
+    font-size: 12px; font-weight: 500; cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    background: transparent; color: #888;
+    transition: all 0.15s;
+  }
+
+  .tab-btn.active { background: #fff; color: #1A1A18; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+
+  /* CONTENT AREA */
+  .content {
+    flex: 1; overflow-y: auto; padding: 24px;
+    display: flex; flex-direction: column; gap: 20px;
+  }
+
+  .content::-webkit-scrollbar { width: 4px; }
+  .content::-webkit-scrollbar-track { background: transparent; }
+  .content::-webkit-scrollbar-thumb { background: #ddd; border-radius: 4px; }
+
+  /* PAGE HEADER */
+  .page-header { display: flex; align-items: flex-end; justify-content: space-between; }
+  .page-title { font-size: 22px; font-weight: 600; color: #1A1A18; letter-spacing: -0.5px; }
+  .page-sub { font-size: 12px; color: #999; margin-top: 2px; }
+  .cycle-badge {
+    display: flex; align-items: center; gap: 6px;
+    background: #fff; border: 1px solid #E2E0DA;
+    border-radius: 8px; padding: 6px 12px;
+    font-size: 11px; color: #666; font-weight: 500;
+  }
+
+  /* STAT CARDS */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0,1fr));
+    gap: 12px;
+  }
+
+  .stat-card {
+    background: #fff;
+    border: 1px solid #E8E6E0;
+    border-radius: 12px;
+    padding: 16px 18px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .stat-card::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0;
+    height: 2px;
+  }
+
+  .stat-card.green::before { background: #C8F55A; }
+  .stat-card.blue::before { background: #3B82F6; }
+  .stat-card.amber::before { background: #F59E0B; }
+  .stat-card.purple::before { background: #8B5CF6; }
+
+  .stat-icon {
+    width: 28px; height: 28px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 12px;
+  }
+
+  .stat-icon.green { background: #EDFCD0; }
+  .stat-icon.blue { background: #EFF6FF; }
+  .stat-icon.amber { background: #FFFBEB; }
+  .stat-icon.purple { background: #F5F3FF; }
+
+  .stat-icon svg { width: 14px; height: 14px; }
+  .stat-icon.green svg { color: #5A9200; }
+  .stat-icon.blue svg { color: #3B82F6; }
+  .stat-icon.amber svg { color: #D97706; }
+  .stat-icon.purple svg { color: #8B5CF6; }
+
+  .stat-label { font-size: 11px; color: #999; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 4px; }
+  .stat-value { font-size: 26px; font-weight: 600; color: #1A1A18; letter-spacing: -1px; line-height: 1; }
+  .stat-value span { font-size: 13px; font-weight: 400; color: #aaa; letter-spacing: 0; }
+  .stat-footer { margin-top: 8px; font-size: 11px; color: #888; }
+  .stat-footer.up { color: #16A34A; }
+  .stat-footer.neutral { color: #999; }
+
+  /* TWO-COLUMN LAYOUT */
+  .two-col {
+    display: grid;
+    grid-template-columns: minmax(0,1.5fr) minmax(0,1fr);
+    gap: 12px;
+  }
+
+  /* KRA SCORECARD */
+  .kra-card {
+    background: #fff; border: 1px solid #E8E6E0;
+    border-radius: 12px; padding: 18px;
+  }
+
+  .card-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 16px;
+  }
+
+  .card-title { font-size: 13px; font-weight: 600; color: #1A1A18; }
+  .card-subtitle { font-size: 11px; color: #bbb; margin-top: 2px; }
+
+  .kra-row {
+    padding: 10px 0;
+    border-bottom: 1px solid #F2F1ED;
+  }
+
+  .kra-row:last-child { border-bottom: none; padding-bottom: 0; }
+
+  .kra-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+  .kra-name { font-size: 12px; color: #444; font-weight: 500; }
+  .kra-nums { font-size: 11px; color: #aaa; }
+  .kra-nums strong { color: #1A1A18; font-weight: 600; }
+
+  .kra-bar { height: 4px; background: #F0EEE8; border-radius: 2px; overflow: hidden; }
+  .kra-fill { height: 100%; border-radius: 2px; transition: width 0.6s ease; }
+  .kra-fill.hi { background: #C8F55A; }
+  .kra-fill.mid { background: #F59E0B; }
+  .kra-fill.lo { background: #EF4444; }
+
+  .kra-status {
+    display: inline-block;
+    font-size: 9.5px; font-weight: 600;
+    padding: 2px 7px; border-radius: 4px;
+    text-transform: uppercase; letter-spacing: 0.5px;
+    margin-top: 5px;
+  }
+  .kra-status.on { background: #EDFCD0; color: #3D7A00; }
+  .kra-status.warn { background: #FFFBEB; color: #B45309; }
+  .kra-status.behind { background: #FEF2F2; color: #B91C1C; }
+
+  /* AI HUB */
+  .ai-card {
+    background: #1A1A18;
+    border-radius: 12px;
+    padding: 18px;
+    display: flex; flex-direction: column; gap: 14px;
+    position: relative; overflow: hidden;
+  }
+
+  .ai-glow {
+    position: absolute; top: -40px; right: -40px;
+    width: 120px; height: 120px;
+    background: radial-gradient(circle, rgba(200,245,90,0.15) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .ai-header {
+    display: flex; align-items: center; gap: 8px;
+  }
+
+  .ai-dot {
+    width: 7px; height: 7px; border-radius: 50%; background: #C8F55A;
+    animation: pulse 2s infinite;
+  }
+
+  .ai-title { font-size: 12px; font-weight: 600; color: #fff; }
+
+  .ai-message {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 8px; padding: 12px;
+    font-size: 12px; color: rgba(255,255,255,0.7); line-height: 1.6;
+  }
+
+  .ai-highlight { color: #C8F55A; font-weight: 600; }
+
+  .ai-actions { display: flex; flex-direction: column; gap: 6px; }
+
+  .ai-action-btn {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 7px; padding: 9px 12px;
+    font-size: 11.5px; color: rgba(255,255,255,0.6);
+    cursor: pointer; text-align: left;
+    font-family: 'DM Sans', sans-serif;
+    display: flex; align-items: center; gap: 8px;
+    transition: all 0.15s;
+  }
+
+  .ai-action-btn:hover {
+    background: rgba(200,245,90,0.08);
+    border-color: rgba(200,245,90,0.3);
+    color: #C8F55A;
+  }
+
+  .ai-chip {
+    display: inline-block;
+    background: rgba(200,245,90,0.12);
+    color: #C8F55A; font-size: 9px; font-weight: 600;
+    padding: 2px 6px; border-radius: 4px;
+    letter-spacing: 0.5px; text-transform: uppercase;
+    flex-shrink: 0;
+  }
+
+  /* ACTIVITY STRIP */
+  .activity-strip {
+    background: #fff; border: 1px solid #E8E6E0;
+    border-radius: 12px; padding: 16px 18px;
+  }
+
+  .activity-items { display: flex; gap: 0; }
+
+  .activity-item {
+    flex: 1; display: flex; flex-direction: column; gap: 3px;
+    padding: 0 14px; border-left: 1px solid #F0EEE8;
+  }
+
+  .activity-item:first-child { padding-left: 0; border-left: none; }
+
+  .act-time { font-size: 10px; color: #bbb; }
+  .act-text { font-size: 12px; color: #555; font-weight: 500; }
+  .act-who { font-size: 11px; color: #aaa; }
+</style>
+
+<div class="vhr-shell">
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-logo">
+        <div class="brand-icon">
+          <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="2" y="2" width="5" height="5" rx="1.5" fill="#1A1A18"/>
+            <rect x="9" y="2" width="5" height="5" rx="1.5" fill="#1A1A18"/>
+            <rect x="2" y="9" width="5" height="5" rx="1.5" fill="#1A1A18"/>
+            <rect x="9" y="9" width="5" height="5" rx="1.5" fill="#1A1A18" opacity="0.4"/>
+          </svg>
+        </div>
+        <div>
+          <div class="brand-name">Virtual HR</div>
+          <div class="brand-tag">Specialist</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sidebar-section-label">Personal</div>
+    <div class="nav-item active">
+      <svg viewBox="0 0 14 14" fill="none"><rect x="1" y="1" width="5" height="5" rx="1" fill="currentColor"/><rect x="8" y="1" width="5" height="5" rx="1" fill="currentColor" opacity="0.5"/><rect x="1" y="8" width="5" height="5" rx="1" fill="currentColor" opacity="0.5"/><rect x="8" y="8" width="5" height="5" rx="1" fill="currentColor" opacity="0.5"/></svg>
+      My Dashboard
+    </div>
+    <div class="nav-item">
+      <svg viewBox="0 0 14 14" fill="none"><path d="M2 4h10M2 7h7M2 10h5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+      Tasks / KRA
+    </div>
+    <div class="nav-item">
+      <svg viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="5.5" stroke="currentColor" stroke-width="1.2"/><path d="M7 4v3.5l2 1.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+      Time Tracking
+    </div>
+    <div class="nav-item">
+      <svg viewBox="0 0 14 14" fill="none"><polyline points="1,10 4,6 7,8 10,4 13,2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Productivity
+    </div>
+    <div class="nav-item">
+      <svg viewBox="0 0 14 14" fill="none"><rect x="2" y="3" width="10" height="8" rx="1.2" stroke="currentColor" stroke-width="1.2"/><path d="M5 3V2M9 3V2M2 6h10" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+      Meetings & Calls
+    </div>
+
+    <div class="sidebar-section-label">Company</div>
+    <div class="nav-item">
+      <svg viewBox="0 0 14 14" fill="none"><rect x="1" y="1" width="5" height="5" rx="1" fill="currentColor" opacity="0.4"/><rect x="8" y="1" width="5" height="5" rx="1" fill="currentColor" opacity="0.4"/><rect x="1" y="8" width="5" height="5" rx="1" fill="currentColor" opacity="0.4"/><rect x="8" y="8" width="5" height="5" rx="1" fill="currentColor" opacity="0.4"/></svg>
+      Dashboard
+    </div>
+    <div class="nav-item">
+      <svg viewBox="0 0 14 14" fill="none"><circle cx="5" cy="4" r="2" stroke="currentColor" stroke-width="1.2"/><circle cx="9" cy="4" r="2" stroke="currentColor" stroke-width="1.2"/><path d="M1 12c0-2 1.8-3.5 4-3.5s4 1.5 4 3.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><path d="M10 8.5c1.5 0 3 1 3 3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+      Employee Mgmt
+    </div>
+    <div class="nav-item">
+      <svg viewBox="0 0 14 14" fill="none"><rect x="1" y="4" width="12" height="8" rx="1" stroke="currentColor" stroke-width="1.2"/><path d="M4 4V3a1 1 0 011-1h4a1 1 0 011 1v1" stroke="currentColor" stroke-width="1.2"/></svg>
+      Attendance & Shift
+    </div>
+    <div class="nav-item">
+      <svg viewBox="0 0 14 14" fill="none"><rect x="2" y="2" width="10" height="10" rx="1.5" stroke="currentColor" stroke-width="1.2"/><path d="M5 7h4M7 5v4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+      Leave Management
+    </div>
+    <div class="nav-item">
+      <svg viewBox="0 0 14 14" fill="none"><rect x="2" y="1" width="10" height="12" rx="1" stroke="currentColor" stroke-width="1.2"/><path d="M5 5h4M5 7.5h4M5 10h2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+      Payroll
+    </div>
+    <div class="nav-item">
+      <svg viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="5.5" stroke="currentColor" stroke-width="1.2"/><path d="M7 4.5v3l2 1.2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+      Recruitment / ATS
+    </div>
+    <div class="nav-item">
+      <svg viewBox="0 0 14 14" fill="none"><path d="M2 2h10a1 1 0 011 1v6a1 1 0 01-1 1H8L5 12V10H2a1 1 0 01-1-1V3a1 1 0 011-1z" stroke="currentColor" stroke-width="1.2"/></svg>
+      Communication Hub
+    </div>
+
+    <div class="sidebar-spacer"></div>
+
+    <div class="sidebar-user">
+      <div class="user-avatar">PS</div>
+      <div>
+        <div class="user-name">Prakash Sharma</div>
+        <div class="user-role">VHR Senior Specialist</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main">
+    <!-- TOPBAR -->
+    <div class="topbar">
+      <div class="topbar-client">
+        <div class="client-dot"></div>
+        <div class="client-name">Salarite Pvt Ltd</div>
+        <div class="topbar-divider" style="margin: 0 8px;"></div>
+        <div class="client-switch">Switch</div>
+      </div>
+
+      <div class="topbar-divider"></div>
+
+      <div class="topbar-timer">
+        <div class="timer-label">Session</div>
+        <div class="timer-value" id="session-timer">00:00:00</div>
+      </div>
+
+      <div class="topbar-divider"></div>
+
+      <div class="topbar-timer">
+        <div class="timer-label">Local</div>
+        <div class="timer-value" id="local-time">01:32:04 pm</div>
+      </div>
+
+      <div class="topbar-spacer"></div>
+
+      <div class="topbar-tabs">
+        <button class="tab-btn active">My Workspace</button>
+        <button class="tab-btn">Client Ops</button>
+      </div>
+
+      <button class="checkin-btn">
+        <div class="checkin-dot"></div>
+        Check In
+      </button>
+    </div>
+
+    <!-- CONTENT -->
+    <div class="content">
+      <!-- Header -->
+      <div class="page-header">
+        <div>
+          <div class="page-title">Workflow Control</div>
+          <div class="page-sub">Institutional-grade operational workspace</div>
+        </div>
+        <div class="cycle-badge">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><rect x="1" y="2" width="10" height="9" rx="1" stroke="#999" stroke-width="1.2"/><path d="M4 2V1M8 2V1M1 5h10" stroke="#999" stroke-width="1.2" stroke-linecap="round"/></svg>
+          Cycle: March 2026
+        </div>
+      </div>
+
+      <!-- Stats -->
+      <div class="stats-grid">
+        <div class="stat-card green">
+          <div class="stat-icon green">
+            <svg viewBox="0 0 14 14" fill="none" style="color:#5A9200"><circle cx="7" cy="7" r="5" stroke="currentColor" stroke-width="1.4"/><path d="M7 4v3.5l2 1.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+          </div>
+          <div class="stat-label">Total Hours</div>
+          <div class="stat-value">164.5 <span>hrs</span></div>
+          <div class="stat-footer up">↑ +12h from last month</div>
+        </div>
+
+        <div class="stat-card blue">
+          <div class="stat-icon blue">
+            <svg viewBox="0 0 14 14" fill="none" style="color:#3B82F6"><path d="M2 10V5l5-3 5 3v5l-5 3-5-3z" stroke="currentColor" stroke-width="1.3"/></svg>
+          </div>
+          <div class="stat-label">Active Sessions</div>
+          <div class="stat-value">0</div>
+          <div class="stat-footer neutral">0 tracked contexts</div>
+        </div>
+
+        <div class="stat-card amber">
+          <div class="stat-icon amber">
+            <svg viewBox="0 0 14 14" fill="none" style="color:#D97706"><path d="M2 9l3.5-4 3 2.5L12 3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M10 3h2v2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <div class="stat-label">Tasks Completed</div>
+          <div class="stat-value">28</div>
+          <div class="stat-footer up">94% efficiency rate</div>
+        </div>
+
+        <div class="stat-card purple">
+          <div class="stat-icon purple">
+            <svg viewBox="0 0 14 14" fill="none" style="color:#8B5CF6"><path d="M2 2h10a1 1 0 011 1v5a1 1 0 01-1 1H8l-3 3V9H2a1 1 0 01-1-1V3a1 1 0 011-1z" stroke="currentColor" stroke-width="1.2"/></svg>
+          </div>
+          <div class="stat-label">Meetings / Calls</div>
+          <div class="stat-value">14</div>
+          <div class="stat-footer neutral">3 scheduled today</div>
+        </div>
+      </div>
+
+      <!-- Two-column -->
+      <div class="two-col">
+        <!-- KRA Scorecard -->
+        <div class="kra-card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Operational KRA Scorecard</div>
+              <div class="card-subtitle">Performance against targets this cycle</div>
+            </div>
+            <div style="font-size:11px;color:#bbb;">March 2026</div>
+          </div>
+
+          <div class="kra-row">
+            <div class="kra-top">
+              <span class="kra-name">Technical Lead Interviews</span>
+              <span class="kra-nums">Achieved: <strong>8</strong> / Target: 10</span>
+            </div>
+            <div class="kra-bar"><div class="kra-fill hi" style="width:80%"></div></div>
+            <div class="kra-status on">On Track</div>
+          </div>
+
+          <div class="kra-row">
+            <div class="kra-top">
+              <span class="kra-name">Payroll Processing</span>
+              <span class="kra-nums">Achieved: <strong>100%</strong> / Target: 100%</span>
+            </div>
+            <div class="kra-bar"><div class="kra-fill hi" style="width:100%"></div></div>
+            <div class="kra-status on">Completed</div>
+          </div>
+
+          <div class="kra-row">
+            <div class="kra-top">
+              <span class="kra-name">Grievance Resolution</span>
+              <span class="kra-nums">Achieved: <strong>3</strong> / Target: 5</span>
+            </div>
+            <div class="kra-bar"><div class="kra-fill mid" style="width:60%"></div></div>
+            <div class="kra-status warn">Needs Attention</div>
+          </div>
+
+          <div class="kra-row">
+            <div class="kra-top">
+              <span class="kra-name">Compliance Audits</span>
+              <span class="kra-nums">Achieved: <strong>1</strong> / Target: 4</span>
+            </div>
+            <div class="kra-bar"><div class="kra-fill lo" style="width:25%"></div></div>
+            <div class="kra-status behind">Behind</div>
+          </div>
+
+          <div class="kra-row">
+            <div class="kra-top">
+              <span class="kra-name">Employee Check-ins</span>
+              <span class="kra-nums">Achieved: <strong>22</strong> / Target: 25</span>
+            </div>
+            <div class="kra-bar"><div class="kra-fill hi" style="width:88%"></div></div>
+            <div class="kra-status on">On Track</div>
+          </div>
+        </div>
+
+        <!-- AI Hub -->
+        <div class="ai-card">
+          <div class="ai-glow"></div>
+          <div class="ai-header">
+            <div class="ai-dot"></div>
+            <div class="ai-title">AI HR Operations Hub</div>
+          </div>
+
+          <div class="ai-message">
+            Based on your current workload for <span class="ai-highlight">Salarite</span>, I recommend prioritizing the <span class="ai-highlight">Technical Lead</span> interview pipeline — 3 candidates are pending review and 2 offers are expiring this week.
+          </div>
+
+          <div class="ai-actions">
+            <button class="ai-action-btn">
+              <span class="ai-chip">Quick</span>
+              Review pending offer letters
+            </button>
+            <button class="ai-action-btn">
+              <span class="ai-chip">Draft</span>
+              Generate interview schedule
+            </button>
+            <button class="ai-action-btn">
+              <span class="ai-chip">Alert</span>
+              Compliance audit reminder — 3 overdue
+            </button>
+            <button class="ai-action-btn">
+              <span class="ai-chip">Insight</span>
+              March productivity summary
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Activity -->
+      <div class="activity-strip">
+        <div class="card-header">
+          <div class="card-title">Recent Activity</div>
+          <div style="font-size:11px;color:#bbb;cursor:pointer;">View all →</div>
+        </div>
+        <div class="activity-items">
+          <div class="activity-item">
+            <div class="act-time">10:14 am</div>
+            <div class="act-text">Offer letter sent</div>
+            <div class="act-who">Riya Mehta · Dev</div>
+          </div>
+          <div class="activity-item">
+            <div class="act-time">09:51 am</div>
+            <div class="act-text">Attendance reviewed</div>
+            <div class="act-who">42 employees</div>
+          </div>
+          <div class="activity-item">
+            <div class="act-time">09:30 am</div>
+            <div class="act-text">Leave approved</div>
+            <div class="act-who">Ankit Sharma</div>
+          </div>
+          <div class="activity-item">
+            <div class="act-time">Yesterday</div>
+            <div class="act-text">Payroll finalized</div>
+            <div class="act-who">March cycle · ₹ sent</div>
+          </div>
+          <div class="activity-item">
+            <div class="act-time">Yesterday</div>
+            <div class="act-text">Interview scheduled</div>
+            <div class="act-who">3 candidates</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function updateTime() {
+    const now = new Date();
+    const h = now.getHours(); const m = now.getMinutes(); const s = now.getSeconds();
+    const ampm = h >= 12 ? 'pm' : 'am';
+    const hh = h % 12 || 12;
+    document.getElementById('local-time').textContent =
+      String(hh).padStart(2,'0') + ':' + String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0') + ' ' + ampm;
+  }
+
+  let sessionSecs = 0;
+  function updateSession() {
+    sessionSecs++;
+    const h = Math.floor(sessionSecs/3600);
+    const m = Math.floor((sessionSecs%3600)/60);
+    const s = sessionSecs%60;
+    document.getElementById('session-timer').textContent =
+      String(h).padStart(2,'0') + ':' + String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
+  }
+
+  updateTime();
+  setInterval(updateTime, 1000);
+  setInterval(updateSession, 1000);
+
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    });
+  });
+</script>

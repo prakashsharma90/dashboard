@@ -1,0 +1,484 @@
+<div id="company-attendance" class="sub-view">
+    <style>
+        .vhr-attendance-container {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .premium-card {
+            background: white;
+            border-radius: 20px;
+            padding: 24px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+            margin-bottom: 1.5rem;
+        }
+
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card-vhr {
+            background: white;
+            padding: 20px;
+            border-radius: 16px;
+            border: 1px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .stat-card-vhr:hover, .stat-card-vhr.active-filter {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            border-color: #554994;
+        }
+
+        .stat-icon-box {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .icon-purple { background: rgba(85, 73, 148, 0.1); color: #554994; }
+        .icon-green { background: #ecfdf5; color: #10b981; }
+        .icon-amber { background: #fffbeb; color: #f59e0b; }
+        .icon-red { background: #fef2f2; color: #ef4444; }
+
+        .stat-label {
+            font-size: 0.7rem;
+            font-weight: 800;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin: 0;
+        }
+
+        .stat-value {
+            font-size: 1.25rem;
+            font-weight: 900;
+            color: #1e293b;
+            margin-top: 2px;
+        }
+
+        .vhr-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+
+        .vhr-table th {
+            text-align: left;
+            padding: 16px 20px;
+            background: #f8fafc;
+            color: #64748b;
+            font-size: 0.7rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .vhr-table td {
+            padding: 16px 20px;
+            border-bottom: 1px solid #f1f5f9;
+            font-size: 0.85rem;
+            color: #334155;
+            vertical-align: middle;
+        }
+
+        .vhr-table tr:hover td {
+            background: #fcfcfd;
+        }
+
+        .status-pill {
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .status-present { background: #d1fae5; color: #065f46; }
+        .status-absent { background: #fee2e2; color: #991b1b; }
+        .status-late { background: #fef3c7; color: #92400e; }
+
+        .shift-badge {
+            background: #f1f5f9;
+            color: #475569;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 0.7rem;
+            font-weight: 700;
+        }
+
+        .btn-vhr {
+            padding: 10px 18px;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: 0.2s;
+            border: none;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        .btn-vhr-primary {
+            background: #554994;
+            color: white;
+            box-shadow: 0 4px 12px rgba(85, 73, 148, 0.2);
+        }
+
+        .btn-vhr-primary:hover {
+            background: #433a75;
+            transform: translateY(-1px);
+        }
+
+        .btn-vhr-outline {
+            background: white;
+            border: 1px solid #e2e8f0;
+            color: #64748b;
+        }
+
+        .btn-vhr-outline:hover {
+            border-color: #554994;
+            color: #554994;
+            background: #fdfdff;
+        }
+
+        .filter-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .vhr-input {
+            padding: 10px 14px;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            font-family: inherit;
+            color: #1e293b;
+            outline: none;
+            transition: 0.2s;
+        }
+
+        .vhr-input:focus {
+            border-color: #554994;
+            box-shadow: 0 0 0 3px rgba(85, 73, 148, 0.1);
+        }
+
+        @media (max-width: 768px) {
+            .stat-grid { grid-template-columns: 1fr 1fr; }
+            .filter-bar { flex-direction: column; align-items: stretch; }
+        }
+    </style>
+
+    <div class="vhr-attendance-container">
+        <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:2rem;">
+            <div>
+                <h2 style="font-size:1.75rem; font-weight:800; color:#1e293b; letter-spacing:-1px; margin:0;">Workforce Attendance</h2>
+                <p style="color:#94a3b8; font-weight:600; font-size:0.75rem; margin-top:2px;">Real-time clock-in monitoring and shift management</p>
+            </div>
+            
+            <div style="display:flex; gap:10px;">
+                <button class="btn-vhr btn-vhr-outline" onclick="exportAttendanceVHR()">
+                    <i data-lucide="download" style="width: 16px;"></i> 
+                    Export Logs
+                </button>
+                <button class="btn-vhr btn-vhr-primary" onclick="openManualEntry()">
+                    <i data-lucide="plus-circle" style="width: 16px;"></i> 
+                    Manual Entry
+                </button>
+            </div>
+        </div>
+
+        <!-- STATS -->
+        <div class="stat-grid">
+            <div class="stat-card-vhr" onclick="filterVHRTable('present', this)">
+                <div class="stat-icon-box icon-green">
+                    <i data-lucide="user-check"></i>
+                </div>
+                <div>
+                    <p class="stat-label">Present Today</p>
+                    <div class="stat-value" id="vhr-present-count">112</div>
+                </div>
+            </div>
+            <div class="stat-card-vhr" onclick="filterVHRTable('late', this)">
+                <div class="stat-icon-box icon-amber">
+                    <i data-lucide="clock"></i>
+                </div>
+                <div>
+                    <p class="stat-label">Late Arrivals</p>
+                    <div class="stat-value" id="vhr-late-count">08</div>
+                </div>
+            </div>
+            <div class="stat-card-vhr" onclick="filterVHRTable('absent', this)">
+                <div class="stat-icon-box icon-red">
+                    <i data-lucide="user-x"></i>
+                </div>
+                <div>
+                    <p class="stat-label">Absent / Leave</p>
+                    <div class="stat-value" id="vhr-absent-count">14</div>
+                </div>
+            </div>
+            <div class="stat-card-vhr" onclick="filterVHRTable('all', this)" title="Show All">
+                <div class="stat-icon-box icon-purple">
+                    <i data-lucide="timer"></i>
+                </div>
+                <div>
+                    <p class="stat-label">Avg Work Hours</p>
+                    <div class="stat-value" id="vhr-avg-hours">8.2h</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- DATA PANEL -->
+        <div class="premium-card" style="padding:0; overflow:hidden;">
+            <div style="padding: 24px 24px 0 24px;">
+                <div class="filter-bar">
+                    <h3 style="margin:0; font-size:1.1rem; font-weight:800; color:#1e293b;">Daily Attendance Logs</h3>
+                    <div style="display:flex; gap:10px;">
+                        <input type="date" id="vhr-attendance-date" class="vhr-input" value="2026-04-06">
+                        <select class="vhr-input">
+                            <option>All Departments</option>
+                            <option>Engineering</option>
+                            <option>Sales</option>
+                            <option>Marketing</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div style="overflow-x: auto;">
+                <table class="vhr-table">
+                    <thead>
+                        <tr>
+                            <th>Employee Name</th>
+                            <th>Emp ID</th>
+                            <th>Check-In</th>
+                            <th>Check-Out</th>
+                            <th>Working Hrs</th>
+                            <th>Status</th>
+                            <th style="text-align:right;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="vhr-attendance-log-body">
+                        <!-- Mock Rows -->
+                        <tr class="vhr-log-row" data-status="present">
+                            <td>
+                                <div style="display:flex; align-items:center; gap:12px;">
+                                    <div style="width:32px; height:32px; border-radius:50%; background:#f1f5f9; display:flex; align-items:center; justify-content:center; font-size:0.75rem; font-weight:800; color:#554994;">AS</div>
+                                    <span style="font-weight:700;">Aarav Sharma</span>
+                                </div>
+                            </td>
+                            <td><span class="shift-badge">EMP-1001</span></td>
+                            <td><span style="font-weight:600; color:#1e293b;">09:28 AM</span></td>
+                            <td><span style="font-weight:600; color:#64748b;">06:34 PM</span></td>
+                            <td><span style="font-weight:700; color:#554994;">9h 06m</span></td>
+                            <td><span class="status-pill status-present">On Time</span></td>
+                            <td style="text-align:right;">
+                                <button style="background:none; border:none; cursor:pointer; color:#94a3b8;"><i data-lucide="more-vertical" style="width:16px;"></i></button>
+                            </td>
+                        </tr>
+                        <tr class="vhr-log-row" data-status="late">
+                            <td>
+                                <div style="display:flex; align-items:center; gap:12px;">
+                                    <div style="width:32px; height:32px; border-radius:50%; background:#f1f5f9; display:flex; align-items:center; justify-content:center; font-size:0.75rem; font-weight:800; color:#554994;">VV</div>
+                                    <span style="font-weight:700;">Vivaan Verma</span>
+                                </div>
+                            </td>
+                            <td><span class="shift-badge">EMP-1002</span></td>
+                            <td><span style="font-weight:600; color:#f59e0b;">09:52 AM</span></td>
+                            <td><span style="font-weight:600; color:#64748b;">Pending</span></td>
+                            <td><span style="font-weight:700; color:#94a3b8;">--</span></td>
+                            <td><span class="status-pill status-late">Late (22m)</span></td>
+                            <td style="text-align:right;">
+                                <button style="background:none; border:none; cursor:pointer; color:#94a3b8;"><i data-lucide="more-vertical" style="width:16px;"></i></button>
+                            </td>
+                        </tr>
+                        <tr class="vhr-log-row" data-status="absent">
+                            <td>
+                                <div style="display:flex; align-items:center; gap:12px;">
+                                    <div style="width:32px; height:32px; border-radius:50%; background:#f1f5f9; display:flex; align-items:center; justify-content:center; font-size:0.75rem; font-weight:800; color:#ef4444;">AR</div>
+                                    <span style="font-weight:700;">Aryan Rathore</span>
+                                </div>
+                            </td>
+                            <td><span class="shift-badge">EMP-1003</span></td>
+                            <td><span style="font-weight:600; color:#ef4444;">--</span></td>
+                            <td><span style="font-weight:600; color:#ef4444;">--</span></td>
+                            <td><span style="font-weight:700; color:#94a3b8;">--</span></td>
+                            <td><span class="status-pill status-absent">Absent</span></td>
+                            <td style="text-align:right;">
+                                <button style="background:none; border:none; cursor:pointer; color:#94a3b8;"><i data-lucide="more-vertical" style="width:16px;"></i></button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <div style="padding: 20px; text-align: center; border-top:1px solid #f1f5f9; background:#fafafa;">
+                <button class="btn-vhr btn-vhr-outline" style="margin:0 auto; font-size:0.75rem; padding:8px 16px;">View Historical Logs</button>
+            </div>
+        </div>
+
+        <!-- SHIFTS & POLICIES -->
+        <div style="display:grid; grid-template-columns: 1.2fr 0.8fr; gap:2rem; margin-top:2rem;">
+            <div class="premium-card">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+                    <h4 style="margin:0; font-size:1rem; font-weight:900; color:#1e293b; display:flex; align-items:center; gap:10px;">
+                        <i data-lucide="calendar" style="width:18px; color:#554994;"></i> Active Operational Shifts
+                    </h4>
+                    <button class="btn-vhr btn-vhr-outline" style="padding:6px 12px; font-size:0.75rem;">+ New Shift</button>
+                </div>
+                
+                <div style="display:flex; flex-direction:column; gap:12px;">
+                    <div style="padding:16px; border:1px solid #f1f5f9; border-radius:14px; background:#fcfcfd; display:flex; justify-content:space-between; align-items:center;">
+                        <div>
+                            <div style="font-weight:800; font-size:0.9rem; color:#1e293b;">Day Shift (Standard)</div>
+                            <div style="font-size:0.75rem; color:#64748b; margin-top:2px;">09:30 AM - 06:30 PM • 15m Grace • 5 Days/Week</div>
+                        </div>
+                        <div style="text-align:right;">
+                            <span class="status-pill status-present" style="font-size:0.55rem;">Primary</span>
+                            <div style="font-size:0.65rem; color:#94a3b8; margin-top:4px; font-weight:700;">88 Employees</div>
+                        </div>
+                    </div>
+                    <div style="padding:16px; border:1px solid #f1f5f9; border-radius:14px; background:#fcfcfd; display:flex; justify-content:space-between; align-items:center;">
+                        <div>
+                            <div style="font-weight:800; font-size:0.9rem; color:#1e293b;">Night Shift (Production)</div>
+                            <div style="font-size:0.75rem; color:#64748b; margin-top:2px;">09:00 PM - 06:00 AM • 30m Grace • 6 Days/Week</div>
+                        </div>
+                        <div style="text-align:right;">
+                            <span class="shift-badge" style="font-size:0.55rem; background:#fee2e2; color:#ef4444;">Standby</span>
+                            <div style="font-size:0.65rem; color:#94a3b8; margin-top:4px; font-weight:700;">24 Employees</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="premium-card">
+                <h4 style="margin:0 0 1.5rem 0; font-size:1rem; font-weight:900; color:#1e293b; display:flex; align-items:center; gap:10px;">
+                    <i data-lucide="shield-check" style="width:18px; color:#554994;"></i> Governance Policies
+                </h4>
+                
+                <div style="display:flex; flex-direction:column; gap:16px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; padding-bottom:12px; border-bottom:1px dashed #e2e8f0;">
+                        <span style="font-size:0.8rem; font-weight:700; color:#64748b;">Late Threshold</span>
+                        <span style="font-size:0.85rem; font-weight:900; color:#1e293b;">15 Mins</span>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; align-items:center; padding-bottom:12px; border-bottom:1px dashed #e2e8f0;">
+                        <span style="font-size:0.8rem; font-weight:700; color:#64748b;">Half Day Calculation</span>
+                        <span style="font-size:0.85rem; font-weight:900; color:#1e293b;">< 4.5 Hrs</span>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; align-items:center; padding-bottom:12px; border-bottom:1px dashed #e2e8f0;">
+                        <span style="font-size:0.8rem; font-weight:700; color:#64748b;">Auto-Checkout</span>
+                        <span style="font-size:0.85rem; font-weight:900; color:#10b981;">Enabled</span>
+                    </div>
+                </div>
+                
+                <button class="btn-vhr btn-vhr-primary" style="width:100%; margin-top:1.5rem; justify-content:center; font-size:0.75rem;">
+                    Update Global Rules
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL PLACEHOLDERS (For interaction) -->
+    <div id="vhr-attendance-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.4); z-index:9999; backdrop-filter:blur(4px); align-items:center; justify-content:center;">
+        <div class="premium-card" style="width:100%; max-width:450px; margin:20px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; padding-bottom:15px; border-bottom:1px solid #f1f5f9;">
+                <h3 id="att-vhr-modal-title" style="margin:0; font-weight:900; color:#1e293b;">Manual Clock-In</h3>
+                <button onclick="closeAttendanceModal()" style="background:none; border:none; cursor:pointer; color:#94a3b8;"><i data-lucide="x" style="width:20px;"></i></button>
+            </div>
+            
+            <div style="display:flex; flex-direction:column; gap:15px;">
+                <div>
+                    <label style="display:block; font-size:0.7rem; font-weight:800; color:#64748b; text-transform:uppercase; margin-bottom:8px;">Search Employee</label>
+                    <input type="text" class="vhr-input" style="width:100%;" placeholder="Aarav Sharma (EMP-1001)">
+                </div>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px;">
+                    <div>
+                        <label style="display:block; font-size:0.7rem; font-weight:800; color:#64748b; text-transform:uppercase; margin-bottom:8px;">Clock-In Time</label>
+                        <input type="time" class="vhr-input" style="width:100%;">
+                    </div>
+                    <div>
+                        <label style="display:block; font-size:0.7rem; font-weight:800; color:#64748b; text-transform:uppercase; margin-bottom:8px;">Clock-Out Time</label>
+                        <input type="time" class="vhr-input" style="width:100%;" placeholder="Optional">
+                    </div>
+                </div>
+                <div>
+                    <label style="display:block; font-size:0.7rem; font-weight:800; color:#64748b; text-transform:uppercase; margin-bottom:8px;">Override Reason</label>
+                    <textarea class="vhr-input" style="width:100%; height:80px; resize:none;" placeholder="Technical glitch at biometric terminal..."></textarea>
+                </div>
+                
+                <div style="margin-top:10px;">
+                    <button class="btn-vhr btn-vhr-primary" style="width:100%; justify-content:center; padding:14px;" onclick="saveVHRAttendanceManual()">Confirm Manual Entry</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            // Initialize Lucide icons for the newly injected content
+            if (window.lucide) {
+                window.lucide.createIcons();
+            }
+
+            // Export logic (Stub)
+            window.exportAttendanceVHR = function() {
+                alert("Generating institution-grade attendance report (PDF/XLSX)...");
+            };
+
+            // Modal logic
+            window.openManualEntry = function() {
+                document.getElementById('vhr-attendance-modal').style.display = 'flex';
+            };
+
+            window.closeAttendanceModal = function() {
+                document.getElementById('vhr-attendance-modal').style.display = 'none';
+            };
+
+            window.saveVHRAttendanceManual = function() {
+                alert("Attendance record processed and synchronized.");
+                closeAttendanceModal();
+            };
+
+            // Filtering logic
+            window.filterVHRTable = function(status, cardElement) {
+                // Update active state on cards
+                document.querySelectorAll('.stat-card-vhr').forEach(c => c.classList.remove('active-filter'));
+                if (cardElement) cardElement.classList.add('active-filter');
+
+                // Filter rows
+                const rows = document.querySelectorAll('.vhr-log-row');
+                rows.forEach(row => {
+                    if (status === 'all' || row.getAttribute('data-status') === status) {
+                        row.style.display = 'table-row';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+            };
+
+            // Initial Date selection
+            const today = new Date().toISOString().split('T')[0];
+            const dateInput = document.getElementById('vhr-attendance-date');
+            if (dateInput) dateInput.value = today;
+
+        })();
+    </script>
+</div>

@@ -38,7 +38,9 @@ let dashboardData = {
     modules: [],
     progressTracking: [],
     announcements: [],
-    announcementReads: []
+    announcementReads: [],
+    shifts: [],
+    employeeShifts: []
 };
 
 // State management
@@ -111,7 +113,7 @@ async function initDashboard() {
         $('.user-peek .name').text(escapeHTML(`${userData.first_name} ${userData.last_name ? userData.last_name.substring(0, 1) + '.' : ''}`));
         $('.user-peek .role').text(escapeHTML(userData.designation || 'Employee'));
 
-        const [attRes, leaveRes, tasksRes, payRes, holRes, noticeRes, leaveReqRes, leaveTypeRes, grievanceRes, empRes] = await Promise.all([
+        const [attRes, leaveRes, tasksRes, payRes, holRes, noticeRes, leaveReqRes, leaveTypeRes, grievanceRes, empRes, shiftRes, shiftTypesRes] = await Promise.all([
             supabaseClient.from('attendance_logs')
                 .select('*')
                 .eq('employee_id', userData.id)
@@ -125,7 +127,9 @@ async function initDashboard() {
             supabaseClient.from('leave_requests').select('*, leave_types(name)').eq('employee_id', userData.id).order('created_at', { ascending: false }),
             supabaseClient.from('leave_types').select('*'),
             supabaseClient.from('grievances').select('*').eq('employee_id', userData.id).order('created_at', { ascending: false }),
-            supabaseClient.from('employees').select('user_id, id, first_name, last_name')
+            supabaseClient.from('employees').select('user_id, id, first_name, last_name'),
+            supabaseClient.from('employee_shifts').select('*, shifts(*)').eq('employee_id', userData.id).order('date', { ascending: true }),
+            supabaseClient.from('shifts').select('*')
         ]);
 
         dashboardData.attendance = attRes.data || [];
@@ -137,6 +141,8 @@ async function initDashboard() {
         dashboardData.leaveRequests = leaveReqRes.data || [];
         dashboardData.leaveTypes = leaveTypeRes.data || [];
         dashboardData.grievances = grievanceRes.data || [];
+        dashboardData.employeeShifts = shiftRes?.data || [];
+        dashboardData.shifts = shiftTypesRes?.data || [];
 
         // Build User Lookup Map
         if (empRes?.data) {
@@ -285,6 +291,27 @@ async function initDashboard() {
                     expiry_date: "2026-12-31",
                     is_read: true
                 }
+            ];
+        }
+
+        // --- NEW: SHIFT DEMO DATA ---
+        if (dashboardData.shifts.length === 0) {
+            dashboardData.shifts = [
+                { id: 'shift-1', shift_name: 'Morning Shift', start_time: '09:00:00', end_time: '18:00:00', total_hours: 9, break_duration: '1 hour', color_code: '#4D4286' },
+                { id: 'shift-2', shift_name: 'Evening Shift', start_time: '14:00:00', end_time: '23:00:00', total_hours: 9, break_duration: '1 hour', color_code: '#f59e0b' },
+                { id: 'shift-3', shift_name: 'Night Shift', start_time: '22:00:00', end_time: '07:00:00', total_hours: 9, break_duration: '1 hour', is_night_shift: true, color_code: '#1e293b' }
+            ];
+        }
+
+        if (dashboardData.employeeShifts.length === 0) {
+            const today = new Date().toISOString().split('T')[0];
+            const tomorrow = new Date(Date.now() + 86400000).toISOString().split('T')[0];
+            const nextDay = new Date(Date.now() + 172800000).toISOString().split('T')[0];
+
+            dashboardData.employeeShifts = [
+                { id: 'eshift-1', employee_id: userData.id, shift_id: 'shift-1', date: today, status: 'ongoing', shifts: dashboardData.shifts[0] },
+                { id: 'eshift-2', employee_id: userData.id, shift_id: 'shift-1', date: tomorrow, status: 'scheduled', shifts: dashboardData.shifts[0] },
+                { id: 'eshift-3', employee_id: userData.id, shift_id: 'shift-2', date: nextDay, status: 'scheduled', shifts: dashboardData.shifts[1] }
             ];
         }
 
@@ -1517,7 +1544,152 @@ const sections = {
                 </div>
             `;
         }
+    },    shifts: {
+        title: "Shift Schedule",
+        render: () => {
+            const today = new Date().toISOString().split('T')[0];
+            const todayShift = dashboardData.employeeShifts.find(s => s.date === today);
+            const upcomingShifts = dashboardData.employeeShifts.filter(s => s.date >= today).slice(0, 7);
+
+            // Format time helper
+            const formatTime = (t) => {
+                if (!t) return '--:--';
+                const [h, m] = t.split(':');
+                const hour = parseInt(h);
+                const ampm = hour >= 12 ? 'PM' : 'AM';
+                const h12 = hour % 12 || 12;
+                return `${h12}:${m} ${ampm}`;
+            };
+
+            const todayContent = todayShift ? `
+                <div class="shift-hero-card fade-in" style="background: linear-gradient(135deg, ${todayShift.shifts.color_code || '#4D4286'}, #1e1b4b); padding: 35px; border-radius: 28px; color: white; position: relative; overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.15); margin-bottom: 30px;">
+                    <div style="position: absolute; right: -20px; top: -20px; opacity: 0.1;"><i data-lucide="clock" style="width: 200px; height: 200px;"></i></div>
+                    <div style="position: relative; z-index: 1;">
+                        <div style="display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.2); width: fit-content; padding: 6px 14px; border-radius: 50px; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 20px;">
+                            <div style="width: 8px; height: 8px; background: #4ade80; border-radius: 50%; animation: pulse 2s infinite;"></div> ${todayShift.status.toUpperCase()}
+                        </div>
+                        <h1 style="font-size: 2.2rem; font-weight: 950; margin: 0; letter-spacing: -1px;">Today's Shift: ${todayShift.shifts.shift_name}</h1>
+                        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; margin-top: 35px;">
+                            <div>
+                                <div style="font-size: 0.75rem; font-weight: 700; opacity: 0.7; text-transform: uppercase;">Start Time</div>
+                                <div style="font-size: 1.5rem; font-weight: 800; margin-top: 5px;">${formatTime(todayShift.shifts.start_time)}</div>
+                            </div>
+                            <div>
+                                <div style="font-size: 0.75rem; font-weight: 700; opacity: 0.7; text-transform: uppercase;">End Time</div>
+                                <div style="font-size: 1.5rem; font-weight: 800; margin-top: 5px;">${formatTime(todayShift.shifts.end_time)}</div>
+                            </div>
+                            <div>
+                                <div style="font-size: 0.75rem; font-weight: 700; opacity: 0.7; text-transform: uppercase;">Total Duration</div>
+                                <div style="font-size: 1.5rem; font-weight: 800; margin-top: 5px;">${todayShift.shifts.total_hours} Hours</div>
+                            </div>
+                        </div>
+                        <div style="margin-top: 35px; padding-top: 25px; border-top: 1px solid rgba(255,255,255,0.1); display: flex; justify-content: space-between; align-items: center;">
+                            <div style="display: flex; gap: 20px;">
+                                <div style="display: flex; align-items: center; gap: 8px;"><i data-lucide="coffee" style="width: 16px;"></i> <b>Break:</b> ${todayShift.shifts.break_duration}</div>
+                                <div style="display: flex; align-items: center; gap: 8px;"><i data-lucide="timer" style="width: 16px;"></i> <b>Grace:</b> 15 Mins</div>
+                            </div>
+                            <button class="btn-premium-solid" style="background: white !important; color: ${todayShift.shifts.color_code} !important; border: none; padding: 12px 25px; border-radius: 12px; font-weight: 900;" onclick="switchSection('attendance'); handleAttendance();">Attend Now</button>
+                        </div>
+                    </div>
+                </div>
+            ` : `
+                <div class="content-card" style="padding: 60px; text-align: center; background: white; border-radius: 28px; border: 2px dashed #e2e8f0; margin-bottom: 30px;">
+                    <i data-lucide="calendar-x" style="width: 60px; height: 60px; color: #cbd5e1; margin-bottom: 20px;"></i>
+                    <h2 style="font-weight: 900; color: #1e293b;">No Shift Assigned Today</h2>
+                    <p style="color: #64748b; font-size: 1rem;">Enjoy your day off or contact HR if this is an error.</p>
+                </div>
+            `;
+
+            return `
+                <div class="shifts-container fade-in-up">
+                    ${todayContent}
+
+                    <!-- Weekly Schedule -->
+                    <div style="display: grid; grid-template-columns: 1.8fr 1.2fr; gap: 25px;">
+                        <div class="schedule-section">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                                <h3 style="font-size: 1.2rem; font-weight: 900; margin: 0; display: flex; align-items: center; gap: 10px;"><i data-lucide="calendar-days" style="color: var(--accent);"></i> Weekly Schedule</h3>
+                                <div style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted);">Upcoming 7 Days</div>
+                            </div>
+                            <div style="background: white; border: 1px solid var(--border-color); border-radius: 24px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.02);">
+                                <table style="width: 100%; border-collapse: collapse;">
+                                    <thead>
+                                        <tr style="background: #f8fafc; border-bottom: 1px solid #f1f5f9;">
+                                            <th style="padding: 16px 20px; text-align: left; font-size: 0.75rem; text-transform: uppercase; color: #64748b; font-weight: 800;">Date & Day</th>
+                                            <th style="padding: 16px 20px; text-align: left; font-size: 0.75rem; text-transform: uppercase; color: #64748b; font-weight: 800;">Shift Name</th>
+                                            <th style="padding: 16px 20px; text-align: left; font-size: 0.75rem; text-transform: uppercase; color: #64748b; font-weight: 800;">Timings</th>
+                                            <th style="padding: 16px 20px; text-align: right; font-size: 0.75rem; text-transform: uppercase; color: #64748b; font-weight: 800;">Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        ${upcomingShifts.map(s => {
+                                            const d = new Date(s.date);
+                                            const day = d.toLocaleDateString('en-US', { weekday: 'short' });
+                                            const date = d.toLocaleDateString('en-US', { day: 'numeric', month: 'short' });
+                                            return `
+                                                <tr style="border-bottom: 1px solid #f1f5f9; transition: background 0.2s;" onmouseover="this.style.background='#fcfdff'" onmouseout="this.style.background='white'">
+                                                    <td style="padding: 18px 20px;">
+                                                        <div style="font-weight: 800; color: #1e293b;">${date}</div>
+                                                        <div style="font-size: 0.7rem; color: #64748b; font-weight: 700;">${day}</div>
+                                                    </td>
+                                                    <td style="padding: 18px 20px;">
+                                                        <div style="display: flex; align-items: center; gap: 8px;">
+                                                            <div style="width: 10px; height: 10px; border-radius: 3px; background: ${s.shifts.color_code}"></div>
+                                                            <span style="font-weight: 700; color: #334155;">${s.shifts.shift_name}</span>
+                                                        </div>
+                                                    </td>
+                                                    <td style="padding: 18px 20px;">
+                                                        <div style="font-weight: 700; color: #1e293b; font-size: 0.85rem;">${formatTime(s.shifts.start_time)} - ${formatTime(s.shifts.end_time)}</div>
+                                                        <div style="font-size: 0.7rem; color: #64748b;">${s.shifts.total_hours} Hours • ${s.shifts.break_duration} Break</div>
+                                                    </td>
+                                                    <td style="padding: 18px 20px; text-align: right;">
+                                                        <span style="font-size: 0.65rem; font-weight: 800; padding: 4px 10px; border-radius: 8px; background: ${s.status === 'scheduled' ? '#f1f5f9' : '#dcfce7'}; color: ${s.status === 'scheduled' ? '#64748b' : '#10b981'}; text-transform: uppercase;">${s.status}</span>
+                                                    </td>
+                                                </tr>
+                                            `;
+                                        }).join('') || '<tr><td colspan="4" style="padding:40px; text-align:center; color:#64748b;">No upcoming shifts found.</td></tr>'}
+                                    </tbody>
+                                </table>
+                                <div style="padding: 15px; text-align: center; background: #f8fafc; border-top: 1px solid #f1f5f9;">
+                                    <button style="background: none; border: none; color: var(--accent); font-weight: 800; font-size: 0.8rem; cursor: pointer;">View Monthly Calendar <i data-lucide="chevron-down" style="width: 14px; vertical-align: middle;"></i></button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="shift-rules-section">
+                             <div style="margin-bottom: 25px;">
+                                <h3 style="font-size: 1.1rem; font-weight: 900; margin: 0 0 15px 0; display: flex; align-items: center; gap: 10px;"><i data-lucide="info" style="color: #f59e0b;"></i> Shift Policies</h3>
+                                <div style="display: flex; flex-direction: column; gap: 12px;">
+                                    <div style="background: #fdf2f8; border: 1px solid #fce7f3; padding: 18px; border-radius: 20px;">
+                                        <div style="font-size: 0.7rem; font-weight: 800; color: #ec4899; text-transform: uppercase;">Grace Period</div>
+                                        <div style="font-weight: 950; font-size: 1.2rem; color: #831843; margin-top: 5px;">15 Minutes</div>
+                                        <p style="font-size: 0.75rem; color: #be185d; margin-top: 8px; line-height: 1.4;">Check-ins after 15 mins from shift start will be marked as late.</p>
+                                    </div>
+                                    <div style="background: #f0fdf4; border: 1px solid #dcfce7; padding: 18px; border-radius: 20px;">
+                                        <div style="font-size: 0.7rem; font-weight: 800; color: #10b981; text-transform: uppercase;">Overtime Rule</div>
+                                        <div style="font-weight: 950; font-size: 1.2rem; color: #064e3b; margin-top: 5px;">1.5x Premium</div>
+                                        <p style="font-size: 0.75rem; color: #15803d; margin-top: 8px; line-height: 1.4;">Working beyond 1 hour of scheduled end time triggers OT compensation.</p>
+                                    </div>
+                                    <div style="background: #fefce8; border: 1px solid #fef3c7; padding: 18px; border-radius: 20px;">
+                                        <div style="font-size: 0.7rem; font-weight: 800; color: #a16207; text-transform: uppercase;">Night Shift Benefit</div>
+                                        <div style="font-weight: 950; font-size: 1.2rem; color: #713f12; margin-top: 5px;">+₹500 / Night</div>
+                                        <p style="font-size: 0.75rem; color: #854d0e; margin-top: 8px; line-height: 1.4;">Applicable for shifts starting after 08:00 PM and ending before 08:00 AM.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div style="background: #f8fafc; border: 1px solid var(--border-color); padding: 25px; border-radius: 24px;">
+                                <h4 style="margin: 0 0 15px 0; font-weight: 900; color: var(--text-dark);">Need to Swap?</h4>
+                                <p style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 20px;">If you're unable to attend a scheduled shift, you can request a swap with a teammate through the employee portal.</p>
+                                <button class="btn-premium-outline" style="width: 100%; border-radius: 12px; height: 45px; justify-content: center; font-weight: 800;" onclick="showToast('Shift swapping coming soon!', 'info')">Request Shift Swap</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
     },
+
 
 
     analytics: {
@@ -2012,11 +2184,12 @@ function updateAttendanceUI() {
 async function handleAttendance() {
     const today = getLocalDateStr();
     const activeLog = dashboardData.attendance.find(log => log.date === today && !log.check_out);
+    const now = new Date();
 
     try {
         if (activeLog) {
             // Check Out
-            const checkOutTime = new Date().toISOString();
+            const checkOutTime = now.toISOString();
             const { data, error } = await supabaseClient
                 .from('attendance_logs')
                 .update({ check_out: checkOutTime })
@@ -2025,21 +2198,56 @@ async function handleAttendance() {
 
             if (error) throw error;
             showToast("Successfully punched out. Good job!", "success");
-            activeLog.check_out = checkOutTime;
+            
+            // Update employee_shifts status if exists for today
+            const todayShift = dashboardData.employeeShifts.find(s => s.date === today);
+            if (todayShift) {
+                await supabaseClient
+                    .from('employee_shifts')
+                    .update({ status: 'completed' })
+                    .eq('id', todayShift.id);
+            }
         } else {
             // Check In
+            // Logic to check for shift and grace period
+            const todayShift = dashboardData.employeeShifts.find(s => s.date === today);
+            let status = 'Present';
+            let lateMinutes = 0;
+
+            if (todayShift && todayShift.shifts) {
+                const shiftStartTime = new Date(`${today}T${todayShift.shifts.start_time}`);
+                const diffMs = now - shiftStartTime;
+                lateMinutes = Math.floor(diffMs / (1000 * 60));
+                
+                // 15-minute grace period
+                if (lateMinutes > 15) {
+                    status = 'Late';
+                }
+
+                // Update employee_shifts status to ongoing
+                await supabaseClient
+                    .from('employee_shifts')
+                    .update({ status: 'ongoing' })
+                    .eq('id', todayShift.id);
+            }
+
             const { data, error } = await supabaseClient
                 .from('attendance_logs')
                 .insert({
                     employee_id: dashboardData.employee.id,
-                    check_in: new Date().toISOString(),
+                    check_in: now.toISOString(),
                     date: today,
-                    status: 'Present'
+                    status: status,
+                    // If your table has late_minutes, we could insert it here
+                    // late_minutes: lateMinutes > 0 ? lateMinutes : 0
                 })
                 .select()
                 .single();
+
             if (error) throw error;
-            showToast("Welcome! Have a productive day.", "success");
+            
+            const msg = status === 'Late' ? `Welcome! You are ${lateMinutes} mins late.` : "Welcome! Have a productive day.";
+            showToast(msg, status === 'Late' ? 'warning' : 'success');
             if (data) dashboardData.attendance.unshift(data);
         }
 
@@ -2050,6 +2258,7 @@ async function handleAttendance() {
         showToast("Action failed. Please check your connection.", "error");
     }
 }
+
 
 
 // =========================================

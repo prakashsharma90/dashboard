@@ -24,6 +24,61 @@
             overflow-y: auto;
             background: #f8fafc;
         }
+
+        @media (max-width: 768px) {
+            .main-content {
+                height: auto !important;
+                overflow-y: visible !important;
+                padding: 12px !important;
+                padding-top: 75px !important;
+                padding-bottom: 50px !important;
+            }
+            .section-header { 
+                flex-direction: column !important; 
+                align-items: flex-start !important;
+                gap: 15px !important;
+                margin-bottom: 1.5rem !important;
+            }
+            .section-title { font-size: 1.25rem !important; }
+            .section-header p { font-size: 0.75rem !important; margin-top: 4px !important; }
+            
+            .header-actions { 
+                display: grid !important; 
+                grid-template-columns: 1fr 1fr !important; 
+                gap: 10px !important; 
+                width: 100% !important;
+            }
+            .header-actions button { 
+                width: 100% !important; 
+                justify-content: center !important; 
+                font-size: 0.7rem !important; 
+                padding: 10px 5px !important; 
+                white-space: nowrap !important;
+                height: 40px !important;
+            }
+
+            .att-stats-grid { grid-template-columns: 1fr 1fr !important; gap: 12px !important; margin-top: 10px !important; }
+            .stat-card { 
+                padding: 15px 10px !important; 
+                flex-direction: column !important; 
+                align-items: center !important; 
+                text-align: center !important;
+                gap: 8px !important; 
+            }
+            .stat-icon { width: 36px !important; height: 36px !important; margin-bottom: 2px !important; }
+            .stat-icon i { width: 18px !important; height: 18px !important; }
+            .stat-info h4 { font-size: 0.65rem !important; opacity: 0.8; }
+            .val { font-size: 1.2rem !important; margin-top: 2px !important; }
+
+            .panel-header { flex-direction: column !important; align-items: flex-start !important; gap: 12px !important; padding: 15px !important; }
+            .panel-title { font-size: 0.95rem !important; }
+            .filter-group { width: 100% !important; display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 8px !important; }
+            .date-input { width: 100% !important; height: 38px !important; font-size: 0.75rem !important; padding: 0 10px !important; }
+            
+            #section-bottom-grid { grid-template-columns: 1fr !important; gap: 15px !important; margin-top: 20px !important; }
+            .status-badge { font-size: 0.55rem !important; padding: 2px 6px !important; }
+            #shift-list-container > div { flex-direction: column !important; align-items: flex-start !important; gap: 8px !important; padding: 12px !important; }
+        }
         
         .section-header {
             display: flex;
@@ -241,7 +296,7 @@
             </div>
 
             <!-- Shift & Rules Section -->
-            <div style="margin-top: 30px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            <div id="section-bottom-grid" style="margin-top: 30px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
                 <div class="attendance-panel">
                     <div class="panel-header">
                         <h3 class="panel-title">Active Shifts</h3>
